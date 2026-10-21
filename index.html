@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nutria Sportswear Studio</title>
+<style>
+:root{--gold:#d7a928;--black:#080909;--panel:#151718;--muted:#a8adaf;--line:#2b3032}
+*{box-sizing:border-box}body{margin:0;background:var(--black);color:#f6f6f3;font-family:Arial,Helvetica,sans-serif}
+header{padding:22px clamp(18px,4vw,54px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}
+.brand{display:flex;align-items:center;gap:13px}.mark{width:45px;height:45px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:20px;font-style:italic}
+.brand strong{display:block;letter-spacing:2px;font-size:15px}.brand span{display:block;color:var(--muted);font-size:10px;letter-spacing:4px;margin-top:4px}
+.pill{border:1px solid #625020;color:#f0d57e;border-radius:30px;padding:9px 13px;font-size:11px;letter-spacing:1px}
+main{max-width:1240px;margin:auto;padding:38px 20px 60px}.intro{margin-bottom:25px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase}.intro h1{font-size:clamp(30px,5vw,52px);line-height:1.02;margin:12px 0}.intro p{color:var(--muted);max-width:650px;line-height:1.6;margin:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:18px}
+.viewer,.controls{background:linear-gradient(145deg,#171a1b,#0f1112);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.viewer-top{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+#stage{height:490px;position:relative;background:radial-gradient(ellipse at 50% 48%,#303232 0%,#181a1b 43%,#101112 76%);touch-action:pan-y}
+#stage canvas{display:block;width:100%;height:100%}.hint{position:absolute;bottom:15px;left:15px;color:#c0c3c1;font-size:11px;background:#0008;padding:9px 11px;border-radius:20px;pointer-events:none}
+.controls{padding:22px}.controls h2{font-size:19px;margin:0 0 6px}.sub{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 22px}
+.field{margin:19px 0}.field label{display:block;font-size:12px;color:#d5d6d3;margin-bottom:10px}.products{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+button,.upload-label{cursor:pointer;border:1px solid #373c3d;background:#202324;color:#eee;border-radius:10px;padding:12px 10px;font-size:12px;text-align:center}
+button:hover,.upload-label:hover{border-color:var(--gold)}button.active{border-color:var(--gold);background:#302817;color:#f6d56b}
+.colors{display:flex;gap:10px;flex-wrap:wrap}.swatch{width:32px;height:32px;border-radius:50%;padding:0;border:2px solid #fff4}.swatch.active{outline:2px solid var(--gold);outline-offset:3px}
+input[type=file]{display:none}.upload-label{display:block;width:100%;margin-top:8px}.small{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px}
+input[type=text],input[type=email],input[type=number],textarea,select{width:100%;background:#0b0d0e;border:1px solid #383d3e;color:white;padding:12px;border-radius:9px;font:inherit;font-size:13px}
+textarea{min-height:70px;resize:vertical}.primary{width:100%;background:var(--gold);border:0;color:#12110b;font-weight:800;letter-spacing:1px;padding:15px;margin-top:10px}.primary:hover{background:#f0c94f}
+footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:11px;line-height:1.6}
+.notice{font-size:11px;color:#e9d38c;background:#292315;border:1px solid #57451c;border-radius:9px;padding:10px;line-height:1.5;margin-top:15px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}#stage{height:390px}.controls{padding:18px}header{align-items:flex-start}.pill{display:none}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="mark">N</div><div><strong>NUTRIA SPORTSWEAR</strong><span>YOUR KIT. YOUR IDENTITY.</span></div></div>
+ <div class="pill">STUDIO · DEMO GRATUITA</div>
+</header>
+<main>
+ <section class="intro"><div class="eyebrow">Personalizza la tua divisa</div><h1>IL TUO KIT.<br><span style="color:var(--gold)">LE TUE REGOLE.</span></h1><p>Prova il configuratore Nutria Sportswear: scegli un colore, ruota il modello e carica un logo per vedere una prima anteprima del tuo progetto.</p></section>
+ <div class="layout">
+  <section class="viewer">
+   <div class="viewer-top"><span id="productTitle">MAGLIA · ANTEPRIMA 3D</span><span>DRAG / RUOTA</span></div>
+   <div id="stage"><div class="hint">Trascina per ruotare · rotella per zoom</div></div>
+  </section>
+  <section class="controls">
+   <h2>Configura il tuo prodotto</h2><p class="sub">Questa è una demo iniziale: il modello è illustrativo, non ancora un cartamodello tecnico da produzione.</p>
+   <div class="field"><label>1. SCEGLI IL PRODOTTO</label><div class="products">
+    <button class="active" data-product="Maglia">Maglia</button><button data-product="Pantaloncini">Pantaloncini</button><button data-product="Tuta">Tuta</button><button data-product="Borsa">Borsa</button>
+   </div></div>
+   <div class="field"><label>2. COLORE PRINCIPALE</label><div class="colors">
+    <button class="swatch active" data-color="#202323" style="background:#202323" aria-label="Nero"></button>
+    <button class="swatch" data-color="#f0eee8" style="background:#f0eee8" aria-label="Bianco"></button>
+    <button class="swatch" data-color="#176c45" style="background:#176c45" aria-label="Verde"></button>
+    <button class="swatch" data-color="#e87522" style="background:#e87522" aria-label="Arancione"></button>
+    <button class="swatch" data-color="#8c76ad" style="background:#8c76ad" aria-label="Lilla"></button>
+    <button class="swatch" data-color="#c92032" style="background:#c92032" aria-label="Rosso"></button>
+   </div></div>
+   <div class="field"><label>3. CARICA STEMMA O SPONSOR</label><label class="upload-label" for="logoFile">＋ Scegli un'immagine PNG o JPG</label><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="fileStatus">Il logo apparirà come anteprima sul davanti del modello.</div></div>
+   <div class="field"><label>4. RICHIEDI UN PREVENTIVO</label>
+    <form id="quoteForm">
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
+     <textarea id="notes" placeholder="Taglie, colori, scadenza, note..."></textarea>
+     <button class="primary" type="submit">PREPARA RICHIESTA</button>
+    </form>
+    <div class="small">La demo prepara un'email sul tuo dispositivo: non invia automaticamente dati a Nutria finché non configurerai un indirizzo aziendale.</div>
+   </div>
+   <div class="notice">Prototipo gratuito. Prima di usarlo per ordini reali serviranno modelli 3D accurati, salvataggio dei progetti e un sistema di ricezione richieste configurato.</div>
+  </section>
+ </div>
+</main>
+<footer>© Nutria Sportswear · Demo prototipo. Le immagini caricate restano nel browser durante la sessione; questa pagina non le carica su un server.</footer>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/controls/OrbitControls.js';
+
+const stage=document.getElementById('stage');
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(35,stage.clientWidth/stage.clientHeight,.1,100);
+camera.position.set(0,0,7);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(stage.clientWidth,stage.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.06;controls.minDistance=4;controls.maxDistance=10;
+scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2));
+const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(3,4,5);scene.add(key);
+const rim=new THREE.DirectionalLight(0xd7a928,1.5);rim.position.set(-4,1,-3);scene.add(rim);
+const group=new THREE.Group();scene.add(group);
+const material=new THREE.MeshStandardMaterial({color:'#202323',roughness:.68,metalness:.03,side:THREE.DoubleSide});
+let garment=[],logoMesh=null,chosenColor='#202323',currentProduct='Maglia';
+function meshFromShape(points,depth,mat,z=0){const s=new THREE.Shape();s.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)s.lineTo(points[i][0],points[i][1]);s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.04});g.translate(0,0,z);const m=new THREE.Mesh(g,mat);group.add(m);garment.push(m);return m}
+function clearModel(){for(const o of [...garment]){group.remove(o);o.geometry.dispose()}garment=[];if(logoMesh){group.remove(logoMesh);logoMesh.geometry.dispose();if(logoMesh.material.map)logoMesh.material.map.dispose();logoMesh.material.dispose();logoMesh=null}}
+function build(){
+ clearModel();const mat=new THREE.MeshStandardMaterial({color:chosenColor,roughness:.72,metalness:.02,side:THREE.DoubleSide});
+ if(currentProduct==='Maglia'){
+  meshFromShape([[-.72,1.35],[-1.28,1.08],[-1.72,.45],[-1.25,.16],[-.94,.7],[-.9,-1.25],[.9,-1.25],[.94,.7],[1.25,.16],[1.72,.45],[1.28,1.08],[.72,1.35],[.43,1.05],[-.43,1.05]],.18,mat,-.09);
+  // neck opening and subtle panel stripes
+  const collar=new THREE.Mesh(new THREE.TorusGeometry(.25,.055,8,32),new THREE.MeshStandardMaterial({color:'#d7a928',roughness:.5}));collar.position.set(0,1.02,.15);group.add(collar);garment.push(collar);
+ }else if(currentProduct==='Pantaloncini'){
+  meshFromShape([[-.9,1], [.9,1],[.82,-.05],[.28,-1.2],[-.08,-1.2],[-.12,-.15],[-.42,-1.2],[-.82,-1.2],[-.9,-.05]],.22,mat,-.11);
+ }else if(currentProduct==='Tuta'){
+  meshFromShape([[-.55,1.45],[-.9,1.2],[-1.15,.75],[-.75,.55],[-.48,1.0],[-.42,-.2],[-.72,-1.45],[-.18,-1.45],[0,-.25],[.18,-1.45],[.72,-1.45],[.42,-.2],[.48,1],[.75,.55],[1.15,.75],[.9,1.2],[.55,1.45]],.18,mat,-.09);
+ }else{
+  meshFromShape([[-1.2,.25],[-.9,.8],[.55,.8],[1.2,.25],[1.15,-.7],[-1.15,-.7]],.42,mat,-.21);
+  const handle=new THREE.Mesh(new THREE.TorusGeometry(.55,.07,8,32,Math.PI),new THREE.MeshStandardMaterial({color:'#d7a928'}));handle.position.set(0,.75,0);handle.rotation.z=Math.PI;group.add(handle);garment.push(handle);
+ }
+ if(logoTexture){const geo=new THREE.PlaneGeometry(.42,.42);const m=new THREE.MeshBasicMaterial({map:logoTexture,transparent:true,side:THREE.DoubleSide,depthWrite:false});logoMesh=new THREE.Mesh(geo,m);logoMesh.position.set(.42,.45,.32);group.add(logoMesh)}
+}
+let logoTexture=null;
+document.querySelectorAll('[data-product]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-product]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentProduct=b.dataset.product;document.getElementById('productTitle').textContent=currentProduct.toUpperCase()+' · ANTEPRIMA 3D';build()}));
+document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosenColor=b.dataset.color;build()}));
+document.getElementById('logoFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;logoTexture=t;document.getElementById('fileStatus').textContent='Logo caricato: '+f.name;build();URL.revokeObjectURL(url)});});
+document.getElementById('quoteForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('name').value,team=document.getElementById('team').value,email=document.getElementById('email').value,qty=document.getElementById('qty').value,notes=document.getElementById('notes').value;const subject=encodeURIComponent('Richiesta preventivo Nutria Sportswear - '+team);const body=encodeURIComponent('Nome: '+name+'\nSquadra: '+team+'\nEmail: '+email+'\nProdotto: '+currentProduct+'\nColore: '+chosenColor+'\nQuantità: '+qty+'\nNote: '+notes+'\n\nNota: allegare manualmente l’anteprima e il logo, se necessario.');alert('Ora si aprirà il programma email del tuo dispositivo. Per ricevere le richieste dovrai sostituire nutria@example.com con la tua email aziendale nel codice.');window.location.href='mailto:nutria@example.com?subject='+subject+'&body='+body;});
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}
+window.addEventListener('resize',resize);
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}build();animate();
+</script>
+</body>
+</html>
