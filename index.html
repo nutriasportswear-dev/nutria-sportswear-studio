@@ -113,7 +113,60 @@ let logoTexture=null;
 document.querySelectorAll('[data-product]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-product]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentProduct=b.dataset.product;document.getElementById('productTitle').textContent=currentProduct.toUpperCase()+' · ANTEPRIMA 3D';build()}));
 document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosenColor=b.dataset.color;build()}));
 document.getElementById('logoFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;logoTexture=t;document.getElementById('fileStatus').textContent='Logo caricato: '+f.name;build();URL.revokeObjectURL(url)});});
-document.getElementById('quoteForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('name').value,team=document.getElementById('team').value,email=document.getElementById('email').value,qty=document.getElementById('qty').value,notes=document.getElementById('notes').value;const subject=encodeURIComponent('Richiesta preventivo Nutria Sportswear - '+team);const body=encodeURIComponent('Nome: '+name+'\nSquadra: '+team+'\nEmail: '+email+'\nProdotto: '+currentProduct+'\nColore: '+chosenColor+'\nQuantità: '+qty+'\nNote: '+notes+'\n\nNota: allegare manualmente l’anteprima e il logo, se necessario.');alert('Ora si aprirà il programma email del tuo dispositivo. Per ricevere le richieste dovrai sostituire nutriasportswear@gmail.com con la tua email aziendale nel codice.');window.location.href='mailto:nutriasportswear@gmail.com?subject='+subject+'&body='+body;});
+
+document.getElementById('quoteForm').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value;
+  const team = document.getElementById('team').value;
+  const email = document.getElementById('email').value;
+  const qty = document.getElementById('qty').value;
+  const notes = document.getElementById('notes').value;
+
+  const submitButton = e.target.querySelector('[type="submit"]');
+  if (submitButton) submitButton.disabled = true;
+
+  try {
+    const response = await fetch(
+      'https://formsubmit.co/ajax/nutriasportswear@gmail.com',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          _subject: 'Richiesta preventivo Nutria Sportswear - ' + team,
+          _replyto: email,
+          nome: name,
+          squadra: team,
+          email: email,
+          prodotto: currentProduct,
+          colore: chosenColor,
+          quantita: qty,
+          note: notes
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false ||
+        data.success === 'false') {
+      throw new Error(data.message || 'Invio non riuscito');
+    }
+
+    alert('Richiesta inviata! Grazie per aver scelto Nutria Sportswear.');
+    e.target.reset();
+
+  } catch (error) {
+    alert('Non è stato possibile inviare la richiesta. Riprova tra poco.');
+    console.error(error);
+  } finally {
+    if (submitButton) submitButton.disabled = false;
+  }
+});
+
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}
 window.addEventListener('resize',resize);
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}build();animate();
