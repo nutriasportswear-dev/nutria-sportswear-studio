@@ -112,8 +112,67 @@ function build(){
 let logoTexture=null;
 document.querySelectorAll('[data-product]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-product]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentProduct=b.dataset.product;document.getElementById('productTitle').textContent=currentProduct.toUpperCase()+' · ANTEPRIMA 3D';build()}));
 document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosenColor=b.dataset.color;build()}));
-document.getElementById('logoFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;logoTexture=t;document.getElementById('fileStatus').textContent='Logo caricato: '+f.name;build();URL.revokeObjectURL(url)});});
+document.getElementById('logoFile').addEventListener('change', e => {
 
+  const f = e.target.files[0];
+
+  if (!f) return;
+
+  // Controllo formato
+  const formatiConsentiti = [
+    'image/png',
+    'image/jpeg',
+    'image/webp'
+  ];
+
+  if (!formatiConsentiti.includes(f.type)) {
+    alert('Formato non supportato. Carica un file PNG, JPG o WEBP.');
+    e.target.value = '';
+    return;
+  }
+
+  // Massimo 3 MB
+  if (f.size > 3 * 1024 * 1024) {
+    alert('Il file è troppo grande. Dimensione massima: 3 MB.');
+    e.target.value = '';
+    return;
+  }
+
+  document.getElementById('fileStatus').textContent =
+    'Caricamento stemma...';
+
+  const url = URL.createObjectURL(f);
+
+  new THREE.TextureLoader().load(
+    url,
+
+    texture => {
+
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      logoTexture = texture;
+
+      document.getElementById('fileStatus').textContent =
+        '✓ Stemma caricato: ' + f.name;
+
+      build();
+
+      URL.revokeObjectURL(url);
+    },
+
+    undefined,
+
+    error => {
+
+      console.error(error);
+
+      document.getElementById('fileStatus').textContent =
+        'Errore durante il caricamento dello stemma.';
+
+      URL.revokeObjectURL(url);
+    }
+  );
+});
 document.getElementById('quoteForm').addEventListener('submit', async e => {
   e.preventDefault();
 
