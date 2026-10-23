@@ -41,6 +41,11 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
   <section class="viewer">
    <div class="viewer-top"><span id="productTitle">MAGLIA · ANTEPRIMA 3D</span><span>DRAG / RUOTA</span></div>
    <div id="stage"><div class="hint">Trascina per ruotare · rotella per zoom</div></div>
+ <div style="padding:14px 18px;border-top:1px solid var(--line)">
+  <button id="downloadPreview" style="width:100%">
+    ↓ GENERA ANTEPRIMA KIT
+  </button>
+</div>
   </section>
   <section class="controls">
    <h2>Configura il tuo prodotto</h2><p class="sub">Questa è una demo iniziale: il modello è illustrativo, non ancora un cartamodello tecnico da produzione.</p>
@@ -81,7 +86,11 @@ const stage=document.getElementById('stage');
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(35,stage.clientWidth/stage.clientHeight,.1,100);
 camera.position.set(0,0,7);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+const renderer=new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: true,
+  preserveDrawingBuffer: true
+});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(stage.clientWidth,stage.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
 stage.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.06;controls.minDistance=4;controls.maxDistance=10;
@@ -225,7 +234,42 @@ document.getElementById('quoteForm').addEventListener('submit', async e => {
     if (submitButton) submitButton.disabled = false;
   }
 });
+document.getElementById('downloadPreview').addEventListener('click', () => {
 
+  // Disegna un ultimo fotogramma aggiornato
+  controls.update();
+  renderer.render(scene, camera);
+
+  try {
+
+    const image = renderer.domElement.toDataURL('image/png');
+
+    const link = document.createElement('a');
+
+    link.download =
+      'nutria-' +
+      currentProduct.toLowerCase() +
+      '-anteprima.png';
+
+    link.href = image;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      'Non è stato possibile generare l’anteprima. Ricarica la pagina e riprova.'
+    );
+
+  }
+
+});
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}
 window.addEventListener('resize',resize);
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}build();animate();
