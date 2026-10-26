@@ -51,7 +51,7 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
  <section class="intro">
   <div class="eyebrow">Personalizza la tua divisa</div>
   <h1>IL TUO KIT.<br><span style="color:var(--gold)">LE TUE REGOLE.</span></h1>
-  <p>Scegli il colore della divisa, ruota il modello e carica lo stemma della tua squadra. Il logo tecnico Nutria rimane sempre sul petto destro.</p>
+  <p>Scegli il colore della divisa, ruota il modello e carica lo stemma della tua squadra. La grafica originale del modello viene nascosta; il logo tecnico Nutria resta fisso sul lato opposto al cuore.</p>
  </section>
 
  <div class="layout">
@@ -180,20 +180,30 @@ function fitKit(){
 }
 
 function applyKitColor(hex){
-  chosenColor = hex;
-  const color = new THREE.Color(hex);
+  chosenColor=hex;
+  const color=new THREE.Color(hex);
 
-  [jerseyMesh, shortsMesh].forEach(mesh=>{
+  [jerseyMesh,shortsMesh].forEach(mesh=>{
     if(!mesh) return;
-    materialsOf(mesh).forEach(mat=>{
-      if(!mat) return;
-      if(mat.map){
-        mat.userData.originalMap = mat.userData.originalMap || mat.map;
-        mat.map = null;
-      }
-      if(mat.color) mat.color.copy(color);
-      mat.needsUpdate = true;
+    const old=materialsOf(mesh);
+    const source=old[0];
+    const clean=new THREE.MeshStandardMaterial({
+      color,
+      roughness: source && typeof source.roughness==='number' ? source.roughness : .72,
+      metalness: source && typeof source.metalness==='number' ? source.metalness : .02,
+      side:THREE.DoubleSide
     });
+    // Conserva solo mappe tecniche che danno rilievo al tessuto.
+    if(source?.normalMap) clean.normalMap=source.normalMap;
+    if(source?.roughnessMap) clean.roughnessMap=source.roughnessMap;
+    if(source?.aoMap) clean.aoMap=source.aoMap;
+
+    // Elimina completamente la grafica originale (es. cavallo).
+    clean.map=null;
+    clean.emissiveMap=null;
+    clean.alphaMap=null;
+    clean.lightMap=null;
+    mesh.material=clean;
   });
 }
 
@@ -219,6 +229,24 @@ function placeTeamCrest(){
   const crestSize=size.x*.095;
   teamCrest.position.set(xOffset,chestY,frontZ);
   teamCrest.scale.set(crestSize,crestSize,crestSize);
+}
+
+function placeNutriaFixedLogoOpposite(){
+  if(!nutriaFixedMesh || !kitBox) return;
+
+  realKit.updateMatrixWorld(true);
+  const kitCenter=kitBox.getCenter(new THREE.Vector3());
+  const logoBox=new THREE.Box3().setFromObject(nutriaFixedMesh);
+  const logoCenter=logoBox.getCenter(new THREE.Vector3());
+
+  // Sposta il logo tecnico sul lato opposto rispetto alla posizione originale.
+  const targetWorldX=(2*kitCenter.x)-logoCenter.x;
+  const deltaWorldX=targetWorldX-logoCenter.x;
+
+  const parentScale=new THREE.Vector3(1,1,1);
+  if(nutriaFixedMesh.parent) nutriaFixedMesh.parent.getWorldScale(parentScale);
+  nutriaFixedMesh.position.x += deltaWorldX/(parentScale.x || 1);
+  nutriaFixedMesh.updateMatrixWorld(true);
 }
 
 function updateView(){
@@ -257,6 +285,7 @@ gltfLoader.load(
     });
 
     fitKit();
+    placeNutriaFixedLogoOpposite();
 
     if(!jerseyMesh || !shortsMesh || !nutriaFixedMesh){
       console.warn('Una o più mesh previste non sono state trovate.');
