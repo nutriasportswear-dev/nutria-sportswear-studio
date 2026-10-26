@@ -152,7 +152,22 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
 
    <div class="field">
     <label>7. RICHIEDI UN PREVENTIVO</label>
-    <form id="quoteForm">
+    
+   <div style="margin-top:14px">
+    <div class="section-title">DIMENSIONE LOGHI</div>
+    <div class="grid2" style="margin-top:8px">
+     <div>
+      <label>LOGO NUTRIA <span id="nutriaLogoSizeValue">100%</span></label>
+      <input id="nutriaLogoSize" type="range" min="50" max="200" value="100" step="5" style="width:100%">
+     </div>
+     <div>
+      <label>STEMMA SQUADRA <span id="teamLogoSizeValue">100%</span></label>
+      <input id="teamLogoSize" type="range" min="50" max="200" value="100" step="5" style="width:100%">
+     </div>
+    </div>
+   </div>
+
+<form id="quoteForm">
      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
      <textarea id="notes" placeholder="Taglie, colori, scadenza, note..."></textarea>
@@ -206,6 +221,11 @@ let collarColor='#202323', sleeveColor='#202323', shortsColor='#202323', socksCo
 let collarCustom=false, sleeveCustom=false, shortsCustom=false, socksCustom=false;
 let backPrint=null;
 let teamCrest = null;
+let nutriaLogoScale = 1;
+let teamLogoScale = 1;
+let nutriaLogoBaseScale = null;
+let teamLogoBaseScale = null;
+
 let nutriaChestLogo = null;
 let jerseyMesh = null;
 let collarMesh = null;
@@ -421,8 +441,27 @@ function updateBackPrint(){
   backPrint.renderOrder=60; scene.add(backPrint);
 }
 
+
+function rememberLogoBaseScale(obj, type){
+  if(!obj) return;
+  if(type==='nutria' && !nutriaLogoBaseScale) nutriaLogoBaseScale=obj.scale.clone();
+  if(type==='team' && !teamLogoBaseScale) teamLogoBaseScale=obj.scale.clone();
+}
+
+function applyLogoScales(){
+  if(nutriaChestLogo){
+    rememberLogoBaseScale(nutriaChestLogo,'nutria');
+    nutriaChestLogo.scale.copy(nutriaLogoBaseScale).multiplyScalar(nutriaLogoScale);
+  }
+  if(teamCrest){
+    rememberLogoBaseScale(teamCrest,'team');
+    teamCrest.scale.copy(teamLogoBaseScale).multiplyScalar(teamLogoScale);
+  }
+}
+
 function updateView(){
   if(!realKit) return;
+  applyLogoScales();
 
   const showJersey=currentView!=='Pantaloncini';
   const showLower=currentView!=='Maglia';
@@ -635,6 +674,25 @@ function resize(){
   renderer.setSize(w,h);
 }
 window.addEventListener('resize',resize);
+
+
+const nutriaLogoSizeInput=document.getElementById('nutriaLogoSize');
+const teamLogoSizeInput=document.getElementById('teamLogoSize');
+
+if(nutriaLogoSizeInput){
+  nutriaLogoSizeInput.addEventListener('input',e=>{
+    nutriaLogoScale=Number(e.target.value)/100;
+    document.getElementById('nutriaLogoSizeValue').textContent=e.target.value+'%';
+    applyLogoScales();
+  });
+}
+if(teamLogoSizeInput){
+  teamLogoSizeInput.addEventListener('input',e=>{
+    teamLogoScale=Number(e.target.value)/100;
+    document.getElementById('teamLogoSizeValue').textContent=e.target.value+'%';
+    applyLogoScales();
+  });
+}
 
 function animate(){
   requestAnimationFrame(animate);
