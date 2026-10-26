@@ -236,8 +236,55 @@ function build(){
 }
 let logoTexture=null;
 document.querySelectorAll('[data-product]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-product]').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentProduct=b.dataset.product;document.getElementById('productTitle').textContent=currentProduct.toUpperCase()+' · ANTEPRIMA 3D';build()}));
-document.querySelectorAll('[data-color]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosenColor=b.dataset.color;build()}));
-document.getElementById('logoFile').addEventListener('change', e => {
+document.querySelectorAll('[data-color]').forEach((b) => {
+
+  b.addEventListener('click', () => {
+
+    document.querySelectorAll('[data-color]').forEach((x) => {
+      x.classList.remove('active');
+    });
+
+    b.classList.add('active');
+    chosenColor = b.dataset.color;
+
+    if (!realKit) return;
+
+    const newColor = new THREE.Color(chosenColor);
+
+    realKit.traverse((object) => {
+
+      if (!object.isMesh) return;
+
+      // NON modificare il logo fisso Nutria
+      if (object.name.includes('NUTRIA_LOGO_FIXED')) {
+        return;
+      }
+
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+
+      materials.forEach((mat) => {
+
+        if (!mat) return;
+
+        // Rimuove la texture grafica originale
+        // ma mantiene normal map / roughness ecc.
+        if (mat.map) {
+          mat.map = null;
+        }
+
+        if (mat.color) {
+          mat.color.copy(newColor);
+        }
+
+        mat.needsUpdate = true;
+      });
+    });
+
+  });
+
+});
 
   const f = e.target.files[0];
 
