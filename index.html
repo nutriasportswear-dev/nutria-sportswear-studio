@@ -10,7 +10,7 @@
 body{margin:0;background:var(--black);color:#f6f6f3;font-family:Arial,Helvetica,sans-serif}
 header{padding:18px clamp(18px,4vw,54px);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}
 .brand{display:flex;align-items:center;gap:13px}
-.brand-logo{width:58px;height:58px;object-fit:contain;display:block}
+.brand-logo{width:78px;height:58px;object-fit:contain;display:block}
 .brand-logo-fallback{width:45px;height:45px;border:2px solid var(--gold);border-radius:50%;display:none;place-items:center;color:var(--gold);font-weight:900;font-size:20px;font-style:italic}
 .brand strong{display:block;letter-spacing:2px;font-size:15px}.brand span{display:block;color:var(--muted);font-size:10px;letter-spacing:4px;margin-top:4px}
 .pill{border:1px solid #625020;color:#f0d57e;border-radius:30px;padding:9px 13px;font-size:11px;letter-spacing:1px}
@@ -108,7 +108,7 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
     </form>
    </div>
 
-   <div class="notice">Il file <b>assets/nutria-logo.png</b> deve essere presente nel repository per mostrare il logo Nutria nell'header e sul petto.</div>
+   <div class="notice">Il logo tecnico Nutria è una parte fissa del modello 3D e non viene modificato dai colori del kit.</div>
   </section>
  </div>
 </main>
@@ -150,7 +150,9 @@ let realKit = null;
 let chosenColor = '#202323';
 let currentView = 'Kit';
 let teamCrest = null;
-let nutriaChestLogo = null;
+let jerseyMesh = null;
+let shortsMesh = null;
+let nutriaFixedMesh = null;
 let kitBox = null;
 const originalMeshes = [];
 
@@ -181,16 +183,14 @@ function applyKitColor(hex){
   chosenColor = hex;
   const color = new THREE.Color(hex);
 
-  originalMeshes.forEach(mesh=>{
+  [jerseyMesh, shortsMesh].forEach(mesh=>{
+    if(!mesh) return;
     materialsOf(mesh).forEach(mat=>{
       if(!mat) return;
-
-      // Il disegno originale del GLB non deve impedire il colore scelto.
       if(mat.map){
         mat.userData.originalMap = mat.userData.originalMap || mat.map;
         mat.map = null;
       }
-
       if(mat.color) mat.color.copy(color);
       mat.needsUpdate = true;
     });
@@ -199,62 +199,34 @@ function applyKitColor(hex){
 
 function makeLogoPlane(texture, name){
   const mat = new THREE.MeshBasicMaterial({
-    map:texture,
-    transparent:true,
-    side:THREE.DoubleSide,
-    depthWrite:false,
-    alphaTest:.02
+    map:texture, transparent:true, side:THREE.DoubleSide,
+    depthWrite:false, alphaTest:.02
   });
-  const geo = new THREE.PlaneGeometry(1,1);
-  const mesh = new THREE.Mesh(geo,mat);
-  mesh.name = name;
-  mesh.renderOrder = 20;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1),mat);
+  mesh.name=name;
+  mesh.renderOrder=20;
   scene.add(mesh);
   return mesh;
 }
 
-function placeChestLogos(){
-  if(!kitBox) return;
-
-  const size = kitBox.getSize(new THREE.Vector3());
-  const min = kitBox.min;
-  const max = kitBox.max;
-
-  // Coordinate relative al kit completo.
-  // Vista frontale: stemma squadra a destra per chi guarda (lato cuore del giocatore),
-  // Nutria a sinistra per chi guarda (petto destro del giocatore).
-  const chestY = min.y + size.y * 0.77;
-  const xOffset = size.x * 0.115;
-  const frontZ = max.z + Math.max(size.z*.015, .012);
-  const logoSize = size.x * .115;
-
-  if(nutriaChestLogo){
-    nutriaChestLogo.position.set(-xOffset,chestY,frontZ);
-    nutriaChestLogo.scale.set(logoSize,logoSize,logoSize);
-  }
-
-  if(teamCrest){
-    teamCrest.position.set(xOffset,chestY,frontZ+.002);
-    teamCrest.scale.set(logoSize,logoSize,logoSize);
-  }
+function placeTeamCrest(){
+  if(!kitBox || !teamCrest) return;
+  const size=kitBox.getSize(new THREE.Vector3());
+  const min=kitBox.min, max=kitBox.max;
+  const chestY=min.y+size.y*.77;
+  const xOffset=size.x*.115;
+  const frontZ=max.z+Math.max(size.z*.015,.012);
+  const crestSize=size.x*.095;
+  teamCrest.position.set(xOffset,chestY,frontZ);
+  teamCrest.scale.set(crestSize,crestSize,crestSize);
 }
 
-function loadNutriaChestLogo(){
-  new THREE.TextureLoader().load(
-    './assets/nutria-logo.png',
-    texture=>{
-      texture.colorSpace = THREE.SRGBColorSpace;
-      if(nutriaChestLogo){
-        scene.remove(nutriaChestLogo);
-        nutriaChestLogo.geometry.dispose();
-        nutriaChestLogo.material.dispose();
-      }
-      nutriaChestLogo = makeLogoPlane(texture,'NUTRIA_LOGO_FIXED');
-      placeChestLogos();
-    },
-    undefined,
-    ()=>console.warn('Logo Nutria non trovato: ./assets/nutria-logo.png')
-  );
+function updateView(){
+  if(!realKit) return;
+  if(jerseyMesh) jerseyMesh.visible=currentView!=='Pantaloncini';
+  if(shortsMesh) shortsMesh.visible=currentView!=='Maglia';
+  if(nutriaFixedMesh) nutriaFixedMesh.visible=currentView!=='Pantaloncini';
+  if(teamCrest) teamCrest.visible=currentView!=='Pantaloncini';
 }
 
 const gltfLoader = new GLTFLoader();
@@ -266,34 +238,32 @@ gltfLoader.load(
 
     realKit.traverse(obj=>{
       if(obj.isMesh){
-        obj.visible = true;
+        obj.visible=true;
         originalMeshes.push(obj);
 
-        // Clona i materiali: ogni parte può essere modificata senza effetti collaterali.
-        if(Array.isArray(obj.material)) obj.material = obj.material.map(m=>m.clone());
-        else if(obj.material) obj.material = obj.material.clone();
+        if(Array.isArray(obj.material)) obj.material=obj.material.map(m=>m.clone());
+        else if(obj.material) obj.material=obj.material.clone();
 
         materialsOf(obj).forEach(mat=>{
-          if(mat){
-            mat.side = THREE.DoubleSide;
-            mat.needsUpdate = true;
-          }
+          if(mat){ mat.side=THREE.DoubleSide; mat.needsUpdate=true; }
         });
-       console.log('MESH:', obj.name);
 
-const meshInfo = document.createElement('div');
-meshInfo.textContent = 'MESH: ' + obj.name;
-meshInfo.style.color = '#d7a928';
-meshInfo.style.fontSize = '14px';
-meshInfo.style.padding = '4px 10px';
-meshInfo.style.fontFamily = 'monospace';
-document.body.appendChild(meshInfo);
+        if(obj.name==='JERSEY_EDITABLE') jerseyMesh=obj;
+        if(obj.name==='SHORTS_EDITABLE') shortsMesh=obj;
+        if(obj.name==='NUTRIA_LOGO_FIXED') nutriaFixedMesh=obj;
+
+        console.log('MESH:',obj.name);
       }
     });
 
     fitKit();
+
+    if(!jerseyMesh || !shortsMesh || !nutriaFixedMesh){
+      console.warn('Una o più mesh previste non sono state trovate.');
+    }
+
     applyKitColor(chosenColor);
-    loadNutriaChestLogo();
+    updateView();
     loading.style.display='none';
     console.log('✓ NUTRIA KIT 3D CARICATO');
   },
@@ -324,8 +294,7 @@ document.querySelectorAll('[data-view]').forEach(btn=>{
     currentView = btn.dataset.view;
     document.getElementById('productTitle').textContent=currentView.toUpperCase()+' · ANTEPRIMA 3D';
 
-    // Per ora il GLB resta completo: i pulsanti sono pronti per la separazione
-    // precisa delle mesh appena conosciamo i nomi interni del modello.
+    updateView();
   });
 });
 
@@ -357,7 +326,7 @@ document.getElementById('logoFile').addEventListener('change',e=>{
     }
 
     teamCrest=makeLogoPlane(texture,'TEAM_CREST');
-    placeChestLogos();
+    placeTeamCrest();
     document.getElementById('fileStatus').textContent='✓ Stemma caricato: '+f.name;
     URL.revokeObjectURL(url);
   },undefined,err=>{
