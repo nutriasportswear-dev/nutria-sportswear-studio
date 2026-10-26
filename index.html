@@ -88,18 +88,68 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
      <button class="swatch" data-color="#e87522" style="background:#e87522" aria-label="Arancione"></button>
      <button class="swatch" data-color="#8c76ad" style="background:#8c76ad" aria-label="Lilla"></button>
      <button class="swatch" data-color="#c92032" style="background:#c92032" aria-label="Rosso"></button>
+<button class="swatch" data-color="#174ea6" style="background:#174ea6" aria-label="Blu"></button>
+<button class="swatch" data-color="#63b6e5" style="background:#63b6e5" aria-label="Azzurro"></button>
+<button class="swatch" data-color="#f2d126" style="background:#f2d126" aria-label="Giallo"></button>
+<button class="swatch" data-color="#7b1f2d" style="background:#7b1f2d" aria-label="Bordeaux"></button>
+<button class="swatch" data-color="#73777b" style="background:#73777b" aria-label="Grigio"></button>
+<button class="swatch" data-color="#f3a7c4" style="background:#f3a7c4" aria-label="Rosa"></button>
+<button class="swatch" data-color="#00a9a5" style="background:#00a9a5" aria-label="Turchese"></button>
+<button class="swatch" data-color="#d7a928" style="background:#d7a928" aria-label="Oro"></button>
     </div>
    </div>
 
    <div class="field">
-    <label>3. STEMMA SQUADRA · LATO CUORE</label>
+    <label>3. TEMPLATE MAGLIA</label>
+    <div class="products" style="grid-template-columns:repeat(2,1fr)">
+     <button class="active" data-pattern="solid">Tinta unita</button>
+     <button data-pattern="vertical">Righe verticali</button>
+     <button data-pattern="horizontal">Righe orizzontali</button>
+     <button data-pattern="diagonal">Righe diagonali</button>
+     <button data-pattern="chevron">Chevron</button>
+     <button data-pattern="halves">Bicolore</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+     <div><label>COLORE TRAMA</label><input id="patternColor" type="color" value="#d7a928" style="width:100%;height:42px"></div>
+     <div><label>SPESSORE</label><input id="patternSize" type="range" min="8" max="80" value="32" style="width:100%"></div>
+    </div>
+   </div>
+
+   <div class="field">
+    <label>4. DETTAGLI MAGLIA</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+     <div><label>COLLETTO</label><input id="collarColor" type="color" value="#080909" style="width:100%;height:42px"></div>
+     <div><label>MANICHE</label><input id="sleeveColor" type="color" value="#080909" style="width:100%;height:42px"></div>
+    </div>
+   </div>
+
+   <div class="field">
+    <label>5. NOME E NUMERO · RETRO</label>
+    <div style="display:grid;grid-template-columns:1.4fr .6fr;gap:8px">
+     <input id="playerName" type="text" maxlength="18" value="ROSSI" placeholder="NOME">
+     <input id="playerNumber" type="text" maxlength="2" value="10" placeholder="10">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+     <select id="kitFont">
+      <option value="Arial Black">Arial Black</option>
+      <option value="Impact">Impact</option>
+      <option value="Trebuchet MS">Trebuchet</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Courier New">Courier</option>
+     </select>
+     <input id="textColor" type="color" value="#ffffff" style="width:100%;height:42px">
+    </div>
+   </div>
+
+   <div class="field">
+    <label>6. STEMMA SQUADRA · LATO CUORE</label>
     <label class="upload-label" for="logoFile">＋ Scegli PNG, JPG o WEBP</label>
     <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">
     <div class="small" id="fileStatus">Lo stemma verrà posizionato sul lato cuore. Il logo Nutria resta sul lato opposto.</div>
    </div>
 
    <div class="field">
-    <label>4. RICHIEDI UN PREVENTIVO</label>
+    <label>7. RICHIEDI UN PREVENTIVO</label>
     <form id="quoteForm">
      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
@@ -149,6 +199,9 @@ const rim = new THREE.DirectionalLight(0xd7a928,1.3); rim.position.set(-4,1,-3);
 let realKit = null;
 let chosenColor = '#202323';
 let currentView = 'Kit';
+let currentPattern='solid', patternColor='#d7a928', patternSize=32;
+let collarColor='#080909', sleeveColor='#080909';
+let backPrint=null;
 let teamCrest = null;
 let nutriaChestLogo = null;
 let jerseyMesh = null;
@@ -180,23 +233,50 @@ function fitKit(){
   controls.update();
 }
 
-function applyKitColor(hex){
+function makePatternTexture(){
+  const c=document.createElement('canvas'); c.width=c.height=1024;
+  const x=c.getContext('2d');
+  x.fillStyle=chosenColor; x.fillRect(0,0,1024,1024);
+  x.fillStyle=patternColor;
+  const s=Number(patternSize);
+
+  if(currentPattern==='vertical'){
+    for(let i=0;i<1024;i+=s*2)x.fillRect(i,0,s,1024);
+  }else if(currentPattern==='horizontal'){
+    for(let i=0;i<1024;i+=s*2)x.fillRect(0,i,1024,s);
+  }else if(currentPattern==='diagonal'){
+    x.save(); x.translate(512,512); x.rotate(-Math.PI/4);
+    for(let i=-1600;i<1600;i+=s*2)x.fillRect(i,-1600,s,3200);
+    x.restore();
+  }else if(currentPattern==='chevron'){
+    x.strokeStyle=patternColor; x.lineWidth=s;
+    for(let y=-100;y<1200;y+=s*4){
+      x.beginPath(); x.moveTo(0,y); x.lineTo(512,y+s*2); x.lineTo(1024,y); x.stroke();
+    }
+  }else if(currentPattern==='halves'){
+    x.fillRect(512,0,512,1024);
+  }
+
+  // Zone UV indicative per dettagli. Non reintroducono texture del GLB.
+  x.fillStyle=collarColor; x.fillRect(420,0,184,55);
+  x.fillStyle=sleeveColor; x.fillRect(0,0,120,1024); x.fillRect(904,0,120,1024);
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.needsUpdate=true;
+  return t;
+}
+
+function applyKitColor(hex=chosenColor){
   chosenColor=hex;
-  const color=new THREE.Color(hex);
-
+  const tex=makePatternTexture();
   [jerseyMesh,shortsMesh].forEach(mesh=>{
-    if(!mesh) return;
-
-    // Materiale completamente nuovo e pulito:
-    // NON eredita map, normal map, AO, roughness map o altre texture del GLB.
-    // In questo modo sparisce anche il "cavallo" in rilievo.
+    if(!mesh)return;
     mesh.material=new THREE.MeshStandardMaterial({
-      color:color,
-      roughness:.78,
-      metalness:0,
-      side:THREE.DoubleSide
+      color:0xffffff,map:tex,roughness:.78,metalness:0,side:THREE.DoubleSide
     });
   });
+  updateBackPrint();
 }
 
 function makeLogoPlane(texture,name){
@@ -278,6 +358,39 @@ function loadNutriaChestLogo(){
   );
 }
 
+function updateBackPrint(){
+  if(!jerseyMesh)return;
+  const box=jerseyBounds(); if(!box)return;
+
+  if(backPrint){
+    scene.remove(backPrint); backPrint.geometry.dispose();
+    if(backPrint.material.map)backPrint.material.map.dispose();
+    backPrint.material.dispose();
+  }
+
+  const name=(document.getElementById('playerName')?.value||'').toUpperCase();
+  const num=document.getElementById('playerNumber')?.value||'';
+  const font=document.getElementById('kitFont')?.value||'Arial Black';
+  const col=document.getElementById('textColor')?.value||'#ffffff';
+
+  const c=document.createElement('canvas'); c.width=c.height=1024;
+  const x=c.getContext('2d'); x.textAlign='center'; x.textBaseline='middle'; x.fillStyle=col;
+  x.font=`bold 115px "${font}"`; x.fillText(name,512,190);
+  x.font=`bold 500px "${font}"`; x.fillText(num,512,590);
+
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
+  backPrint=new THREE.Mesh(
+    new THREE.PlaneGeometry(1,1),
+    new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false})
+  );
+
+  const size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3());
+  backPrint.position.set(center.x,center.y+size.y*.02,box.min.z-Math.max(size.z*.02,.01));
+  backPrint.rotation.y=Math.PI;
+  const w=size.x*.58; backPrint.scale.set(w,w,1);
+  backPrint.renderOrder=60; scene.add(backPrint);
+}
+
 function updateView(){
   if(!realKit) return;
 
@@ -293,6 +406,7 @@ function updateView(){
 
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
+  if(backPrint) backPrint.visible=showJersey;
 }
 
 const gltfLoader = new GLTFLoader();
@@ -330,6 +444,7 @@ gltfLoader.load(
 
     applyKitColor(chosenColor);
     loadNutriaChestLogo();
+    updateBackPrint();
     updateView();
     loading.style.display='none';
     console.log('✓ NUTRIA KIT 3D CARICATO');
@@ -363,6 +478,19 @@ document.querySelectorAll('[data-view]').forEach(btn=>{
 
     updateView();
   });
+});
+
+document.querySelectorAll('[data-pattern]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-pattern]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); currentPattern=b.dataset.pattern; applyKitColor();
+}));
+document.getElementById('patternColor').addEventListener('input',e=>{patternColor=e.target.value;applyKitColor();});
+document.getElementById('patternSize').addEventListener('input',e=>{patternSize=e.target.value;applyKitColor();});
+document.getElementById('collarColor').addEventListener('input',e=>{collarColor=e.target.value;applyKitColor();});
+document.getElementById('sleeveColor').addEventListener('input',e=>{sleeveColor=e.target.value;applyKitColor();});
+['playerName','playerNumber','kitFont','textColor'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',updateBackPrint);
+  document.getElementById(id).addEventListener('change',updateBackPrint);
 });
 
 document.getElementById('logoFile').addEventListener('change',e=>{
