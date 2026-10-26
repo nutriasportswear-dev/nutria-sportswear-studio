@@ -279,7 +279,15 @@ gltfLoader.load(
             mat.needsUpdate = true;
           }
         });
-        console.log('MESH:',obj.name);
+       console.log('MESH:', obj.name);
+
+const meshInfo = document.createElement('div');
+meshInfo.textContent = 'MESH: ' + obj.name;
+meshInfo.style.color = '#d7a928';
+meshInfo.style.fontSize = '14px';
+meshInfo.style.padding = '4px 10px';
+meshInfo.style.fontFamily = 'monospace';
+document.body.appendChild(meshInfo);
       }
     });
 
