@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Progetti | Nutria Sportswear</title>
+<style>
+:root{--bg:#080909;--panel:#151819;--line:#2a2e2f;--gold:#d7a928;--text:#f5f5f2;--muted:#aeb7ba}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5vw}
+.brand{display:flex;align-items:center;gap:14px}.brand img{width:58px;height:58px;object-fit:contain}
+.brand b{letter-spacing:2px}.brand small{display:block;color:#c7d0d2;letter-spacing:4px;margin-top:5px}
+a{color:inherit;text-decoration:none}.btn{border:1px solid #7c6415;border-radius:18px;padding:10px 16px;color:#f0c735;font-size:12px}
+main{max-width:1200px;margin:auto;padding:58px 24px 80px}
+.kicker{color:var(--gold);letter-spacing:4px;font-size:12px}.title{font-size:48px;margin:10px 0 8px}.intro{color:var(--muted);max-width:720px;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.card .txt{padding:16px}
+.card h3{margin:0 0 5px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:13px}
+.empty{display:none;padding:40px;border:1px dashed #444;border-radius:14px;color:var(--muted);margin-top:30px}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.title{font-size:36px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}}
+</style>
+</head>
+<body>
+<header>
+ <a href="index.html" class="brand">
+  <img src="assets/nutria-logo.png" alt="Nutria Sportswear">
+  <div><b>NUTRIA SPORTSWEAR</b><small>YOUR KIT. YOUR IDENTITY.</small></div>
+ </a>
+ <a href="index.html" class="btn">CONFIGURATORE 3D</a>
+</header>
+<main>
+ <div class="kicker">NUTRIA SPORTSWEAR</div>
+ <h1 class="title">I NOSTRI PROGETTI.</h1>
+ <p class="intro">Una selezione di divise e concept realizzati. La gallery si aggiorna aggiungendo le immagini nella cartella <b>assets/projects</b>.</p>
+ <div class="grid" id="gallery">
+  <article class="card"><img src="assets/projects/progetto-01.jpg" alt="Progetto Nutria Sportswear 1" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 01</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-02.jpg" alt="Progetto Nutria Sportswear 2" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 02</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-03.jpg" alt="Progetto Nutria Sportswear 3" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 03</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-04.jpg" alt="Progetto Nutria Sportswear 4" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 04</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-05.jpg" alt="Progetto Nutria Sportswear 5" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 05</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-06.jpg" alt="Progetto Nutria Sportswear 6" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 06</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-07.jpg" alt="Progetto Nutria Sportswear 7" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 07</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-08.jpg" alt="Progetto Nutria Sportswear 8" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 08</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-09.jpg" alt="Progetto Nutria Sportswear 9" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 09</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-10.jpg" alt="Progetto Nutria Sportswear 10" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 10</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-11.jpg" alt="Progetto Nutria Sportswear 11" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 11</h3><p>Nutria Sportswear</p></div></article>
+  <article class="card"><img src="assets/projects/progetto-12.jpg" alt="Progetto Nutria Sportswear 12" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 12</h3><p>Nutria Sportswear</p></div></article>
+ </div>
+ <div class="empty" id="empty">La pagina è pronta. Carica le foto dei progetti nella cartella <b>assets/projects</b> usando i nomi <b>progetto-01.jpg</b>, <b>progetto-02.jpg</b>, ecc.</div>
+</main>
+<script>
+function checkEmpty(){setTimeout(()=>{if(!document.querySelector('.card'))document.getElementById('empty').style.display='block'},50)}
+window.addEventListener('load',checkEmpty);
+</script>
+</body></html>
