@@ -99,6 +99,72 @@ scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2));
 const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(3,4,5);scene.add(key);
 const rim=new THREE.DirectionalLight(0xd7a928,1.5);rim.position.set(-4,1,-3);scene.add(rim);
 const group=new THREE.Group();scene.add(group);
+ // ===== NUTRIA REAL 3D KIT =====
+const gltfLoader = new GLTFLoader();
+let realKit = null;
+
+gltfLoader.load(
+  './models/nutria-football-kit-web.glb',
+
+  (gltf) => {
+    realKit = gltf.scene;
+
+    // Nasconde il vecchio modello demo
+    group.visible = false;
+
+    // Aggiunge il vero kit
+    scene.add(realKit);
+
+    // Calcola dimensioni e centro
+    const box = new THREE.Box3().setFromObject(realKit);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    // Centra il modello
+    realKit.position.set(
+      -center.x,
+      -center.y,
+      -center.z
+    );
+
+    // Ridimensiona automaticamente
+    const maxDimension = Math.max(
+      size.x,
+      size.y,
+      size.z
+    );
+
+    const scale = 3.5 / maxDimension;
+    realKit.scale.setScalar(scale);
+
+    console.log('✓ NUTRIA KIT 3D CARICATO');
+
+    // Mostra in console tutte le parti del modello
+    realKit.traverse((object) => {
+      if (object.isMesh) {
+        console.log('MESH:', object.name);
+      }
+    });
+  },
+
+  (progress) => {
+    if (progress.total) {
+      const percent = Math.round(
+        (progress.loaded / progress.total) * 100
+      );
+
+      console.log('Caricamento kit:', percent + '%');
+    }
+  },
+
+  (error) => {
+    console.error('ERRORE CARICAMENTO GLB:', error);
+
+    // Se qualcosa non funziona,
+    // mantiene visibile il vecchio modello
+    group.visible = true;
+  }
+);
 const material=new THREE.MeshStandardMaterial({color:'#202323',roughness:.68,metalness:.03,side:THREE.DoubleSide});
 let garment=[],logoMesh=null,chosenColor='#202323',currentProduct='Maglia';
 function meshFromShape(points,depth,mat,z=0){const s=new THREE.Shape();s.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)s.lineTo(points[i][0],points[i][1]);s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.04});g.translate(0,0,z);const m=new THREE.Mesh(g,mat);group.add(m);garment.push(m);return m}
