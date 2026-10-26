@@ -51,7 +51,7 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
  <section class="intro">
   <div class="eyebrow">Personalizza la tua divisa</div>
   <h1>IL TUO KIT.<br><span style="color:var(--gold)">LE TUE REGOLE.</span></h1>
-  <p>Scegli il colore della divisa, ruota il modello e carica lo stemma della tua squadra. La grafica originale del modello viene rimossa. Il logo tecnico Nutria viene applicato sul petto destro e lo stemma squadra sul lato cuore.</p>
+  <p>Personalizza il tuo kit: scegli colori e template della maglia, modifica colletto, maniche, pantaloncini e calzettoni, aggiungi stemma, nome e numero.</p>
  </section>
 
  <div class="layout">
@@ -68,7 +68,7 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
 
   <section class="controls">
    <h2>Configura il tuo kit</h2>
-   <p class="sub">Il modello 3D viene caricato direttamente dal file GLB del progetto.</p>
+   <p class="sub">Configura ogni parte del kit e visualizza le modifiche in tempo reale.</p>
 
    <div class="field">
     <label>1. VISUALIZZA</label>
@@ -118,8 +118,8 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
    <div class="field">
     <label>4. DETTAGLI MAGLIA</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-     <div><label>COLLETTO</label><input id="collarColor" type="color" value="#080909" style="width:100%;height:42px"></div>
-     <div><label>MANICHE</label><input id="sleeveColor" type="color" value="#080909" style="width:100%;height:42px"></div>
+     <div><label>COLLETTO</label><input id="collarColor" type="color" value="#202323" style="width:100%;height:42px"></div>
+     <div><label>MANICHE</label><input id="sleeveColor" type="color" value="#202323" style="width:100%;height:42px"></div>
      <div><label>PANTALONCINI</label><input id="shortsColor" type="color" value="#202323" style="width:100%;height:42px"></div>
      <div><label>CALZETTONI</label><input id="socksColor" type="color" value="#202323" style="width:100%;height:42px"></div>
     </div>
@@ -202,7 +202,8 @@ let realKit = null;
 let chosenColor = '#202323';
 let currentView = 'Kit';
 let currentPattern='solid', patternColor='#d7a928', patternSize=32;
-let collarColor='#080909', sleeveColor='#080909', shortsColor='#202323', socksColor='#202323';
+let collarColor='#202323', sleeveColor='#202323', shortsColor='#202323', socksColor='#202323';
+let collarCustom=false, sleeveCustom=false, shortsCustom=false, socksCustom=false;
 let backPrint=null;
 let teamCrest = null;
 let nutriaChestLogo = null;
@@ -280,22 +281,33 @@ function solidMaterial(color){
 function applyKitColor(hex=chosenColor){
   chosenColor=hex;
 
-  // Corpo maglia: colore principale + template.
+  // Se una parte non è stata personalizzata, segue automaticamente il colore principale.
+  if(!collarCustom) collarColor=chosenColor;
+  if(!sleeveCustom) sleeveColor=chosenColor;
+  if(!shortsCustom) shortsColor=chosenColor;
+  if(!socksCustom) socksColor=chosenColor;
+
   if(jerseyMesh){
-    jerseyMesh.material=new THREE.MeshStandardMaterial({
-      color:0xffffff,
-      map:makePatternTexture(),
-      roughness:.78,
-      metalness:0,
-      side:THREE.DoubleSide
-    });
+    // Per tinta unita NON usiamo UV/texture: il colore viene applicato direttamente.
+    // È il metodo più robusto e garantisce il cambio colore.
+    if(currentPattern==='solid'){
+      jerseyMesh.material=solidMaterial(chosenColor);
+    }else{
+      jerseyMesh.material=new THREE.MeshStandardMaterial({
+        color:0xffffff,
+        map:makePatternTexture(),
+        roughness:.78,
+        metalness:0,
+        side:THREE.DoubleSide
+      });
+    }
+    jerseyMesh.material.needsUpdate=true;
   }
 
-  // Parti realmente indipendenti nel nuovo GLB.
-  if(collarMesh) collarMesh.material=solidMaterial(collarColor);
-  if(sleevesMesh) sleevesMesh.material=solidMaterial(sleeveColor);
-  if(shortsMesh) shortsMesh.material=solidMaterial(shortsColor);
-  if(socksMesh) socksMesh.material=solidMaterial(socksColor);
+  if(collarMesh){ collarMesh.material=solidMaterial(collarColor); collarMesh.material.needsUpdate=true; }
+  if(sleevesMesh){ sleevesMesh.material=solidMaterial(sleeveColor); sleevesMesh.material.needsUpdate=true; }
+  if(shortsMesh){ shortsMesh.material=solidMaterial(shortsColor); shortsMesh.material.needsUpdate=true; }
+  if(socksMesh){ socksMesh.material=solidMaterial(socksColor); socksMesh.material.needsUpdate=true; }
 
   updateBackPrint();
 }
@@ -490,6 +502,10 @@ document.querySelectorAll('[data-color]').forEach(btn=>{
     document.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));
     btn.classList.add('active');
     applyKitColor(btn.dataset.color);
+    if(!collarCustom) document.getElementById('collarColor').value=chosenColor;
+    if(!sleeveCustom) document.getElementById('sleeveColor').value=chosenColor;
+    if(!shortsCustom) document.getElementById('shortsColor').value=chosenColor;
+    if(!socksCustom) document.getElementById('socksColor').value=chosenColor;
   });
 });
 
@@ -510,10 +526,10 @@ document.querySelectorAll('[data-pattern]').forEach(b=>b.addEventListener('click
 }));
 document.getElementById('patternColor').addEventListener('input',e=>{patternColor=e.target.value;applyKitColor();});
 document.getElementById('patternSize').addEventListener('input',e=>{patternSize=e.target.value;applyKitColor();});
-document.getElementById('collarColor').addEventListener('input',e=>{collarColor=e.target.value;applyKitColor();});
-document.getElementById('sleeveColor').addEventListener('input',e=>{sleeveColor=e.target.value;applyKitColor();});
-document.getElementById('shortsColor').addEventListener('input',e=>{shortsColor=e.target.value;applyKitColor();});
-document.getElementById('socksColor').addEventListener('input',e=>{socksColor=e.target.value;applyKitColor();});
+document.getElementById('collarColor').addEventListener('input',e=>{collarCustom=true;collarColor=e.target.value;applyKitColor();});
+document.getElementById('sleeveColor').addEventListener('input',e=>{sleeveCustom=true;sleeveColor=e.target.value;applyKitColor();});
+document.getElementById('shortsColor').addEventListener('input',e=>{shortsCustom=true;shortsColor=e.target.value;applyKitColor();});
+document.getElementById('socksColor').addEventListener('input',e=>{socksCustom=true;socksColor=e.target.value;applyKitColor();});
 ['playerName','playerNumber','kitFont','textColor'].forEach(id=>{
   document.getElementById(id).addEventListener('input',updateBackPrint);
   document.getElementById(id).addEventListener('change',updateBackPrint);
