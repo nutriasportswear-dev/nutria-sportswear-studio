@@ -270,10 +270,8 @@ function makePatternTexture(){
 }
 
 function solidMaterial(color){
-  return new THREE.MeshStandardMaterial({
+  return new THREE.MeshBasicMaterial({
     color:new THREE.Color(color),
-    roughness:.78,
-    metalness:0,
     side:THREE.DoubleSide
   });
 }
@@ -293,11 +291,9 @@ function applyKitColor(hex=chosenColor){
     if(currentPattern==='solid'){
       jerseyMesh.material=solidMaterial(chosenColor);
     }else{
-      jerseyMesh.material=new THREE.MeshStandardMaterial({
+      jerseyMesh.material=new THREE.MeshBasicMaterial({
         color:0xffffff,
         map:makePatternTexture(),
-        roughness:.78,
-        metalness:0,
         side:THREE.DoubleSide
       });
     }
@@ -408,8 +404,9 @@ function updateBackPrint(){
 
   const c=document.createElement('canvas'); c.width=c.height=1024;
   const x=c.getContext('2d'); x.textAlign='center'; x.textBaseline='middle'; x.fillStyle=col;
-  x.font=`bold 115px "${font}"`; x.fillText(name,512,190);
-  x.font=`bold 500px "${font}"`; x.fillText(num,512,590);
+  // Nome subito sotto il collo; numero grande al centro della schiena.
+  x.font=`bold 105px "${font}"`; x.fillText(name,512,105);
+  x.font=`bold 610px "${font}"`; x.fillText(num,512,545);
 
   const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
   backPrint=new THREE.Mesh(
@@ -418,9 +415,9 @@ function updateBackPrint(){
   );
 
   const size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3());
-  backPrint.position.set(center.x,center.y+size.y*.02,box.min.z-Math.max(size.z*.02,.01));
+  backPrint.position.set(center.x,center.y+size.y*.075,box.min.z-Math.max(size.z*.02,.01));
   backPrint.rotation.y=Math.PI;
-  const w=size.x*.58; backPrint.scale.set(w,w,1);
+  const w=size.x*.68; backPrint.scale.set(w,w,1);
   backPrint.renderOrder=60; scene.add(backPrint);
 }
 
@@ -493,7 +490,7 @@ gltfLoader.load(
   err=>{
     console.error('ERRORE GLB:',err);
     loading.classList.add('error');
-    loading.textContent='ERRORE NEL CARICAMENTO DEL KIT 3D. Controlla che models/nutria-football-kit-web.glb sia presente nel repository, poi ricarica la pagina.';
+    loading.textContent='ERRORE NEL CARICAMENTO DEL KIT 3D. Controlla che models/nutria-football-kit-web-v2.glb sia presente nel repository, poi ricarica la pagina.';
   }
 );
 
