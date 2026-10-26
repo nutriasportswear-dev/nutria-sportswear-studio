@@ -115,29 +115,78 @@ gltfLoader.load(
     // Aggiunge il vero kit
     scene.add(realKit);
 
-    // Calcola dimensioni e centro
-    const box = new THREE.Box3().setFromObject(realKit);
-    const center = box.getCenter(new THREE.Vector3());
-    const size = box.getSize(new THREE.Vector3());
+    // ===== CENTRA E INQUADRA AUTOMATICAMENTE IL KIT =====
 
-    // Centra il modello
-    realKit.position.set(
-      -center.x,
-      -center.y,
-      -center.z
-    );
+realKit.updateMatrixWorld(true);
 
-    // Ridimensiona automaticamente
-    const maxDimension = Math.max(
-      size.x,
-      size.y,
-      size.z
-    );
+// Legge le dimensioni originali
+let box = new THREE.Box3().setFromObject(realKit);
+let size = box.getSize(new THREE.Vector3());
 
-    const scale = 3.5 / maxDimension;
-    realKit.scale.setScalar(scale);
+const maxDimension = Math.max(size.x, size.y, size.z);
 
-    console.log('✓ NUTRIA KIT 3D CARICATO');
+console.log('DIMENSIONI ORIGINALI:', size);
+console.log('MAX DIMENSION:', maxDimension);
+
+// Ridimensiona il modello
+if (maxDimension > 0) {
+  const scale = 3.2 / maxDimension;
+  realKit.scale.setScalar(scale);
+}
+
+// Aggiorna le trasformazioni DOPO la scala
+realKit.updateMatrixWorld(true);
+
+// Ricalcola il centro
+box = new THREE.Box3().setFromObject(realKit);
+const center = box.getCenter(new THREE.Vector3());
+
+// Porta il kit al centro della scena
+realKit.position.x -= center.x;
+realKit.position.y -= center.y;
+realKit.position.z -= center.z;
+
+realKit.updateMatrixWorld(true);
+
+// Posiziona la camera davanti al kit
+camera.position.set(0, 0, 6);
+
+camera.near = 0.01;
+camera.far = 100;
+camera.updateProjectionMatrix();
+
+// Fa guardare la camera esattamente al centro
+controls.target.set(0, 0, 0);
+controls.minDistance = 2;
+controls.maxDistance = 12;
+controls.update();
+
+realKit.visible = true;
+
+// Sistema materiali e visibilità
+realKit.traverse((object) => {
+
+  if (object.isMesh) {
+
+    object.visible = true;
+
+    if (object.material) {
+
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+
+      materials.forEach((mat) => {
+        mat.side = THREE.DoubleSide;
+        mat.needsUpdate = true;
+      });
+    }
+
+    console.log('MESH TROVATA:', object.name);
+  }
+});
+
+console.log('✓ NUTRIA KIT 3D CARICATO E CENTRATO');
 
     // Mostra in console tutte le parti del modello
     realKit.traverse((object) => {
