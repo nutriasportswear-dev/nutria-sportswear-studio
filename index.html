@@ -120,6 +120,8 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
      <div><label>COLLETTO</label><input id="collarColor" type="color" value="#080909" style="width:100%;height:42px"></div>
      <div><label>MANICHE</label><input id="sleeveColor" type="color" value="#080909" style="width:100%;height:42px"></div>
+     <div><label>PANTALONCINI</label><input id="shortsColor" type="color" value="#202323" style="width:100%;height:42px"></div>
+     <div><label>CALZETTONI</label><input id="socksColor" type="color" value="#202323" style="width:100%;height:42px"></div>
     </div>
    </div>
 
@@ -200,12 +202,15 @@ let realKit = null;
 let chosenColor = '#202323';
 let currentView = 'Kit';
 let currentPattern='solid', patternColor='#d7a928', patternSize=32;
-let collarColor='#080909', sleeveColor='#080909';
+let collarColor='#080909', sleeveColor='#080909', shortsColor='#202323', socksColor='#202323';
 let backPrint=null;
 let teamCrest = null;
 let nutriaChestLogo = null;
 let jerseyMesh = null;
+let collarMesh = null;
+let sleevesMesh = null;
 let shortsMesh = null;
+let socksMesh = null;
 let nutriaFixedMesh = null;
 let kitBox = null;
 const originalMeshes = [];
@@ -257,25 +262,41 @@ function makePatternTexture(){
     x.fillRect(512,0,512,1024);
   }
 
-  // Zone UV indicative per dettagli. Non reintroducono texture del GLB.
-  x.fillStyle=collarColor; x.fillRect(420,0,184,55);
-  x.fillStyle=sleeveColor; x.fillRect(0,0,120,1024); x.fillRect(904,0,120,1024);
-
   const t=new THREE.CanvasTexture(c);
   t.colorSpace=THREE.SRGBColorSpace;
   t.needsUpdate=true;
   return t;
 }
 
+function solidMaterial(color){
+  return new THREE.MeshStandardMaterial({
+    color:new THREE.Color(color),
+    roughness:.78,
+    metalness:0,
+    side:THREE.DoubleSide
+  });
+}
+
 function applyKitColor(hex=chosenColor){
   chosenColor=hex;
-  const tex=makePatternTexture();
-  [jerseyMesh,shortsMesh].forEach(mesh=>{
-    if(!mesh)return;
-    mesh.material=new THREE.MeshStandardMaterial({
-      color:0xffffff,map:tex,roughness:.78,metalness:0,side:THREE.DoubleSide
+
+  // Corpo maglia: colore principale + template.
+  if(jerseyMesh){
+    jerseyMesh.material=new THREE.MeshStandardMaterial({
+      color:0xffffff,
+      map:makePatternTexture(),
+      roughness:.78,
+      metalness:0,
+      side:THREE.DoubleSide
     });
-  });
+  }
+
+  // Parti realmente indipendenti nel nuovo GLB.
+  if(collarMesh) collarMesh.material=solidMaterial(collarColor);
+  if(sleevesMesh) sleevesMesh.material=solidMaterial(sleeveColor);
+  if(shortsMesh) shortsMesh.material=solidMaterial(shortsColor);
+  if(socksMesh) socksMesh.material=solidMaterial(socksColor);
+
   updateBackPrint();
 }
 
@@ -316,7 +337,7 @@ function placeChestBranding(){
   // Per chi guarda frontalmente:
   // Nutria a SINISTRA = petto destro del giocatore.
   // Stemma squadra a DESTRA = lato cuore del giocatore.
-  const sideOffset=size.x*.205;
+  const sideOffset=size.x*.155;
 
   if(nutriaChestLogo){
     const tex=nutriaChestLogo.material.map;
@@ -395,15 +416,15 @@ function updateView(){
   if(!realKit) return;
 
   const showJersey=currentView!=='Pantaloncini';
-  const showShorts=currentView!=='Maglia';
+  const showLower=currentView!=='Maglia';
 
   if(jerseyMesh) jerseyMesh.visible=showJersey;
-  if(shortsMesh) shortsMesh.visible=showShorts;
+  if(collarMesh) collarMesh.visible=showJersey;
+  if(sleevesMesh) sleevesMesh.visible=showJersey;
+  if(shortsMesh) shortsMesh.visible=showLower;
+  if(socksMesh) socksMesh.visible=showLower;
 
-  // Nasconde SEMPRE la grafica/logo incorporata nel GLB.
-  // Usiamo il PNG Nutria pulito e posizionabile.
   if(nutriaFixedMesh) nutriaFixedMesh.visible=false;
-
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
   if(backPrint) backPrint.visible=showJersey;
@@ -411,7 +432,7 @@ function updateView(){
 
 const gltfLoader = new GLTFLoader();
 gltfLoader.load(
-  './models/nutria-football-kit-web.glb',
+  './models/nutria-football-kit-web-v2.glb',
   gltf=>{
     realKit = gltf.scene;
     scene.add(realKit);
@@ -428,8 +449,11 @@ gltfLoader.load(
           if(mat){ mat.side=THREE.DoubleSide; mat.needsUpdate=true; }
         });
 
-        if(obj.name==='JERSEY_EDITABLE') jerseyMesh=obj;
+        if(obj.name==='JERSEY_BODY_EDITABLE') jerseyMesh=obj;
+        if(obj.name==='JERSEY_COLLAR_EDITABLE') collarMesh=obj;
+        if(obj.name==='JERSEY_SLEEVES_EDITABLE') sleevesMesh=obj;
         if(obj.name==='SHORTS_EDITABLE') shortsMesh=obj;
+        if(obj.name==='SOCKS_EDITABLE') socksMesh=obj;
         if(obj.name==='NUTRIA_LOGO_FIXED') nutriaFixedMesh=obj;
 
         console.log('MESH:',obj.name);
@@ -438,7 +462,7 @@ gltfLoader.load(
 
     fitKit();
 
-    if(!jerseyMesh || !shortsMesh || !nutriaFixedMesh){
+    if(!jerseyMesh || !collarMesh || !sleevesMesh || !shortsMesh || !socksMesh){
       console.warn('Una o più mesh previste non sono state trovate.');
     }
 
@@ -488,6 +512,8 @@ document.getElementById('patternColor').addEventListener('input',e=>{patternColo
 document.getElementById('patternSize').addEventListener('input',e=>{patternSize=e.target.value;applyKitColor();});
 document.getElementById('collarColor').addEventListener('input',e=>{collarColor=e.target.value;applyKitColor();});
 document.getElementById('sleeveColor').addEventListener('input',e=>{sleeveColor=e.target.value;applyKitColor();});
+document.getElementById('shortsColor').addEventListener('input',e=>{shortsColor=e.target.value;applyKitColor();});
+document.getElementById('socksColor').addEventListener('input',e=>{socksColor=e.target.value;applyKitColor();});
 ['playerName','playerNumber','kitFont','textColor'].forEach(id=>{
   document.getElementById(id).addEventListener('input',updateBackPrint);
   document.getElementById(id).addEventListener('change',updateBackPrint);
