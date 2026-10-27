@@ -108,6 +108,16 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
      <button data-pattern="diagonal">Righe diagonali</button>
      <button data-pattern="chevron">Chevron</button>
      <button data-pattern="halves">Bicolore</button>
+<button data-pattern="thinVertical">Gessato</button>
+<button data-pattern="wideVertical">Bande verticali</button>
+<button data-pattern="cross">Griglia</button>
+<button data-pattern="diamonds">Rombi</button>
+<button data-pattern="waves">Onde</button>
+<button data-pattern="zigzag">Zig Zag</button>
+<button data-pattern="sash">Fascia diagonale</button>
+<button data-pattern="centerStripe">Banda centrale</button>
+<button data-pattern="hoops">Fasce larghe</button>
+<button data-pattern="quarters">Quarti</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
      <div><label>COLORE TRAMA</label><input id="patternColor" type="color" value="#d7a928" style="width:100%;height:42px"></div>
@@ -158,11 +168,11 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
     <div class="grid2" style="margin-top:8px">
      <div>
       <label>LOGO NUTRIA <span id="nutriaLogoSizeValue">100%</span></label>
-      <input id="nutriaLogoSize" type="range" min="50" max="200" value="100" step="5" style="width:100%">
+      <input id="nutriaLogoSize" type="range" min="50" max="300" value="100" step="5" style="width:100%">
      </div>
      <div>
       <label>STEMMA SQUADRA <span id="teamLogoSizeValue">100%</span></label>
-      <input id="teamLogoSize" type="range" min="50" max="200" value="100" step="5" style="width:100%">
+      <input id="teamLogoSize" type="range" min="50" max="300" value="100" step="5" style="width:100%">
      </div>
     </div>
    </div>
@@ -279,6 +289,29 @@ function makePatternTexture(){
     for(let y=-100;y<1200;y+=s*4){
       x.beginPath(); x.moveTo(0,y); x.lineTo(512,y+s*2); x.lineTo(1024,y); x.stroke();
     }
+  }else if(currentPattern==='thinVertical'){
+    const w=Math.max(3,s*.18); for(let i=0;i<1024;i+=Math.max(18,s)) x.fillRect(i,0,w,1024);
+  }else if(currentPattern==='wideVertical'){
+    const w=Math.max(35,s*2.2); for(let i=0;i<1024;i+=w*2) x.fillRect(i,0,w,1024);
+  }else if(currentPattern==='cross'){
+    const w=Math.max(3,s*.18),gap=Math.max(22,s); for(let i=0;i<1024;i+=gap){x.fillRect(i,0,w,1024);x.fillRect(0,i,1024,w);}
+  }else if(currentPattern==='diamonds'){
+    x.save();x.translate(512,512);x.rotate(Math.PI/4);const w=Math.max(3,s*.18),gap=Math.max(28,s*1.5);
+    for(let i=-1500;i<1500;i+=gap){x.fillRect(i,-1500,w,3000);x.fillRect(-1500,i,3000,w);}x.restore();
+  }else if(currentPattern==='waves'){
+    x.strokeStyle=patternColor;x.lineWidth=Math.max(4,s*.35);
+    for(let y=0;y<1100;y+=Math.max(35,s*2)){x.beginPath();for(let xx=0;xx<=1024;xx+=8){let yy=y+Math.sin(xx/45)*Math.max(8,s*.5);xx?x.lineTo(xx,yy):x.moveTo(xx,yy);}x.stroke();}
+  }else if(currentPattern==='zigzag'){
+    x.strokeStyle=patternColor;x.lineWidth=Math.max(5,s*.45);
+    for(let y=0;y<1100;y+=Math.max(45,s*2.4)){x.beginPath();x.moveTo(0,y);for(let xx=0;xx<=1024;xx+=80)x.lineTo(xx,y+((xx/80)%2?30:-30));x.stroke();}
+  }else if(currentPattern==='sash'){
+    x.save();x.translate(512,512);x.rotate(-Math.PI/4);x.fillRect(-Math.max(55,s*2),-900,Math.max(110,s*4),1800);x.restore();
+  }else if(currentPattern==='centerStripe'){
+    x.fillRect(512-Math.max(45,s*1.8),0,Math.max(90,s*3.6),1024);
+  }else if(currentPattern==='hoops'){
+    const hh=Math.max(45,s*2);for(let y=0;y<1024;y+=hh*2)x.fillRect(0,y,1024,hh);
+  }else if(currentPattern==='quarters'){
+    x.fillRect(512,0,512,512);x.fillRect(0,512,512,512);
   }else if(currentPattern==='halves'){
     x.fillRect(512,0,512,1024);
   }
@@ -442,6 +475,18 @@ function updateBackPrint(){
 }
 
 
+function attachLogoToJersey(obj){
+  if(!obj || !jerseyMesh || obj.parent===jerseyMesh) return;
+  obj.updateMatrixWorld(true);
+  const worldMatrix=obj.matrixWorld.clone();
+  jerseyMesh.updateMatrixWorld(true);
+  const localMatrix=new THREE.Matrix4().copy(jerseyMesh.matrixWorld).invert().multiply(worldMatrix);
+  if(obj.parent) obj.parent.remove(obj);
+  jerseyMesh.add(obj);
+  localMatrix.decompose(obj.position,obj.quaternion,obj.scale);
+  obj.updateMatrixWorld(true);
+}
+
 function rememberLogoBaseScale(obj, type){
   if(!obj) return;
   if(type==='nutria' && !nutriaLogoBaseScale) nutriaLogoBaseScale=obj.scale.clone();
@@ -450,10 +495,12 @@ function rememberLogoBaseScale(obj, type){
 
 function applyLogoScales(){
   if(nutriaChestLogo){
+    attachLogoToJersey(nutriaChestLogo);
     rememberLogoBaseScale(nutriaChestLogo,'nutria');
     nutriaChestLogo.scale.copy(nutriaLogoBaseScale).multiplyScalar(nutriaLogoScale);
   }
   if(teamCrest){
+    attachLogoToJersey(teamCrest);
     rememberLogoBaseScale(teamCrest,'team');
     teamCrest.scale.copy(teamLogoBaseScale).multiplyScalar(teamLogoScale);
   }
@@ -593,7 +640,7 @@ document.getElementById('logoFile').addEventListener('change',e=>{
     texture.colorSpace=THREE.SRGBColorSpace;
 
     if(teamCrest){
-      scene.remove(teamCrest);
+      if(teamCrest.parent) teamCrest.parent.remove(teamCrest); else scene.remove(teamCrest);
       teamCrest.geometry.dispose();
       teamCrest.material.dispose();
     }
