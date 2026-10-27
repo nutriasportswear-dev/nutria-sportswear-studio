@@ -35,6 +35,15 @@ textarea{min-height:70px;resize:vertical}.primary{width:100%;background:var(--go
 .notice{font-size:11px;color:#e9d38c;background:#292315;border:1px solid #57451c;border-radius:9px;padding:10px;line-height:1.5;margin-top:15px}
 footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:11px;line-height:1.6}
 @media(max-width:800px){.layout{grid-template-columns:1fr}#stage{height:440px}.controls{padding:18px}header{align-items:flex-start}.pill{display:none}.products{grid-template-columns:1fr}}
+
+.top-nav{display:flex;align-items:center;gap:8px}
+.top-nav a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
+border:1px solid #5c4a12;border-radius:999px;padding:9px 14px;color:#e5b722;
+font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
+.top-nav a:hover{background:#e5b722;color:#090a0a}
+.top-nav a.active{background:#2b2307;color:#f2c329;border-color:#d7a928}
+@media(max-width:700px){.top-nav{gap:5px}.top-nav a{padding:7px 9px;font-size:9px}}
+
 </style>
 </head>
 <body>
@@ -45,6 +54,10 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
   <div><strong>NUTRIA SPORTSWEAR</strong><span>YOUR KIT. YOUR IDENTITY.</span></div>
  </div>
  <div class="pill">STUDIO · CONFIGURATORE 3D</div>
+<nav class="top-nav">
+  <a class="active" href="index.html">CONFIGURATORE 3D</a>
+  <a href="progetti.html">PROGETTI</a>
+</nav>
 </header>
 
 <main>
@@ -164,17 +177,22 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
     <label>7. RICHIEDI UN PREVENTIVO</label>
     
    <div style="margin-top:14px">
-    <div class="section-title">DIMENSIONE LOGHI</div>
-    <div class="grid2" style="margin-top:8px">
-     <div>
-      <label>LOGO NUTRIA <span id="nutriaLogoSizeValue">100%</span></label>
-      <input id="nutriaLogoSize" type="range" min="50" max="300" value="100" step="5" style="width:100%">
-     </div>
-     <div>
-      <label>STEMMA SQUADRA <span id="teamLogoSizeValue">100%</span></label>
-      <input id="teamLogoSize" type="range" min="50" max="300" value="100" step="5" style="width:100%">
-     </div>
+    <div class="section-title">POSIZIONE E DIMENSIONE LOGHI</div>
+
+    <label style="margin-top:10px">LOGO NUTRIA</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><small>DIMENSIONE <span id="nutriaLogoSizeValue">100%</span></small><input id="nutriaLogoSize" type="range" min="40" max="300" value="100" step="5" style="width:100%"></div>
+      <div><small>ORIZZONTALE</small><input id="nutriaLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+      <div><small>VERTICALE</small><input id="nutriaLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
     </div>
+
+    <label style="margin-top:10px">STEMMA SQUADRA</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><small>DIMENSIONE <span id="teamLogoSizeValue">100%</span></small><input id="teamLogoSize" type="range" min="40" max="300" value="100" step="5" style="width:100%"></div>
+      <div><small>ORIZZONTALE</small><input id="teamLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+      <div><small>VERTICALE</small><input id="teamLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+    </div>
+    <div class="small">I loghi vengono proiettati direttamente sulla superficie della maglia e ne seguono la curvatura.</div>
    </div>
 
 <form id="quoteForm">
@@ -199,6 +217,7 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
 import * as THREE from 'three';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/loaders/GLTFLoader.js';
+import { DecalGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/geometries/DecalGeometry.js';
 
 const stage = document.getElementById('stage');
 const loading = document.getElementById('loading');
@@ -233,8 +252,10 @@ let backPrint=null;
 let teamCrest = null;
 let nutriaLogoScale = 1;
 let teamLogoScale = 1;
-let nutriaLogoBaseScale = null;
-let teamLogoBaseScale = null;
+let nutriaLogoX = 0, nutriaLogoY = 0;
+let teamLogoX = 0, teamLogoY = 0;
+let nutriaLogoTexture = null;
+let teamLogoTexture = null;
 
 let nutriaChestLogo = null;
 let jerseyMesh = null;
@@ -361,64 +382,83 @@ function applyKitColor(hex=chosenColor){
   updateBackPrint();
 }
 
-function makeLogoPlane(texture,name){
-  const mat=new THREE.MeshBasicMaterial({
-    map:texture,
-    transparent:true,
-    side:THREE.DoubleSide,
-    depthWrite:false,
-    alphaTest:.02
-  });
-  const mesh=new THREE.Mesh(new THREE.PlaneGeometry(1,1),mat);
-  mesh.name=name;
-  mesh.renderOrder=50;
-  scene.add(mesh);
-  return mesh;
-}
-
 function jerseyBounds(){
   if(!jerseyMesh) return null;
   jerseyMesh.updateMatrixWorld(true);
   return new THREE.Box3().setFromObject(jerseyMesh);
 }
 
-function placeChestBranding(){
-  const box=jerseyBounds();
-  if(!box) return;
+function disposeDecal(obj){
+  if(!obj) return;
+  if(obj.parent) obj.parent.remove(obj);
+  obj.geometry?.dispose();
+  obj.material?.dispose();
+}
 
+function createChestDecal(texture, type){
+  if(!jerseyMesh || !texture) return null;
+
+  jerseyMesh.updateMatrixWorld(true);
+  const box=jerseyBounds();
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // Parte alta del petto.
+  const isNutria=type==='nutria';
+  const scale=isNutria ? nutriaLogoScale : teamLogoScale;
+  const xAdjust=(isNutria ? nutriaLogoX : teamLogoX)/100;
+  const yAdjust=(isNutria ? nutriaLogoY : teamLogoY)/100;
+
+  // Nutria sul petto destro del giocatore; stemma sul lato cuore.
+  const sideOffset=size.x*.155;
+  const baseX=center.x + (isNutria ? -sideOffset : sideOffset);
   const chestY=center.y + size.y*.245;
 
-  // Fronte della maglia.
-  const frontZ=box.max.z + Math.max(size.z*.018,.008);
+  const aspect=(texture.image?.width && texture.image?.height)
+    ? texture.image.width/texture.image.height : 1;
 
-  // Per chi guarda frontalmente:
-  // Nutria a SINISTRA = petto destro del giocatore.
-  // Stemma squadra a DESTRA = lato cuore del giocatore.
-  const sideOffset=size.x*.155;
+  const baseW=size.x*(isNutria ? .125 : .105)*scale;
+  const baseH=baseW/aspect;
 
-  if(nutriaChestLogo){
-    const tex=nutriaChestLogo.material.map;
-    const aspect=(tex?.image?.width && tex?.image?.height)
-      ? tex.image.width/tex.image.height : 1.55;
+  // Gli slider spostano il centro del decal senza staccarlo dalla superficie.
+  const px=baseX + xAdjust*size.x*.22;
+  const py=chestY + yAdjust*size.y*.16;
+  const pz=box.max.z - Math.max(size.z*.01,.002);
 
-    const w=size.x*.125;
-    nutriaChestLogo.position.set(center.x-sideOffset,chestY,frontZ+.003);
-    nutriaChestLogo.scale.set(w,w/aspect,1);
-  }
+  const position=new THREE.Vector3(px,py,pz);
+  const orientation=new THREE.Euler(0,0,0);
+  // Profondità ridotta: prende solo la superficie frontale, non il retro.
+  const decalSize=new THREE.Vector3(baseW,baseH,Math.max(size.z*.18,.04));
 
-  if(teamCrest){
-    const tex=teamCrest.material.map;
-    const aspect=(tex?.image?.width && tex?.image?.height)
-      ? tex.image.width/tex.image.height : 1;
+  const geometry=new DecalGeometry(jerseyMesh,position,orientation,decalSize);
+  const material=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    depthTest:true,
+    depthWrite:false,
+    polygonOffset:true,
+    polygonOffsetFactor:-4,
+    side:THREE.DoubleSide,
+    alphaTest:.02
+  });
+  const decal=new THREE.Mesh(geometry,material);
+  decal.name=isNutria?'NUTRIA_CHEST_DECAL':'TEAM_CREST_DECAL';
+  decal.renderOrder=80;
+  scene.add(decal);
+  return decal;
+}
 
-    const w=size.x*.105;
-    teamCrest.position.set(center.x+sideOffset,chestY,frontZ+.004);
-    teamCrest.scale.set(w,w/aspect,1);
-  }
+function rebuildChestDecals(){
+  if(nutriaChestLogo){disposeDecal(nutriaChestLogo);nutriaChestLogo=null;}
+  if(teamCrest){disposeDecal(teamCrest);teamCrest=null;}
+
+  if(nutriaLogoTexture) nutriaChestLogo=createChestDecal(nutriaLogoTexture,'nutria');
+  if(teamLogoTexture) teamCrest=createChestDecal(teamLogoTexture,'team');
+
+  updateView();
+}
+
+function placeChestBranding(){
+  rebuildChestDecals();
 }
 
 function loadNutriaChestLogo(){
@@ -426,14 +466,8 @@ function loadNutriaChestLogo(){
     './assets/nutria-logo.png',
     texture=>{
       texture.colorSpace=THREE.SRGBColorSpace;
-      if(nutriaChestLogo){
-        scene.remove(nutriaChestLogo);
-        nutriaChestLogo.geometry.dispose();
-        nutriaChestLogo.material.dispose();
-      }
-      nutriaChestLogo=makeLogoPlane(texture,'NUTRIA_CHEST_PNG');
-      placeChestBranding();
-      updateView();
+      nutriaLogoTexture=texture;
+      rebuildChestDecals();
     },
     undefined,
     err=>console.warn('Logo Nutria PNG non caricato',err)
@@ -475,40 +509,8 @@ function updateBackPrint(){
 }
 
 
-function attachLogoToJersey(obj){
-  if(!obj || !jerseyMesh || obj.parent===jerseyMesh) return;
-  obj.updateMatrixWorld(true);
-  const worldMatrix=obj.matrixWorld.clone();
-  jerseyMesh.updateMatrixWorld(true);
-  const localMatrix=new THREE.Matrix4().copy(jerseyMesh.matrixWorld).invert().multiply(worldMatrix);
-  if(obj.parent) obj.parent.remove(obj);
-  jerseyMesh.add(obj);
-  localMatrix.decompose(obj.position,obj.quaternion,obj.scale);
-  obj.updateMatrixWorld(true);
-}
-
-function rememberLogoBaseScale(obj, type){
-  if(!obj) return;
-  if(type==='nutria' && !nutriaLogoBaseScale) nutriaLogoBaseScale=obj.scale.clone();
-  if(type==='team' && !teamLogoBaseScale) teamLogoBaseScale=obj.scale.clone();
-}
-
-function applyLogoScales(){
-  if(nutriaChestLogo){
-    attachLogoToJersey(nutriaChestLogo);
-    rememberLogoBaseScale(nutriaChestLogo,'nutria');
-    nutriaChestLogo.scale.copy(nutriaLogoBaseScale).multiplyScalar(nutriaLogoScale);
-  }
-  if(teamCrest){
-    attachLogoToJersey(teamCrest);
-    rememberLogoBaseScale(teamCrest,'team');
-    teamCrest.scale.copy(teamLogoBaseScale).multiplyScalar(teamLogoScale);
-  }
-}
-
 function updateView(){
   if(!realKit) return;
-  applyLogoScales();
 
   const showJersey=currentView!=='Pantaloncini';
   const showLower=currentView!=='Maglia';
@@ -639,14 +641,8 @@ document.getElementById('logoFile').addEventListener('change',e=>{
   new THREE.TextureLoader().load(url,texture=>{
     texture.colorSpace=THREE.SRGBColorSpace;
 
-    if(teamCrest){
-      if(teamCrest.parent) teamCrest.parent.remove(teamCrest); else scene.remove(teamCrest);
-      teamCrest.geometry.dispose();
-      teamCrest.material.dispose();
-    }
-
-    teamCrest=makeLogoPlane(texture,'TEAM_CREST');
-    placeChestBranding();
+    teamLogoTexture=texture;
+    rebuildChestDecals();
     document.getElementById('fileStatus').textContent='✓ Stemma caricato: '+f.name;
     URL.revokeObjectURL(url);
   },undefined,err=>{
@@ -730,16 +726,20 @@ if(nutriaLogoSizeInput){
   nutriaLogoSizeInput.addEventListener('input',e=>{
     nutriaLogoScale=Number(e.target.value)/100;
     document.getElementById('nutriaLogoSizeValue').textContent=e.target.value+'%';
-    applyLogoScales();
+    rebuildChestDecals();
   });
 }
 if(teamLogoSizeInput){
   teamLogoSizeInput.addEventListener('input',e=>{
     teamLogoScale=Number(e.target.value)/100;
     document.getElementById('teamLogoSizeValue').textContent=e.target.value+'%';
-    applyLogoScales();
+    rebuildChestDecals();
   });
 }
+document.getElementById('nutriaLogoX')?.addEventListener('input',e=>{nutriaLogoX=Number(e.target.value);rebuildChestDecals();});
+document.getElementById('nutriaLogoY')?.addEventListener('input',e=>{nutriaLogoY=Number(e.target.value);rebuildChestDecals();});
+document.getElementById('teamLogoX')?.addEventListener('input',e=>{teamLogoX=Number(e.target.value);rebuildChestDecals();});
+document.getElementById('teamLogoY')?.addEventListener('input',e=>{teamLogoY=Number(e.target.value);rebuildChestDecals();});
 
 function animate(){
   requestAnimationFrame(animate);
