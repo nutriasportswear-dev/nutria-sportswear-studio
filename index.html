@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nutria Sportswear Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Audiowide&family=Barlow+Condensed:wght@700;800;900&family=Bebas+Neue&family=Black+Ops+One&family=Graduate&family=Oswald:wght@600;700&family=Permanent+Marker&family=Roboto+Condensed:wght@700;900&family=Russo+One&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{--gold:#d7a928;--black:#080909;--panel:#151718;--muted:#a8adaf;--line:#2b3032}
 *{box-sizing:border-box}
@@ -156,12 +159,30 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
      <select id="kitFont">
-      <option value="Arial Black">Arial Black</option>
-      <option value="Impact">Impact</option>
-      <option value="Trebuchet MS">Trebuchet</option>
-      <option value="Georgia">Georgia</option>
-      <option value="Courier New">Courier</option>
-     </select>
+       <optgroup label="SPORT / MODERNI">
+        <option value="Anton" selected>Anton</option>
+        <option value="Bebas Neue">Bebas Neue</option>
+        <option value="Oswald">Oswald</option>
+        <option value="Barlow Condensed">Barlow Condensed</option>
+        <option value="Teko">Teko</option>
+        <option value="Russo One">Russo One</option>
+        <option value="Archivo Black">Archivo Black</option>
+        <option value="Roboto Condensed">Roboto Condensed</option>
+       </optgroup>
+       <optgroup label="DISPLAY / SPECIALI">
+        <option value="Black Ops One">Black Ops One</option>
+        <option value="Graduate">Graduate</option>
+        <option value="Audiowide">Audiowide</option>
+        <option value="Permanent Marker">Permanent Marker</option>
+       </optgroup>
+       <optgroup label="CLASSICI">
+        <option value="Arial Black">Arial Black</option>
+        <option value="Impact">Impact</option>
+        <option value="Trebuchet MS">Trebuchet</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Courier New">Courier New</option>
+       </optgroup>
+      </select>
      <input id="textColor" type="color" value="#ffffff" style="width:100%;height:42px">
     </div>
    </div>
@@ -181,7 +202,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 
     <label style="margin-top:10px">LOGO NUTRIA</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div><small>DIMENSIONE <span id="nutriaLogoSizeValue">100%</span></small><input id="nutriaLogoSize" type="range" min="40" max="300" value="100" step="5" style="width:100%"></div>
+      <div><small>DIMENSIONE <span id="nutriaLogoSizeValue">135%</span></small><input id="nutriaLogoSize" type="range" min="40" max="300" value="135" step="5" style="width:100%"></div>
       <div><small>ORIZZONTALE</small><input id="nutriaLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
       <div><small>VERTICALE</small><input id="nutriaLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
     </div>
@@ -250,7 +271,7 @@ let collarColor='#202323', sleeveColor='#202323', shortsColor='#202323', socksCo
 let collarCustom=false, sleeveCustom=false, shortsCustom=false, socksCustom=false;
 let backPrint=null;
 let teamCrest = null;
-let nutriaLogoScale = 1;
+let nutriaLogoScale = 1.35;
 let teamLogoScale = 1;
 let nutriaLogoX = 0, nutriaLogoY = 0;
 let teamLogoX = 0, teamLogoY = 0;
@@ -408,26 +429,40 @@ function createChestDecal(texture, type){
   const xAdjust=(isNutria ? nutriaLogoX : teamLogoX)/100;
   const yAdjust=(isNutria ? nutriaLogoY : teamLogoY)/100;
 
-  // Nutria sul petto destro del giocatore; stemma sul lato cuore.
-  const sideOffset=size.x*.155;
-  const baseX=center.x + (isNutria ? -sideOffset : sideOffset);
-  const chestY=center.y + size.y*.245;
+  // Petto: Nutria a destra del giocatore (sinistra per chi guarda),
+  // stemma squadra sul lato cuore.
+  const sideOffset=size.x*.145;
+  const px=center.x + (isNutria ? -sideOffset : sideOffset) + xAdjust*size.x*.20;
+  const py=center.y + size.y*.285 + yAdjust*size.y*.15;
+
+  // Trova davvero la superficie anteriore della maglia.
+  const raycaster=new THREE.Raycaster(
+    new THREE.Vector3(px,py,box.max.z + Math.max(size.z,1)),
+    new THREE.Vector3(0,0,-1)
+  );
+  const hits=raycaster.intersectObject(jerseyMesh,false);
+  if(!hits.length){
+    console.warn('Superficie petto non trovata per decal',type);
+    return null;
+  }
+
+  const hit=hits[0];
+  const position=hit.point.clone();
+
+  // Orienta il proiettore secondo la normale locale della maglia.
+  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
+  const helper=new THREE.Object3D();
+  helper.position.copy(position);
+  helper.lookAt(position.clone().add(normal));
+  const orientation=helper.rotation.clone();
 
   const aspect=(texture.image?.width && texture.image?.height)
     ? texture.image.width/texture.image.height : 1;
 
-  const baseW=size.x*(isNutria ? .125 : .105)*scale;
+  // Logo Nutria volutamente un po' più grande e leggibile.
+  const baseW=size.x*(isNutria ? .17 : .13)*scale;
   const baseH=baseW/aspect;
-
-  // Gli slider spostano il centro del decal senza staccarlo dalla superficie.
-  const px=baseX + xAdjust*size.x*.22;
-  const py=chestY + yAdjust*size.y*.16;
-  const pz=box.max.z - Math.max(size.z*.01,.002);
-
-  const position=new THREE.Vector3(px,py,pz);
-  const orientation=new THREE.Euler(0,0,0);
-  // Profondità ridotta: prende solo la superficie frontale, non il retro.
-  const decalSize=new THREE.Vector3(baseW,baseH,Math.max(size.z*.18,.04));
+  const decalSize=new THREE.Vector3(baseW,baseH,Math.max(size.z*.22,.05));
 
   const geometry=new DecalGeometry(jerseyMesh,position,orientation,decalSize);
   const material=new THREE.MeshBasicMaterial({
@@ -436,13 +471,14 @@ function createChestDecal(texture, type){
     depthTest:true,
     depthWrite:false,
     polygonOffset:true,
-    polygonOffsetFactor:-4,
+    polygonOffsetFactor:-8,
     side:THREE.DoubleSide,
-    alphaTest:.02
+    alphaTest:.01
   });
+
   const decal=new THREE.Mesh(geometry,material);
   decal.name=isNutria?'NUTRIA_CHEST_DECAL':'TEAM_CREST_DECAL';
-  decal.renderOrder=80;
+  decal.renderOrder=90;
   scene.add(decal);
   return decal;
 }
@@ -479,9 +515,8 @@ function updateBackPrint(){
   const box=jerseyBounds(); if(!box)return;
 
   if(backPrint){
-    scene.remove(backPrint); backPrint.geometry.dispose();
-    if(backPrint.material.map)backPrint.material.map.dispose();
-    backPrint.material.dispose();
+    disposeDecal(backPrint);
+    backPrint=null;
   }
 
   const name=(document.getElementById('playerName')?.value||'').toUpperCase();
@@ -489,23 +524,75 @@ function updateBackPrint(){
   const font=document.getElementById('kitFont')?.value||'Arial Black';
   const col=document.getElementById('textColor')?.value||'#ffffff';
 
-  const c=document.createElement('canvas'); c.width=c.height=1024;
-  const x=c.getContext('2d'); x.textAlign='center'; x.textBaseline='middle'; x.fillStyle=col;
-  // Nome subito sotto il collo; numero grande al centro della schiena.
-  x.font=`bold 105px "${font}"`; x.fillText(name,512,105);
-  x.font=`bold 610px "${font}"`; x.fillText(num,512,545);
+  const c=document.createElement('canvas');
+  c.width=1024; c.height=1024;
+  const x=c.getContext('2d');
+  x.clearRect(0,0,1024,1024);
+  x.textAlign='center';
+  x.textBaseline='middle';
+  x.fillStyle=col;
 
-  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace;
-  backPrint=new THREE.Mesh(
-    new THREE.PlaneGeometry(1,1),
-    new THREE.MeshBasicMaterial({map:tex,transparent:true,side:THREE.DoubleSide,depthWrite:false})
+  // Nome alto, appena sotto il colletto.
+  x.font=`bold 112px "${font}"`;
+  x.fillText(name,512,155);
+
+  // Numero grande, centrato nella parte alta/centrale della schiena.
+  x.font=`bold 560px "${font}"`;
+  x.fillText(num,512,545);
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+
+  jerseyMesh.updateMatrixWorld(true);
+  const size=box.getSize(new THREE.Vector3());
+  const center=box.getCenter(new THREE.Vector3());
+
+  // Cerca la superficie posteriore reale.
+  const targetY=center.y + size.y*.13;
+  const raycaster=new THREE.Raycaster(
+    new THREE.Vector3(center.x,targetY,box.min.z - Math.max(size.z,1)),
+    new THREE.Vector3(0,0,1)
   );
+  const hits=raycaster.intersectObject(jerseyMesh,false);
+  if(!hits.length){
+    console.warn('Superficie posteriore non trovata');
+    tex.dispose();
+    return;
+  }
 
-  const size=box.getSize(new THREE.Vector3()), center=box.getCenter(new THREE.Vector3());
-  backPrint.position.set(center.x,center.y+size.y*.075,box.min.z-Math.max(size.z*.02,.01));
-  backPrint.rotation.y=Math.PI;
-  const w=size.x*.68; backPrint.scale.set(w,w,1);
-  backPrint.renderOrder=60; scene.add(backPrint);
+  const hit=hits[0];
+  const position=hit.point.clone();
+  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
+  const helper=new THREE.Object3D();
+  helper.position.copy(position);
+  helper.lookAt(position.clone().add(normal));
+  const orientation=helper.rotation.clone();
+
+  // Area stampa: parte alta della schiena, senza scendere sui pantaloncini.
+  const printW=size.x*.72;
+  const printH=size.y*.58;
+
+  const geometry=new DecalGeometry(
+    jerseyMesh,
+    position,
+    orientation,
+    new THREE.Vector3(printW,printH,Math.max(size.z*.24,.05))
+  );
+  const material=new THREE.MeshBasicMaterial({
+    map:tex,
+    transparent:true,
+    depthTest:true,
+    depthWrite:false,
+    polygonOffset:true,
+    polygonOffsetFactor:-8,
+    side:THREE.DoubleSide,
+    alphaTest:.01
+  });
+
+  backPrint=new THREE.Mesh(geometry,material);
+  backPrint.name='BACK_NAME_NUMBER_DECAL';
+  backPrint.renderOrder=85;
+  scene.add(backPrint);
 }
 
 
@@ -530,7 +617,7 @@ function updateView(){
 const gltfLoader = new GLTFLoader();
 gltfLoader.load(
   './models/nutria-football-kit-web-v2.glb',
-  gltf=>{
+  async gltf=>{
     realKit = gltf.scene;
     scene.add(realKit);
 
@@ -565,6 +652,7 @@ gltfLoader.load(
 
     applyKitColor(chosenColor);
     loadNutriaChestLogo();
+    try{ await document.fonts.load('900 120px "Anton"'); }catch(err){ console.warn(err); }
     updateBackPrint();
     updateView();
     loading.style.display='none';
@@ -615,9 +703,14 @@ document.getElementById('collarColor').addEventListener('input',e=>{collarCustom
 document.getElementById('sleeveColor').addEventListener('input',e=>{sleeveCustom=true;sleeveColor=e.target.value;applyKitColor();});
 document.getElementById('shortsColor').addEventListener('input',e=>{shortsCustom=true;shortsColor=e.target.value;applyKitColor();});
 document.getElementById('socksColor').addEventListener('input',e=>{socksCustom=true;socksColor=e.target.value;applyKitColor();});
-['playerName','playerNumber','kitFont','textColor'].forEach(id=>{
+['playerName','playerNumber','textColor'].forEach(id=>{
   document.getElementById(id).addEventListener('input',updateBackPrint);
   document.getElementById(id).addEventListener('change',updateBackPrint);
+});
+document.getElementById('kitFont').addEventListener('change',async e=>{
+  const selected=e.target.value;
+  try{ await document.fonts.load(`900 120px "${selected}"`); }catch(err){ console.warn(err); }
+  updateBackPrint();
 });
 
 document.getElementById('logoFile').addEventListener('change',e=>{
