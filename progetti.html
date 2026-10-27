@@ -5,53 +5,108 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Progetti | Nutria Sportswear</title>
 <style>
-:root{--bg:#080909;--panel:#151819;--line:#2a2e2f;--gold:#d7a928;--text:#f5f5f2;--muted:#aeb7ba}
+:root{--bg:#080909;--panel:#141718;--line:#2b2f30;--gold:#d7a928;--text:#f7f7f3;--muted:#aeb8bb}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-header{height:82px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 5vw}
-.brand{display:flex;align-items:center;gap:14px}.brand img{width:58px;height:58px;object-fit:contain}
-.brand b{letter-spacing:2px}.brand small{display:block;color:#c7d0d2;letter-spacing:4px;margin-top:5px}
-a{color:inherit;text-decoration:none}.btn{border:1px solid #7c6415;border-radius:18px;padding:10px 16px;color:#f0c735;font-size:12px}
-main{max-width:1200px;margin:auto;padding:58px 24px 80px}
-.kicker{color:var(--gold);letter-spacing:4px;font-size:12px}.title{font-size:48px;margin:10px 0 8px}.intro{color:var(--muted);max-width:720px;line-height:1.6}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.card img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.card .txt{padding:16px}
-.card h3{margin:0 0 5px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:13px}
-.empty{display:none;padding:40px;border:1px dashed #444;border-radius:14px;color:var(--muted);margin-top:30px}
-@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.title{font-size:36px}}
-@media(max-width:520px){.grid{grid-template-columns:1fr}.brand small{display:none}}
+header{min-height:86px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 4vw;position:sticky;top:0;background:#080909f2;z-index:10}
+.brand{display:flex;align-items:center;gap:14px;color:inherit;text-decoration:none}.brand img{width:72px;height:55px;object-fit:contain}.brand b{letter-spacing:2px}.brand small{display:block;color:#c6d0d3;letter-spacing:4px;margin-top:4px}
+.back{border:1px solid #715b12;color:#efc52d;border-radius:20px;padding:10px 16px;text-decoration:none;font-size:12px}
+main{max-width:1280px;margin:auto;padding:58px 24px 90px}.kicker{color:var(--gold);letter-spacing:4px;font-size:12px}
+h1{font-size:52px;margin:10px 0 10px}.intro{color:var(--muted);line-height:1.6;max-width:760px}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin:32px 0}.filter{background:#1c2021;color:#fff;border:1px solid #34393a;border-radius:20px;padding:9px 15px;cursor:pointer}.filter.active{border-color:var(--gold);color:#f3c62c}
+.team{margin:46px 0 60px}.team-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+.team-identity{display:flex;align-items:center;gap:15px}.team-logo{width:68px;height:68px;object-fit:contain;background:#111;border:1px solid var(--line);border-radius:12px;padding:7px}
+.team h2{margin:0;font-size:28px}.team-meta{color:var(--gold);font-size:11px;letter-spacing:2px;margin-top:5px}.count{color:var(--muted);font-size:12px}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.photo{background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:hidden;cursor:pointer}.photo img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;transition:.2s}.photo:hover img{transform:scale(1.02)}
+.caption{padding:12px 14px;color:#cbd2d4;font-size:13px}
+.empty{padding:28px;border:1px dashed #414647;border-radius:12px;color:var(--muted)}
+#lightbox{position:fixed;inset:0;background:#000d;z-index:50;display:none;align-items:center;justify-content:center;padding:25px}#lightbox.open{display:flex}#lightbox img{max-width:94vw;max-height:90vh;object-fit:contain}#close{position:absolute;right:25px;top:18px;font-size:35px;cursor:pointer}
+@media(max-width:800px){.gallery{grid-template-columns:repeat(2,1fr)}h1{font-size:38px}}
+@media(max-width:520px){.gallery{grid-template-columns:1fr}.brand small{display:none}}
 </style>
 </head>
 <body>
 <header>
- <a href="index.html" class="brand">
-  <img src="assets/nutria-logo.png" alt="Nutria Sportswear">
-  <div><b>NUTRIA SPORTSWEAR</b><small>YOUR KIT. YOUR IDENTITY.</small></div>
- </a>
- <a href="index.html" class="btn">CONFIGURATORE 3D</a>
+<a class="brand" href="index.html"><img src="assets/nutria-logo.png"><div><b>NUTRIA SPORTSWEAR</b><small>YOUR KIT. YOUR IDENTITY.</small></div></a>
+<a class="back" href="index.html">CONFIGURATORE 3D</a>
 </header>
 <main>
- <div class="kicker">NUTRIA SPORTSWEAR</div>
- <h1 class="title">I NOSTRI PROGETTI.</h1>
- <p class="intro">Una selezione di divise e concept realizzati. La gallery si aggiorna aggiungendo le immagini nella cartella <b>assets/projects</b>.</p>
- <div class="grid" id="gallery">
-  <article class="card"><img src="assets/projects/progetto-01.jpg" alt="Progetto Nutria Sportswear 1" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 01</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-02.jpg" alt="Progetto Nutria Sportswear 2" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 02</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-03.jpg" alt="Progetto Nutria Sportswear 3" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 03</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-04.jpg" alt="Progetto Nutria Sportswear 4" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 04</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-05.jpg" alt="Progetto Nutria Sportswear 5" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 05</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-06.jpg" alt="Progetto Nutria Sportswear 6" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 06</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-07.jpg" alt="Progetto Nutria Sportswear 7" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 07</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-08.jpg" alt="Progetto Nutria Sportswear 8" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 08</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-09.jpg" alt="Progetto Nutria Sportswear 9" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 09</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-10.jpg" alt="Progetto Nutria Sportswear 10" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 10</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-11.jpg" alt="Progetto Nutria Sportswear 11" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 11</h3><p>Nutria Sportswear</p></div></article>
-  <article class="card"><img src="assets/projects/progetto-12.jpg" alt="Progetto Nutria Sportswear 12" onerror="this.closest('.card').remove();checkEmpty()"><div class="txt"><h3>Progetto 12</h3><p>Nutria Sportswear</p></div></article>
- </div>
- <div class="empty" id="empty">La pagina è pronta. Carica le foto dei progetti nella cartella <b>assets/projects</b> usando i nomi <b>progetto-01.jpg</b>, <b>progetto-02.jpg</b>, ecc.</div>
+<div class="kicker">PORTFOLIO</div>
+<h1>I NOSTRI PROGETTI.</h1>
+<p class="intro">Divise, concept e personalizzazioni Nutria Sportswear. Seleziona una squadra per visualizzare tutti i progetti e le relative foto.</p>
+<div class="filters" id="filters"><button class="filter active" data-team="all">TUTTE</button></div>
+<div id="teams"></div>
 </main>
+<div id="lightbox"><span id="close">×</span><img id="lightboxImg"></div>
+
 <script>
-function checkEmpty(){setTimeout(()=>{if(!document.querySelector('.card'))document.getElementById('empty').style.display='block'},50)}
-window.addEventListener('load',checkEmpty);
+/*
+ COME AGGIUNGERE UNA SQUADRA:
+ 1. Duplica un blocco dentro PROJECTS.
+ 2. Cambia "name", "folder", "season" e "photos".
+ 3. Nella cartella squadra inserisci logo.png e le foto del progetto.
+ 4. Carica tutto in assets/projects/NOME-CARTELLA/
+
+ Esempio:
+ {name:"FC Beck's", folder:"becks", photos:[
+   {file:"01.jpg", title:"Home Kit 2026"},
+   {file:"02.jpg", title:"Away Kit 2026"}
+ ]}
+*/
+// Puoi caricare fino a 30 foto per squadra senza modificare questo file.
+// Usa i nomi 01.jpg, 02.jpg, 03.jpg ... 30.jpg.
+// Le immagini mancanti vengono nascoste automaticamente.
+const autoPhotos = () => Array.from({length:30}, (_,i) => ({
+  file: String(i+1).padStart(2,'0') + '.jpg',
+  title: 'Foto ' + String(i+1).padStart(2,'0')
+}));
+
+const PROJECTS=[
+  {name:"FC Beck's",folder:"becks",logo:"logo.png",season:"2026",photos:autoPhotos()},
+  {name:"Hateful 8",folder:"hateful-8",logo:"logo.png",season:"2026",photos:autoPhotos()}
+];
+
+const teams=document.getElementById('teams'), filters=document.getElementById('filters');
+
+PROJECTS.forEach((team,i)=>{
+  const b=document.createElement('button');b.className='filter';b.dataset.team=team.folder;b.textContent=team.name;filters.appendChild(b);
+  const section=document.createElement('section');section.className='team';section.dataset.team=team.folder;
+  section.innerHTML=`<div class="team-head">
+    <div class="team-identity">
+      <img class="team-logo" src="assets/projects/${team.folder}/${team.logo}" alt="Logo ${team.name}" onerror="this.style.display='none'">
+      <div><h2>${team.name}</h2><div class="team-meta">STAGIONE ${team.season}</div></div>
+    </div>
+    <span class="count">CARICAMENTO...</span>
+  </div><div class="gallery"></div>`;
+  const gallery=section.querySelector('.gallery');
+  team.photos.forEach(p=>{
+    const card=document.createElement('article');card.className='photo';
+    const path=`assets/projects/${team.folder}/${p.file}`;
+    card.innerHTML=`<img src="${path}" alt="${team.name} - ${p.title}" loading="lazy"><div class="caption">${p.title}</div>`;
+    const img=card.querySelector('img');
+    img.onload=()=>{
+      const count=gallery.querySelectorAll('.photo:not([data-missing="1"]) img').length;
+      section.querySelector('.count').textContent=count+' FOTO';
+    };
+    img.onerror=()=>{
+      card.dataset.missing='1';
+      card.remove();
+      const count=gallery.querySelectorAll('.photo').length;
+      section.querySelector('.count').textContent=count+' FOTO';
+    };
+    card.onclick=()=>{document.getElementById('lightboxImg').src=path;document.getElementById('lightbox').classList.add('open')};
+    gallery.appendChild(card);
+  });
+  teams.appendChild(section);
+});
+
+filters.addEventListener('click',e=>{
+ if(!e.target.matches('.filter'))return;
+ document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));e.target.classList.add('active');
+ const f=e.target.dataset.team;
+ document.querySelectorAll('.team').forEach(s=>s.style.display=(f==='all'||s.dataset.team===f)?'block':'none');
+});
+document.getElementById('close').onclick=()=>document.getElementById('lightbox').classList.remove('open');
+document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')e.currentTarget.classList.remove('open')};
 </script>
 </body></html>
