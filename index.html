@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nutria Sportswear Studio</title>
+<link rel="preload" href="./models/nutria-football-kit-web-v2.glb" as="fetch" crossorigin>
+<link rel="preload" href="./assets/nutria-logo.png" as="image">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Audiowide&family=Barlow+Condensed:wght@700;800;900&family=Bebas+Neue&family=Black+Ops+One&family=Graduate&family=Oswald:wght@600;700&family=Permanent+Marker&family=Roboto+Condensed:wght@700;900&family=Russo+One&family=Teko:wght@600;700&display=swap" rel="stylesheet">
@@ -661,12 +664,20 @@ gltfLoader.load(
     try{ await document.fonts.load('900 120px "Anton"'); }catch(err){ console.warn(err); }
     updateBackPrint();
     updateView();
-    loading.style.display='none';
+    loading.textContent='KIT 3D PRONTO · 100%';
+    requestAnimationFrame(()=>{ loading.style.display='none'; });
     console.log('✓ NUTRIA KIT 3D CARICATO');
   },
   xhr=>{
-    if(xhr.total){
-      loading.textContent='CARICAMENTO KIT 3D… '+Math.round(xhr.loaded/xhr.total*100)+'%';
+    if(xhr.lengthComputable && xhr.total>0){
+      const raw=(xhr.loaded/xhr.total)*100;
+      const pct=Math.max(0,Math.min(99,Math.round(raw)));
+      loading.textContent = raw>=99
+        ? 'ELABORAZIONE MODELLO 3D…'
+        : 'CARICAMENTO KIT 3D… '+pct+'%';
+    }else{
+      const mb=(xhr.loaded/1024/1024).toFixed(1);
+      loading.textContent='CARICAMENTO KIT 3D… '+mb+' MB';
     }
   },
   err=>{
