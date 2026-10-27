@@ -22,6 +22,9 @@ main{max-width:1240px;margin:auto;padding:46px 20px 70px}
 .team{margin:0 0 54px} .team-head{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid var(--line);padding-bottom:13px;margin-bottom:18px}
 .team h2{font-size:26px;margin:0} .season{color:var(--gold);font-size:10px;letter-spacing:2px;margin-top:5px} .count{font-size:11px;color:var(--muted)}
 .gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.photo{background:#111;min-height:220px;overflow:hidden}
+.photo img{opacity:0;transition:opacity .25s ease}
+.photo img.loaded{opacity:1}
 .photo{padding:0;border:1px solid var(--line);background:#111;overflow:hidden;border-radius:14px;cursor:pointer;aspect-ratio:4/3}
 .photo img{width:100%;height:100%;object-fit:cover;display:block;transition:.25s} .photo:hover img{transform:scale(1.025)}
 .empty{border:1px dashed #34393a;border-radius:14px;padding:36px;color:var(--muted);text-align:center}
@@ -55,16 +58,16 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
  <section class="team" data-team="becks">
   <div class="team-head"><div><h2>FC Beck's</h2><div class="season">STAGIONE 2026</div></div><div class="count">4 FOTO</div></div>
   <div class="gallery"><button class="photo" data-team="becks" onclick="openLightbox(this)">
-      <img src="./assets/projects/becks/0adc34d4-7c74-4928-9189-e43a8c44349f.JPG" alt="Progetto FC Beck's" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/becks/0adc34d4-7c74-4928-9189-e43a8c44349f.JPG" alt="Progetto FC Beck's" loading="lazy" decoding="async" fetchpriority="low">
     </button>
 <button class="photo" data-team="becks" onclick="openLightbox(this)">
-      <img src="./assets/projects/becks/4fe47a80-a3ac-4526-a51f-fac4e605cb4b.JPG" alt="Progetto FC Beck's" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/becks/4fe47a80-a3ac-4526-a51f-fac4e605cb4b.JPG" alt="Progetto FC Beck's" loading="lazy" decoding="async" fetchpriority="low">
     </button>
 <button class="photo" data-team="becks" onclick="openLightbox(this)">
-      <img src="./assets/projects/becks/d051f0f3-510f-4159-b86d-ee17b4e20cd1.JPG" alt="Progetto FC Beck's" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/becks/d051f0f3-510f-4159-b86d-ee17b4e20cd1.JPG" alt="Progetto FC Beck's" loading="lazy" decoding="async" fetchpriority="low">
     </button>
 <button class="photo" data-team="becks" onclick="openLightbox(this)">
-      <img src="./assets/projects/becks/fc14f72e-99c7-4c5d-b2e4-384b60a43cc7.JPG" alt="Progetto FC Beck's" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/becks/fc14f72e-99c7-4c5d-b2e4-384b60a43cc7.JPG" alt="Progetto FC Beck's" loading="lazy" decoding="async" fetchpriority="low">
     </button></div>
  </section>
 
@@ -72,28 +75,28 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
   <div class="team-head"><div><h2>Hateful 8</h2><div class="season">STAGIONE 2026</div></div><div class="count">8 FOTO</div></div>
   <div class="gallery">
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8715.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8715.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8717.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8717.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8718.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8718.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8721.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8721.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8723.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8723.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8724.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8724.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8731.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8731.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   <button class="photo" data-team="hateful" onclick="openLightbox(this)">
-      <img src="./assets/projects/hateful-8/IMG_8733.jpeg" alt="Progetto Hateful 8" loading="lazy">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-src="./assets/projects/hateful-8/IMG_8733.jpeg" alt="Progetto Hateful 8" loading="lazy" decoding="async" fetchpriority="low">
     </button>
   </div>
  </section>
@@ -104,13 +107,59 @@ footer{max-width:1240px;margin:auto;padding:0 20px 30px;color:#73797a;font-size:
  <button class="close" onclick="closeLightbox()">×</button><img id="lightboxImg" alt="">
 </div>
 <script>
+const deferredImages=[...document.querySelectorAll('img[data-src]')];
+
+function loadImage(img){
+  if(!img || img.dataset.loaded==='1') return;
+  img.dataset.loaded='1';
+  img.onload=()=>img.classList.add('loaded');
+  img.onerror=()=>{ img.classList.add('loaded'); console.warn('Immagine non caricata:',img.dataset.src); };
+  img.src=img.dataset.src;
+}
+
+const imageObserver=('IntersectionObserver' in window)
+ ? new IntersectionObserver(entries=>{
+     entries.forEach(entry=>{
+       if(entry.isIntersecting){
+         loadImage(entry.target);
+         imageObserver.unobserve(entry.target);
+       }
+     });
+   },{rootMargin:'120px 0px'})
+ : null;
+
+deferredImages.forEach(img=>{
+  if(imageObserver) imageObserver.observe(img);
+  else loadImage(img);
+});
+
 document.querySelectorAll('[data-filter]').forEach(btn=>btn.addEventListener('click',()=>{
- document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
- const f=btn.dataset.filter;
- document.querySelectorAll('.team').forEach(s=>s.style.display=(f==='all'||s.dataset.team===f)?'block':'none');
+  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const f=btn.dataset.filter;
+
+  document.querySelectorAll('.team').forEach(section=>{
+    const visible=(f==='all'||section.dataset.team===f);
+    section.style.display=visible?'block':'none';
+    if(visible){
+      section.querySelectorAll('img[data-src]').forEach(img=>{
+        if(imageObserver) imageObserver.observe(img);
+      });
+    }
+  });
 }));
-function openLightbox(el){document.getElementById('lightboxImg').src=el.querySelector('img').src;document.getElementById('lightbox').classList.add('open')}
-function closeLightbox(){document.getElementById('lightbox').classList.remove('open')}
+
+function openLightbox(el){
+  const img=el.querySelector('img');
+  const full=img.dataset.src || img.src;
+  const target=document.getElementById('lightboxImg');
+  target.src=full;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src='';
+}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox()});
 </script>
 </body></html>
