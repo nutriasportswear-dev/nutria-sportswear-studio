@@ -53,17 +53,19 @@ h1{font-size:52px;margin:10px 0 10px}.intro{color:var(--muted);line-height:1.6;m
    {file:"02.jpg", title:"Away Kit 2026"}
  ]}
 */
-// Puoi caricare fino a 30 foto per squadra senza modificare questo file.
-// Usa i nomi 01.jpg, 02.jpg, 03.jpg ... 30.jpg.
-// Le immagini mancanti vengono nascoste automaticamente.
-const autoPhotos = () => Array.from({length:30}, (_,i) => ({
-  file: String(i+1).padStart(2,'0') + '.jpg',
-  title: 'Foto ' + String(i+1).padStart(2,'0')
-}));
-
+// Portfolio Nutria Sportswear
 const PROJECTS=[
-  {name:"FC Beck's",folder:"becks",logo:"logo.png",season:"2026",photos:autoPhotos()},
-  {name:"Hateful 8",folder:"hateful-8",logo:"logo.png",season:"2026",photos:autoPhotos()}
+  {name:"FC Beck's",folder:"becks",logo:"logo.png",season:"2026",photos:[
+    {file:"IMG_8715.jpeg",title:"FC Beck's"},
+    {file:"IMG_8717.jpeg",title:"FC Beck's"},
+    {file:"IMG_8718.jpeg",title:"FC Beck's"},
+    {file:"IMG_8721.jpeg",title:"FC Beck's"},
+    {file:"IMG_8723.jpeg",title:"FC Beck's"},
+    {file:"IMG_8724.jpeg",title:"FC Beck's"},
+    {file:"IMG_8731.jpeg",title:"FC Beck's"},
+    {file:"IMG_8733.jpeg",title:"FC Beck's"}
+  ]},
+  {name:"Hateful 8",folder:"hateful-8",logo:"logo.png",season:"2026",photos:[]}
 ];
 
 const teams=document.getElementById('teams'), filters=document.getElementById('filters');
