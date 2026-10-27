@@ -195,7 +195,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
    </div>
 
    <div class="field">
-    <label>7. RICHIEDI UN PREVENTIVO</label>
+    <label>7. SPONSOR PERSONALIZZATI</label><label>SPONSOR FRONTE · PANCIA</label><label class="upload-label" for="frontSponsorFile">＋ Carica sponsor</label><input id="frontSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="frontSponsorStatus">PNG trasparente consigliato.</div><div><small>DIMENSIONE <span id="frontSponsorSizeValue">100%</span></small><input id="frontSponsorSize" type="range" min="40" max="220" value="100" style="width:100%"><small> POSIZIONE VERTICALE</small><input id="frontSponsorY" type="range" min="-100" max="100" value="0" style="width:100%"></div><br><label>SPONSOR RETRO · SOTTO IL NUMERO</label><label class="upload-label" for="backSponsorFile">＋ Carica sponsor</label><input id="backSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="backSponsorStatus">Applicato sotto il numero.</div><div><small>DIMENSIONE <span id="backSponsorSizeValue">100%</span></small><input id="backSponsorSize" type="range" min="40" max="220" value="100" style="width:100%"><small> POSIZIONE VERTICALE</small><input id="backSponsorY" type="range" min="-100" max="100" value="0" style="width:100%"></div><hr style="border:0;border-top:1px solid #2b3032;margin:18px 0"><label>8. RICHIEDI UN PREVENTIVO</label>
     
    <div style="margin-top:14px">
     <div class="section-title">POSIZIONE E DIMENSIONE LOGHI</div>
@@ -277,6 +277,7 @@ let nutriaLogoX = 0, nutriaLogoY = 0;
 let teamLogoX = 0, teamLogoY = 0;
 let nutriaLogoTexture = null;
 let teamLogoTexture = null;
+let frontSponsorTexture=null,backSponsorTexture=null,frontSponsor=null,backSponsor=null,frontSponsorScale=1,backSponsorScale=1,frontSponsorY=0,backSponsorY=0;
 
 let nutriaChestLogo = null;
 let jerseyMesh = null;
@@ -510,6 +511,10 @@ function loadNutriaChestLogo(){
   );
 }
 
+function sponsorDecal(tex,front){if(!jerseyMesh||!tex)return null;const box=jerseyBounds(),s=box.getSize(new THREE.Vector3()),c=box.getCenter(new THREE.Vector3()),sc=front?frontSponsorScale:backSponsorScale,adj=(front?frontSponsorY:backSponsorY)/100,y=c.y+(front?-.06:-.29)*s.y+adj*s.y*.13,o=new THREE.Vector3(c.x,y,front?box.max.z+s.z+1:box.min.z-s.z-1),hits=new THREE.Raycaster(o,new THREE.Vector3(0,0,front?-1:1)).intersectObject(jerseyMesh,false);if(!hits.length)return null;const hit=hits[0],n=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld),helper=new THREE.Object3D();helper.position.copy(hit.point);helper.lookAt(hit.point.clone().add(n));const a=tex.image?.width/tex.image?.height||2.5,w=s.x*(front?.48:.36)*sc,g=new DecalGeometry(jerseyMesh,hit.point,helper.rotation.clone(),new THREE.Vector3(w,w/a,Math.max(s.z*.22,.05))),m=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-9,side:THREE.DoubleSide,alphaTest:.01}),d=new THREE.Mesh(g,m);d.renderOrder=95;scene.add(d);return d}
+function rebuildSponsors(){if(frontSponsor)disposeDecal(frontSponsor);if(backSponsor)disposeDecal(backSponsor);frontSponsor=frontSponsorTexture?sponsorDecal(frontSponsorTexture,true):null;backSponsor=backSponsorTexture?sponsorDecal(backSponsorTexture,false):null;updateView()}
+function loadSponsor(f,front){if(!f)return;const url=URL.createObjectURL(f),st=document.getElementById(front?'frontSponsorStatus':'backSponsorStatus');new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;if(front)frontSponsorTexture=t;else backSponsorTexture=t;rebuildSponsors();st.textContent='✓ '+f.name;URL.revokeObjectURL(url)})}
+
 function updateBackPrint(){
   if(!jerseyMesh)return;
   const box=jerseyBounds(); if(!box)return;
@@ -612,6 +617,7 @@ function updateView(){
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
   if(backPrint) backPrint.visible=showJersey;
+  if(frontSponsor) frontSponsor.visible=showJersey; if(backSponsor) backSponsor.visible=showJersey;
 }
 
 const gltfLoader = new GLTFLoader();
@@ -834,6 +840,7 @@ document.getElementById('nutriaLogoY')?.addEventListener('input',e=>{nutriaLogoY
 document.getElementById('teamLogoX')?.addEventListener('input',e=>{teamLogoX=Number(e.target.value);rebuildChestDecals();});
 document.getElementById('teamLogoY')?.addEventListener('input',e=>{teamLogoY=Number(e.target.value);rebuildChestDecals();});
 
+document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],true));document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],false));document.getElementById('frontSponsorSize')?.addEventListener('input',e=>{frontSponsorScale=+e.target.value/100;document.getElementById('frontSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('backSponsorSize')?.addEventListener('input',e=>{backSponsorScale=+e.target.value/100;document.getElementById('backSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('frontSponsorY')?.addEventListener('input',e=>{frontSponsorY=+e.target.value;rebuildSponsors()});document.getElementById('backSponsorY')?.addEventListener('input',e=>{backSponsorY=+e.target.value;rebuildSponsors()});
 function animate(){
   requestAnimationFrame(animate);
   controls.update();
