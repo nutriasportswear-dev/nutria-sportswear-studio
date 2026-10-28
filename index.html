@@ -415,14 +415,79 @@ function jerseyBounds(){
 function disposeDecal(obj){
   if(!obj) return;
   if(obj.parent) obj.parent.remove(obj);
-  obj.geometry?.dispose();
-  obj.material?.dispose();
+  obj.traverse?.(child=>{
+    child.geometry?.dispose?.();
+    if(Array.isArray(child.material)) child.material.forEach(m=>m?.dispose?.());
+    else child.material?.dispose?.();
+  });
+  obj.geometry?.dispose?.();
+  if(Array.isArray(obj.material)) obj.material.forEach(m=>m?.dispose?.());
+  else obj.material?.dispose?.();
+}
+
+
+function findJerseySurface(side, x, y){
+  if(!jerseyMesh) return null;
+  jerseyMesh.updateMatrixWorld(true);
+  const box=jerseyBounds();
+  const size=box.getSize(new THREE.Vector3());
+  const front=side==='front';
+
+  const xOffsets=[0,-.025,.025,-.05,.05,-.08,.08];
+  const yOffsets=[0,-.025,.025,-.05,.05,-.08,.08,-.12,.12];
+
+  for(const yo of yOffsets){
+    for(const xo of xOffsets){
+      const origin=new THREE.Vector3(
+        x + xo*size.x,
+        y + yo*size.y,
+        front ? box.max.z + Math.max(size.z*2,2) : box.min.z - Math.max(size.z*2,2)
+      );
+      const dir=new THREE.Vector3(0,0,front?-1:1);
+      const hits=new THREE.Raycaster(origin,dir,0,Math.max(size.z*5,10)).intersectObject(jerseyMesh,false);
+      if(hits.length) return hits[0];
+    }
+  }
+  return null;
+}
+
+function decalOrientationFromHit(hit){
+  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
+  const helper=new THREE.Object3D();
+  helper.position.copy(hit.point);
+  helper.lookAt(hit.point.clone().add(normal));
+  return helper.rotation.clone();
+}
+
+function makeSurfaceDecal(texture, hit, width, height, renderOrder=90){
+  const box=jerseyBounds();
+  const size=box.getSize(new THREE.Vector3());
+  const geometry=new DecalGeometry(
+    jerseyMesh,
+    hit.point.clone(),
+    decalOrientationFromHit(hit),
+    new THREE.Vector3(width,height,Math.max(size.z*.18,.03))
+  );
+  const material=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    depthTest:true,
+    depthWrite:false,
+    polygonOffset:true,
+    polygonOffsetFactor:-12,
+    polygonOffsetUnits:-12,
+    side:THREE.DoubleSide,
+    alphaTest:.005
+  });
+  const decal=new THREE.Mesh(geometry,material);
+  decal.renderOrder=renderOrder;
+  scene.add(decal);
+  return decal;
 }
 
 function createChestDecal(texture, type){
   if(!jerseyMesh || !texture) return null;
 
-  jerseyMesh.updateMatrixWorld(true);
   const box=jerseyBounds();
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
@@ -432,57 +497,26 @@ function createChestDecal(texture, type){
   const xAdjust=(isNutria ? nutriaLogoX : teamLogoX)/100;
   const yAdjust=(isNutria ? nutriaLogoY : teamLogoY)/100;
 
-  // Petto: Nutria a destra del giocatore (sinistra per chi guarda),
-  // stemma squadra sul lato cuore.
-  const sideOffset=size.x*.145;
-  const px=center.x + (isNutria ? -sideOffset : sideOffset) + xAdjust*size.x*.20;
-  const py=center.y + size.y*.285 + yAdjust*size.y*.15;
+  // Petto destro DEL GIOCATORE = sinistra per chi guarda frontalmente.
+  // Lo stemma squadra resta sul lato cuore opposto.
+  const px=center.x + (isNutria ? -size.x*.155 : size.x*.155) + xAdjust*size.x*.16;
+  const py=center.y + size.y*.245 + yAdjust*size.y*.12;
 
-  // Trova davvero la superficie anteriore della maglia.
-  const raycaster=new THREE.Raycaster(
-    new THREE.Vector3(px,py,box.max.z + Math.max(size.z,1)),
-    new THREE.Vector3(0,0,-1)
-  );
-  const hits=raycaster.intersectObject(jerseyMesh,false);
-  if(!hits.length){
-    console.warn('Superficie petto non trovata per decal',type);
+  const hit=findJerseySurface('front',px,py);
+  if(!hit){
+    console.warn('Superficie petto non trovata:',type);
     return null;
   }
 
-  const hit=hits[0];
-  const position=hit.point.clone();
+  const img=texture.image;
+  const aspect=(img?.naturalWidth||img?.width||1)/(img?.naturalHeight||img?.height||1);
 
-  // Orienta il proiettore secondo la normale locale della maglia.
-  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
-  const helper=new THREE.Object3D();
-  helper.position.copy(position);
-  helper.lookAt(position.clone().add(normal));
-  const orientation=helper.rotation.clone();
+  // Nutria leggermente più largo; sempre proporzionato all'immagine.
+  const width=size.x*(isNutria?.19:.135)*scale;
+  const height=Math.min(width/Math.max(aspect,.2), size.y*.15*scale);
 
-  const aspect=(texture.image?.width && texture.image?.height)
-    ? texture.image.width/texture.image.height : 1;
-
-  // Logo Nutria volutamente un po' più grande e leggibile.
-  const baseW=size.x*(isNutria ? .17 : .13)*scale;
-  const baseH=baseW/aspect;
-  const decalSize=new THREE.Vector3(baseW,baseH,Math.max(size.z*.22,.05));
-
-  const geometry=new DecalGeometry(jerseyMesh,position,orientation,decalSize);
-  const material=new THREE.MeshBasicMaterial({
-    map:texture,
-    transparent:true,
-    depthTest:true,
-    depthWrite:false,
-    polygonOffset:true,
-    polygonOffsetFactor:-8,
-    side:THREE.DoubleSide,
-    alphaTest:.01
-  });
-
-  const decal=new THREE.Mesh(geometry,material);
+  const decal=makeSurfaceDecal(texture,hit,width,height,100);
   decal.name=isNutria?'NUTRIA_CHEST_DECAL':'TEAM_CREST_DECAL';
-  decal.renderOrder=90;
-  scene.add(decal);
   return decal;
 }
 
@@ -517,90 +551,102 @@ function sponsorDecal(tex,front){if(!jerseyMesh||!tex)return null;const box=jers
 function rebuildSponsors(){if(frontSponsor)disposeDecal(frontSponsor);if(backSponsor)disposeDecal(backSponsor);frontSponsor=frontSponsorTexture?sponsorDecal(frontSponsorTexture,true):null;backSponsor=backSponsorTexture?sponsorDecal(backSponsorTexture,false):null;updateView()}
 function loadSponsor(f,front){if(!f)return;const url=URL.createObjectURL(f),st=document.getElementById(front?'frontSponsorStatus':'backSponsorStatus');new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;if(front)frontSponsorTexture=t;else backSponsorTexture=t;rebuildSponsors();st.textContent='✓ '+f.name;URL.revokeObjectURL(url)})}
 
+function makeTextTexture(text,font,color,width=1024,height=256,fontPx=150){
+  const c=document.createElement('canvas');
+  c.width=width; c.height=height;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,width,height);
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillStyle=color;
+  ctx.font=`900 ${fontPx}px "${font}", "Arial Black", sans-serif`;
+
+  // Riduce automaticamente il testo lungo per non uscire dalla maglia.
+  let measured=ctx.measureText(text).width;
+  let px=fontPx;
+  while(measured>width*.90 && px>40){
+    px-=5;
+    ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
+    measured=ctx.measureText(text).width;
+  }
+  ctx.fillText(text,width/2,height/2);
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.needsUpdate=true;
+  return tex;
+}
+
+function createBackTextDecal(texture, y, width, height, name){
+  const box=jerseyBounds();
+  const center=box.getCenter(new THREE.Vector3());
+  const hit=findJerseySurface('back',center.x,y);
+  if(!hit){
+    console.warn('Superficie retro non trovata:',name);
+    texture.dispose?.();
+    return null;
+  }
+  const decal=makeSurfaceDecal(texture,hit,width,height,110);
+  decal.name=name;
+  return decal;
+}
+
 function updateBackPrint(){
-  if(!jerseyMesh)return;
-  const box=jerseyBounds(); if(!box)return;
+  if(!jerseyMesh) return;
 
   if(backPrint){
     disposeDecal(backPrint);
     backPrint=null;
   }
 
-  const name=(document.getElementById('playerName')?.value||'').toUpperCase();
-  const num=document.getElementById('playerNumber')?.value||'';
-  const font=document.getElementById('kitFont')?.value||'Arial Black';
-  const col=document.getElementById('textColor')?.value||'#ffffff';
-
-  const c=document.createElement('canvas');
-  c.width=1024; c.height=1024;
-  const x=c.getContext('2d');
-  x.clearRect(0,0,1024,1024);
-  x.textAlign='center';
-  x.textBaseline='middle';
-  x.fillStyle=col;
-
-  // Nome alto, appena sotto il colletto.
-  x.font=`bold 112px "${font}"`;
-  x.fillText(name,512,155);
-
-  // Numero grande, centrato nella parte alta/centrale della schiena.
-  x.font=`bold 560px "${font}"`;
-  x.fillText(num,512,545);
-
-  const tex=new THREE.CanvasTexture(c);
-  tex.colorSpace=THREE.SRGBColorSpace;
-
-  jerseyMesh.updateMatrixWorld(true);
+  const box=jerseyBounds();
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // Cerca la superficie posteriore reale.
-  const targetY=center.y + size.y*.13;
-  const raycaster=new THREE.Raycaster(
-    new THREE.Vector3(center.x,targetY,box.min.z - Math.max(size.z,1)),
-    new THREE.Vector3(0,0,1)
-  );
-  const hits=raycaster.intersectObject(jerseyMesh,false);
-  if(!hits.length){
-    console.warn('Superficie posteriore non trovata');
-    tex.dispose();
-    return;
+  const playerName=(document.getElementById('playerName')?.value||'').trim().toUpperCase();
+  const playerNumber=(document.getElementById('playerNumber')?.value||'').trim();
+  const font=document.getElementById('kitFont')?.value||'Anton';
+  const color=document.getElementById('textColor')?.value||'#ffffff';
+
+  const group=new THREE.Group();
+  group.name='BACK_NAME_NUMBER_DECALS';
+  scene.add(group);
+
+  // NOME: appena sotto il colletto.
+  if(playerName){
+    const nameTex=makeTextTexture(playerName,font,color,1024,240,150);
+    const nameDecal=createBackTextDecal(
+      nameTex,
+      center.y + size.y*.255,
+      size.x*.60,
+      size.y*.105,
+      'BACK_NAME_DECAL'
+    );
+    if(nameDecal){
+      scene.remove(nameDecal);
+      group.add(nameDecal);
+    }
   }
 
-  const hit=hits[0];
-  const position=hit.point.clone();
-  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
-  const helper=new THREE.Object3D();
-  helper.position.copy(position);
-  helper.lookAt(position.clone().add(normal));
-  const orientation=helper.rotation.clone();
+  // NUMERO: grande, centrato sulla schiena e ben sopra la vita.
+  if(playerNumber){
+    const numTex=makeTextTexture(playerNumber,font,color,768,768,600);
+    const numDecal=createBackTextDecal(
+      numTex,
+      center.y + size.y*.035,
+      size.x*.46,
+      size.y*.35,
+      'BACK_NUMBER_DECAL'
+    );
+    if(numDecal){
+      scene.remove(numDecal);
+      group.add(numDecal);
+    }
+  }
 
-  // Area stampa: parte alta della schiena, senza scendere sui pantaloncini.
-  const printW=size.x*.72;
-  const printH=size.y*.58;
-
-  const geometry=new DecalGeometry(
-    jerseyMesh,
-    position,
-    orientation,
-    new THREE.Vector3(printW,printH,Math.max(size.z*.24,.05))
-  );
-  const material=new THREE.MeshBasicMaterial({
-    map:tex,
-    transparent:true,
-    depthTest:true,
-    depthWrite:false,
-    polygonOffset:true,
-    polygonOffsetFactor:-8,
-    side:THREE.DoubleSide,
-    alphaTest:.01
-  });
-
-  backPrint=new THREE.Mesh(geometry,material);
-  backPrint.name='BACK_NAME_NUMBER_DECAL';
-  backPrint.renderOrder=85;
-  scene.add(backPrint);
+  backPrint=group;
+  updateView();
 }
+
 
 
 function updateView(){
@@ -667,7 +713,11 @@ gltfLoader.load(
     requestAnimationFrame(()=>{ loading.style.display='none'; });
 
     // Caricamenti/accessori non bloccanti
-    try{ loadNutriaChestLogo(); }catch(err){ console.warn('Logo Nutria:',err); }
+    try{
+      loadNutriaChestLogo();
+      if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals();
+    }catch(err){ console.warn('Logo petto:',err); }
+
     try{ updateBackPrint(); }catch(err){ console.warn('Nome/numero:',err); }
 
     if(document.fonts && document.fonts.load){
