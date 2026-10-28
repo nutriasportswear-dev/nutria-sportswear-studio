@@ -433,18 +433,19 @@ function findJerseySurface(side, x, y){
   const size=box.getSize(new THREE.Vector3());
   const front=side==='front';
 
-  const xOffsets=[0,-.025,.025,-.05,.05,-.08,.08];
-  const yOffsets=[0,-.025,.025,-.05,.05,-.08,.08,-.12,.12];
+  const xOffsets=[0,-.03,.03,-.06,.06,-.10,.10,-.14,.14];
+  const yOffsets=[0,-.03,.03,-.06,.06,-.10,.10,-.15,.15];
 
   for(const yo of yOffsets){
     for(const xo of xOffsets){
       const origin=new THREE.Vector3(
         x + xo*size.x,
         y + yo*size.y,
-        front ? box.max.z + Math.max(size.z*2,2) : box.min.z - Math.max(size.z*2,2)
+        front ? box.max.z + Math.max(size.z*3,3) : box.min.z - Math.max(size.z*3,3)
       );
       const dir=new THREE.Vector3(0,0,front?-1:1);
-      const hits=new THREE.Raycaster(origin,dir,0,Math.max(size.z*5,10)).intersectObject(jerseyMesh,false);
+      const ray=new THREE.Raycaster(origin,dir,0,Math.max(size.z*8,20));
+      const hits=ray.intersectObject(jerseyMesh,true);
       if(hits.length) return hits[0];
     }
   }
@@ -455,7 +456,7 @@ function decalOrientationFromHit(hit){
   const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
   const helper=new THREE.Object3D();
   helper.position.copy(hit.point);
-  helper.lookAt(hit.point.clone().add(normal));
+  helper.lookAt(hit.point.clone().sub(normal));
   return helper.rotation.clone();
 }
 
@@ -481,6 +482,8 @@ function makeSurfaceDecal(texture, hit, width, height, renderOrder=90){
   });
   const decal=new THREE.Mesh(geometry,material);
   decal.renderOrder=renderOrder;
+  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
+  decal.position.add(normal.multiplyScalar(0.001));
   scene.add(decal);
   return decal;
 }
@@ -500,7 +503,7 @@ function createChestDecal(texture, type){
   // Petto destro DEL GIOCATORE = sinistra per chi guarda frontalmente.
   // Lo stemma squadra resta sul lato cuore opposto.
   const px=center.x + (isNutria ? -size.x*.155 : size.x*.155) + xAdjust*size.x*.16;
-  const py=center.y + size.y*.245 + yAdjust*size.y*.12;
+  const py=center.y + size.y*.225 + yAdjust*size.y*.12;
 
   const hit=findJerseySurface('front',px,py);
   if(!hit){
@@ -512,7 +515,7 @@ function createChestDecal(texture, type){
   const aspect=(img?.naturalWidth||img?.width||1)/(img?.naturalHeight||img?.height||1);
 
   // Nutria leggermente più largo; sempre proporzionato all'immagine.
-  const width=size.x*(isNutria?.19:.135)*scale;
+  const width=size.x*(isNutria?.22:.14)*scale;
   const height=Math.min(width/Math.max(aspect,.2), size.y*.15*scale);
 
   const decal=makeSurfaceDecal(texture,hit,width,height,100);
@@ -535,15 +538,17 @@ function placeChestBranding(){
 }
 
 function loadNutriaChestLogo(){
-  new THREE.TextureLoader().load(
+  const loader=new THREE.TextureLoader();
+  loader.load(
     './assets/nutria-logo.png',
-    texture=>{
-      texture.colorSpace=THREE.SRGBColorSpace;
-      nutriaLogoTexture=texture;
-      rebuildChestDecals();
+    tex=>{
+      tex.colorSpace=THREE.SRGBColorSpace;
+      tex.needsUpdate=true;
+      nutriaLogoTexture=tex;
+      try{ rebuildChestDecals(); }catch(err){ console.warn('Rebuild logo Nutria:',err); }
     },
     undefined,
-    err=>console.warn('Logo Nutria PNG non caricato',err)
+    err=>console.error('Impossibile caricare ./assets/nutria-logo.png',err)
   );
 }
 
@@ -616,7 +621,7 @@ function updateBackPrint(){
     const nameTex=makeTextTexture(playerName,font,color,1024,240,150);
     const nameDecal=createBackTextDecal(
       nameTex,
-      center.y + size.y*.255,
+      center.y + size.y*.235,
       size.x*.60,
       size.y*.105,
       'BACK_NAME_DECAL'
@@ -632,7 +637,7 @@ function updateBackPrint(){
     const numTex=makeTextTexture(playerNumber,font,color,768,768,600);
     const numDecal=createBackTextDecal(
       numTex,
-      center.y + size.y*.035,
+      center.y + size.y*.015,
       size.x*.46,
       size.y*.35,
       'BACK_NUMBER_DECAL'
@@ -726,6 +731,10 @@ gltfLoader.load(
         .catch(err=>console.warn('Font Anton:',err));
     }
 
+    setTimeout(()=>{
+      try{ if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals(); }catch(err){ console.warn(err); }
+      try{ updateBackPrint(); }catch(err){ console.warn(err); }
+    },150);
     console.log('✓ NUTRIA KIT 3D CARICATO');
   },
   xhr=>{
