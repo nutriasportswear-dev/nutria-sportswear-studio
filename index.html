@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nutria Sportswear Studio</title>
-<link rel="preload" href="./models/nutria-football-kit-web-v2.glb" as="fetch" crossorigin>
 <link rel="preload" href="./assets/nutria-logo.png" as="image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -626,7 +625,7 @@ function updateView(){
 const gltfLoader = new GLTFLoader();
 gltfLoader.load(
   './models/nutria-football-kit-web-v2.glb',
-  async gltf=>{
+  gltf=>{
     realKit = gltf.scene;
     scene.add(realKit);
 
@@ -659,13 +658,24 @@ gltfLoader.load(
       console.warn('Una o più mesh previste non sono state trovate.');
     }
 
-    applyKitColor(chosenColor);
-    loadNutriaChestLogo();
-    try{ await document.fonts.load('900 120px "Anton"'); }catch(err){ console.warn(err); }
-    updateBackPrint();
-    updateView();
+    // Il modello 3D deve diventare visibile subito:
+    // font, loghi e stampe sono accessori e non possono bloccarne il caricamento.
+    try{ applyKitColor(chosenColor); }catch(err){ console.warn('Colore kit:',err); }
+    try{ updateView(); }catch(err){ console.warn('Vista kit:',err); }
+
     loading.textContent='KIT 3D PRONTO · 100%';
     requestAnimationFrame(()=>{ loading.style.display='none'; });
+
+    // Caricamenti/accessori non bloccanti
+    try{ loadNutriaChestLogo(); }catch(err){ console.warn('Logo Nutria:',err); }
+    try{ updateBackPrint(); }catch(err){ console.warn('Nome/numero:',err); }
+
+    if(document.fonts && document.fonts.load){
+      document.fonts.load('900 120px "Anton"')
+        .then(()=>{ try{ updateBackPrint(); }catch(err){ console.warn(err); } })
+        .catch(err=>console.warn('Font Anton:',err));
+    }
+
     console.log('✓ NUTRIA KIT 3D CARICATO');
   },
   xhr=>{
