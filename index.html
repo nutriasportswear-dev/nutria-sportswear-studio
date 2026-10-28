@@ -324,23 +324,23 @@ function drawImageContained(ctx,img,cx,cy,maxW,maxH){
 }
 
 function drawJerseyPrints(ctx){
-  // Coordinate UV corrette sul GLB nutria-football-kit-web-v2.glb.
+  // Coordinate ricavate direttamente dalla geometria/UV del GLB reale.
   // FRONT: petto destro del giocatore = sinistra per chi guarda.
   if(nutriaLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,nutriaLogoScale||1.35));
 
-    // Spostato più in basso e verso il lato corretto del petto.
-    const x=155 + (nutriaLogoX||0)*1.45;
-    const y=690 - (nutriaLogoY||0)*1.05;
+    // Petto destro: circa x 160 / y 610 sulla texture 1024x1024.
+    const x=160 + (nutriaLogoX||0)*1.35;
+    const y=610 - (nutriaLogoY||0)*1.05;
 
-    drawImageContained(ctx,nutriaLogoTexture.image,x,y,120*sc,68*sc);
+    drawImageContained(ctx,nutriaLogoTexture.image,x,y,115*sc,72*sc);
   }
 
   // STEMMA SQUADRA sul lato cuore opposto.
   if(teamLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,teamLogoScale||1));
-    const x=350 + (teamLogoX||0)*1.45;
-    const y=685 - (teamLogoY||0)*1.05;
+    const x=340 + (teamLogoX||0)*1.35;
+    const y=610 - (teamLogoY||0)*1.05;
     drawImageContained(ctx,teamLogoTexture.image,x,y,92*sc,92*sc);
   }
 
@@ -349,34 +349,33 @@ function drawJerseyPrints(ctx){
   const font=document.getElementById('kitFont')?.value||'Anton';
   const color=document.getElementById('textColor')?.value||'#ffffff';
 
+  // Il pannello UV del RETRO è specchiato orizzontalmente.
+  // Quindi specchiamo il testo nella texture affinché sul modello risulti leggibile.
+  const backCenterX=763;
+
   ctx.save();
   ctx.fillStyle=color;
   ctx.textAlign='center';
   ctx.textBaseline='middle';
 
-  // RETRO: quest'isola UV è ruotata di 180°, quindi testo e numero
-  // vengono disegnati ruotati per risultare dritti sul modello.
-  const cx=748;
-  const cy=635;
+  ctx.translate(backCenterX,0);
+  ctx.scale(-1,1);
 
-  ctx.translate(cx,cy);
-  ctx.rotate(Math.PI);
-
-  // NOME appena sotto il colletto.
+  // NOME: appena sotto il colletto.
   if(name){
-    let px=60;
+    let px=58;
     ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
-    while(ctx.measureText(name).width>260 && px>26){
+    while(ctx.measureText(name).width>255 && px>26){
       px-=2;
       ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
     }
-    ctx.fillText(name,0,95);
+    ctx.fillText(name,0,510);
   }
 
-  // NUMERO grande, centrato sulla schiena.
+  // NUMERO: centro schiena.
   if(number){
-    ctx.font=`900 185px "${font}", "Arial Black", sans-serif`;
-    ctx.fillText(number,0,-35);
+    ctx.font=`900 180px "${font}", "Arial Black", sans-serif`;
+    ctx.fillText(number,0,635);
   }
 
   ctx.restore();
