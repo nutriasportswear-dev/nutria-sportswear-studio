@@ -323,25 +323,68 @@ function drawImageContained(ctx,img,cx,cy,maxW,maxH){
   ctx.drawImage(img,cx-w/2,cy-h/2,w,h);
 }
 
+
+function getVisibleImageBounds(img){
+  try{
+    const c=document.createElement('canvas');
+    c.width=img.naturalWidth||img.width;
+    c.height=img.naturalHeight||img.height;
+    const x=c.getContext('2d',{willReadFrequently:true});
+    x.drawImage(img,0,0);
+    const data=x.getImageData(0,0,c.width,c.height).data;
+    let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+    for(let yy=0;yy<c.height;yy++){
+      for(let xx=0;xx<c.width;xx++){
+        const a=data[(yy*c.width+xx)*4+3];
+        if(a>12){
+          if(xx<minX)minX=xx;
+          if(xx>maxX)maxX=xx;
+          if(yy<minY)minY=yy;
+          if(yy>maxY)maxY=yy;
+        }
+      }
+    }
+    if(maxX<minX||maxY<minY) return {sx:0,sy:0,sw:c.width,sh:c.height};
+    return {sx:minX,sy:minY,sw:maxX-minX+1,sh:maxY-minY+1};
+  }catch(e){
+    return {sx:0,sy:0,sw:img.naturalWidth||img.width,sh:img.naturalHeight||img.height};
+  }
+}
+
+function drawImageContainedCropped(ctx,img,cx,cy,maxW,maxH){
+  if(!img || !(img.naturalWidth||img.width) || !(img.naturalHeight||img.height)) return;
+  const b=getVisibleImageBounds(img);
+  const ratio=b.sw/b.sh;
+  let w=maxW,h=w/ratio;
+  if(h>maxH){h=maxH;w=h*ratio;}
+  ctx.drawImage(img,b.sx,b.sy,b.sw,b.sh,cx-w/2,cy-h/2,w,h);
+}
+
 function drawJerseyPrints(ctx){
-  // Coordinate ricavate direttamente dalla geometria/UV del GLB reale.
-  // FRONT: petto destro del giocatore = sinistra per chi guarda.
+  // FRONT — petto destro del giocatore = sinistra per chi guarda.
   if(nutriaLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,nutriaLogoScale||1.35));
 
-    // Petto destro: circa x 160 / y 610 sulla texture 1024x1024.
-    const x=160 + (nutriaLogoX||0)*1.35;
-    const y=610 - (nutriaLogoY||0)*1.05;
+    // Coordinate calibrate sul torso reale.
+    // Il PNG viene ritagliato automaticamente dal bordo trasparente.
+    const x=185 + (nutriaLogoX||0)*1.25;
+    const y=535 - (nutriaLogoY||0)*1.00;
 
-    drawImageContained(ctx,nutriaLogoTexture.image,x,y,115*sc,72*sc);
+    drawImageContainedCropped(
+      ctx,
+      nutriaLogoTexture.image,
+      x,y,
+      108*sc,
+      58*sc
+    );
   }
 
-  // STEMMA SQUADRA sul lato cuore opposto.
+  // STEMMA SQUADRA — lato cuore opposto.
   if(teamLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,teamLogoScale||1));
-    const x=340 + (teamLogoX||0)*1.35;
-    const y=610 - (teamLogoY||0)*1.05;
-    drawImageContained(ctx,teamLogoTexture.image,x,y,92*sc,92*sc);
+    const x=320 + (teamLogoX||0)*1.25;
+    const y=535 - (teamLogoY||0)*1.00;
+    drawImageContainedCropped(ctx,teamLogoTexture.image,x,y,82*sc,82*sc);
   }
 
   const name=(document.getElementById('playerName')?.value||'').trim().toUpperCase();
@@ -349,33 +392,30 @@ function drawJerseyPrints(ctx){
   const font=document.getElementById('kitFont')?.value||'Anton';
   const color=document.getElementById('textColor')?.value||'#ffffff';
 
-  // Il pannello UV del RETRO è specchiato orizzontalmente.
-  // Quindi specchiamo il testo nella texture affinché sul modello risulti leggibile.
-  const backCenterX=763;
-
   ctx.save();
   ctx.fillStyle=color;
   ctx.textAlign='center';
   ctx.textBaseline='middle';
 
-  ctx.translate(backCenterX,0);
-  ctx.scale(-1,1);
+  // RETRO — nessuna rotazione e nessuna specchiatura:
+  // il verso della UV e quello della vista posteriore si compensano.
+  const backCenterX=763;
 
-  // NOME: appena sotto il colletto.
+  // NOME appena sotto il colletto.
   if(name){
-    let px=58;
+    let px=54;
     ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
-    while(ctx.measureText(name).width>255 && px>26){
+    while(ctx.measureText(name).width>245 && px>24){
       px-=2;
       ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
     }
-    ctx.fillText(name,0,510);
+    ctx.fillText(name,backCenterX,430);
   }
 
-  // NUMERO: centro schiena.
+  // NUMERO grande al centro della schiena.
   if(number){
-    ctx.font=`900 180px "${font}", "Arial Black", sans-serif`;
-    ctx.fillText(number,0,635);
+    ctx.font=`900 170px "${font}", "Arial Black", sans-serif`;
+    ctx.fillText(number,backCenterX,565);
   }
 
   ctx.restore();
