@@ -282,6 +282,9 @@ let teamLogoTexture = null;
 let frontSponsorTexture=null,backSponsorTexture=null,frontSponsor=null,backSponsor=null,frontSponsorScale=1,backSponsorScale=1,frontSponsorY=0,backSponsorY=0;
 
 let nutriaChestLogo = null;
+let teamChestLogo3D = null;
+let backNameMesh = null;
+let backNumberMesh = null;
 let jerseyMesh = null;
 let collarMesh = null;
 let sleevesMesh = null;
@@ -324,62 +327,8 @@ function drawImageContained(ctx,img,cx,cy,maxW,maxH){
 }
 
 function drawJerseyPrints(ctx){
-  // FRONT — petto destro del giocatore = sinistra per chi guarda.
-  // Manteniamo il sistema della V6.16, dove il logo risultava visibile.
-  if(nutriaLogoTexture?.image){
-    const sc=Math.max(.4,Math.min(3,nutriaLogoScale||1.35));
-
-    // Spostato leggermente più verso il lato corretto e più in basso.
-    const x=145 + (nutriaLogoX||0)*1.35;
-    const y=625 - (nutriaLogoY||0)*1.05;
-
-    drawImageContained(ctx,nutriaLogoTexture.image,x,y,125*sc,76*sc);
-  }
-
-  // STEMMA SQUADRA — lato cuore opposto.
-  if(teamLogoTexture?.image){
-    const sc=Math.max(.4,Math.min(3,teamLogoScale||1));
-    const x=350 + (teamLogoX||0)*1.35;
-    const y=625 - (teamLogoY||0)*1.05;
-    drawImageContained(ctx,teamLogoTexture.image,x,y,92*sc,92*sc);
-  }
-
-  const name=(document.getElementById('playerName')?.value||'').trim().toUpperCase();
-  const number=(document.getElementById('playerNumber')?.value||'').trim();
-  const font=document.getElementById('kitFont')?.value||'Anton';
-  const color=document.getElementById('textColor')?.value||'#ffffff';
-
-  ctx.save();
-  ctx.fillStyle=color;
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-
-  // RETRO: correggiamo il blocco con una rotazione di 180°,
-  // senza specchiatura separata.
-  const cx=763;
-  const cy=575;
-
-  ctx.translate(cx,cy);
-  ctx.rotate(Math.PI);
-
-  // Nome sotto il colletto
-  if(name){
-    let px=56;
-    ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
-    while(ctx.measureText(name).width>250 && px>24){
-      px-=2;
-      ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
-    }
-    ctx.fillText(name,0,115);
-  }
-
-  // Numero al centro schiena
-  if(number){
-    ctx.font=`900 175px "${font}", "Arial Black", sans-serif`;
-    ctx.fillText(number,0,-15);
-  }
-
-  ctx.restore();
+  // V6.19: logo, stemma, nome e numero NON vengono più disegnati nella UV.
+  // Restano separati e agganciati direttamente al modello 3D.
 }
 
 
@@ -587,10 +536,73 @@ function createChestDecal(texture, type){
   return decal;
 }
 
+function disposeMesh3D(obj){
+  if(!obj) return;
+  if(obj.parent) obj.parent.remove(obj);
+  obj.geometry?.dispose?.();
+  if(Array.isArray(obj.material)) obj.material.forEach(m=>m?.dispose?.());
+  else obj.material?.dispose?.();
+}
+
+function makeAnchoredImagePlane(texture, x, y, z, width, name){
+  if(!realKit || !texture?.image) return null;
+
+  const iw=texture.image.naturalWidth||texture.image.width||1;
+  const ih=texture.image.naturalHeight||texture.image.height||1;
+  const aspect=iw/ih;
+  const height=width/Math.max(aspect,.1);
+
+  const geo=new THREE.PlaneGeometry(width,height);
+  const mat=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    alphaTest:.01,
+    depthTest:true,
+    depthWrite:false,
+    side:THREE.FrontSide,
+    polygonOffset:true,
+    polygonOffsetFactor:-4,
+    polygonOffsetUnits:-4
+  });
+
+  const m=new THREE.Mesh(geo,mat);
+  m.name=name;
+  m.position.set(x,y,z);
+  m.renderOrder=80;
+  realKit.add(m);
+  return m;
+}
+
 function rebuildChestDecals(){
-  if(nutriaChestLogo){disposeDecal(nutriaChestLogo);nutriaChestLogo=null;}
-  if(teamCrest){disposeDecal(teamCrest);teamCrest=null;}
-  if(jerseyMesh) applyKitColor(chosenColor);
+  if(nutriaChestLogo){disposeMesh3D(nutriaChestLogo);nutriaChestLogo=null;}
+  if(teamChestLogo3D){disposeMesh3D(teamChestLogo3D);teamChestLogo3D=null;}
+
+  // Il fronte reale del GLB è sul lato +Z.
+  // Petto destro DEL GIOCATORE = sinistra per chi guarda frontalmente = X negativo.
+  if(nutriaLogoTexture){
+    const sc=Math.max(.35,Math.min(3,nutriaLogoScale||1.35));
+    const x=-10.3 + (nutriaLogoX||0)*.075;
+    const y=134.0 + (nutriaLogoY||0)*.055;
+    const z=11.72;
+    const w=6.1*sc;
+    nutriaChestLogo=makeAnchoredImagePlane(
+      nutriaLogoTexture,x,y,z,w,'NUTRIA_LOGO_CHEST_3D'
+    );
+  }
+
+  // Stemmino squadra sul lato cuore opposto.
+  if(teamLogoTexture){
+    const sc=Math.max(.35,Math.min(3,teamLogoScale||1));
+    const x=10.0 + (teamLogoX||0)*.075;
+    const y=134.0 + (teamLogoY||0)*.055;
+    const z=11.72;
+    const w=5.2*sc;
+    teamChestLogo3D=makeAnchoredImagePlane(
+      teamLogoTexture,x,y,z,w,'TEAM_CREST_CHEST_3D'
+    );
+  }
+
+  updateView();
 }
 
 function placeChestBranding(){
@@ -605,16 +617,112 @@ function loadNutriaChestLogo(){
       tex.colorSpace=THREE.SRGBColorSpace;
       tex.needsUpdate=true;
       nutriaLogoTexture=tex;
-      if(jerseyMesh) applyKitColor(chosenColor);
+      rebuildChestDecals();
     },
     undefined,
     err=>console.error('Impossibile caricare ./assets/nutria-logo.png',err)
   );
 }
 
-function sponsorDecal(tex,front){if(!jerseyMesh||!tex)return null;const box=jerseyBounds(),s=box.getSize(new THREE.Vector3()),c=box.getCenter(new THREE.Vector3()),sc=front?frontSponsorScale:backSponsorScale,adj=(front?frontSponsorY:backSponsorY)/100,y=c.y+(front?-.06:-.29)*s.y+adj*s.y*.13,o=new THREE.Vector3(c.x,y,front?box.max.z+s.z+1:box.min.z-s.z-1),hits=new THREE.Raycaster(o,new THREE.Vector3(0,0,front?-1:1)).intersectObject(jerseyMesh,false);if(!hits.length)return null;const hit=hits[0],n=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld),helper=new THREE.Object3D();helper.position.copy(hit.point);helper.lookAt(hit.point.clone().add(n));const a=tex.image?.width/tex.image?.height||2.5,w=s.x*(front?.48:.36)*sc,g=new DecalGeometry(jerseyMesh,hit.point,helper.rotation.clone(),new THREE.Vector3(w,w/a,Math.max(s.z*.22,.05))),m=new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-9,side:THREE.DoubleSide,alphaTest:.01}),d=new THREE.Mesh(g,m);d.renderOrder=95;scene.add(d);return d}
-function rebuildSponsors(){if(frontSponsor)disposeDecal(frontSponsor);if(backSponsor)disposeDecal(backSponsor);frontSponsor=frontSponsorTexture?sponsorDecal(frontSponsorTexture,true):null;backSponsor=backSponsorTexture?sponsorDecal(backSponsorTexture,false):null;updateView()}
-function loadSponsor(f,front){if(!f)return;const url=URL.createObjectURL(f),st=document.getElementById(front?'frontSponsorStatus':'backSponsorStatus');new THREE.TextureLoader().load(url,t=>{t.colorSpace=THREE.SRGBColorSpace;if(front)frontSponsorTexture=t;else backSponsorTexture=t;rebuildSponsors();st.textContent='✓ '+f.name;URL.revokeObjectURL(url)})}
+
+
+function textureFromUploadedFile(file){
+  return new Promise((resolve,reject)=>{
+    if(!file){ reject(new Error('Nessun file selezionato')); return; }
+    if(!/^image\/(png|jpeg|webp)$/i.test(file.type)){
+      reject(new Error('Formato non supportato. Usa PNG, JPG o WEBP.'));
+      return;
+    }
+
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('Impossibile leggere il file.'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onload=()=>{
+        const tex=new THREE.Texture(img);
+        tex.colorSpace=THREE.SRGBColorSpace;
+        tex.needsUpdate=true;
+        resolve(tex);
+      };
+      img.onerror=()=>reject(new Error('Immagine non valida o corrotta.'));
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function makeAnchoredSponsorPlane(texture,front){
+  if(!realKit || !texture?.image) return null;
+
+  const iw=texture.image.naturalWidth||texture.image.width||1;
+  const ih=texture.image.naturalHeight||texture.image.height||1;
+  const aspect=iw/ih;
+
+  const scale=front ? frontSponsorScale : backSponsorScale;
+  const yOffset=(front ? frontSponsorY : backSponsorY) || 0;
+
+  // Coordinate fisse sul GLB reale.
+  // Fronte: zona pancia. Retro: sotto il numero.
+  const x=0;
+  const y=(front ? 115.0 : 106.0) + yOffset*.055;
+  const z=front ? 15.56 : -15.56;
+  const width=(front ? 22.0 : 18.0)*scale;
+  const height=width/Math.max(aspect,.15);
+
+  const geo=new THREE.PlaneGeometry(width,height);
+  const mat=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    alphaTest:.01,
+    depthTest:true,
+    depthWrite:false,
+    side:THREE.FrontSide,
+    polygonOffset:true,
+    polygonOffsetFactor:-6,
+    polygonOffsetUnits:-6
+  });
+
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.name=front?'FRONT_SPONSOR_3D':'BACK_SPONSOR_3D';
+  mesh.position.set(x,y,z);
+  if(!front) mesh.rotation.y=Math.PI;
+  mesh.renderOrder=90;
+  realKit.add(mesh);
+  return mesh;
+}
+
+function rebuildSponsors(){
+  if(frontSponsorPlane){disposeMesh3D(frontSponsorPlane);frontSponsorPlane=null;}
+  if(backSponsorPlane){disposeMesh3D(backSponsorPlane);backSponsorPlane=null;}
+
+  if(frontSponsorTexture) frontSponsorPlane=makeAnchoredSponsorPlane(frontSponsorTexture,true);
+  if(backSponsorTexture) backSponsorPlane=makeAnchoredSponsorPlane(backSponsorTexture,false);
+
+  updateView();
+}
+
+async function loadSponsor(file,front){
+  if(!file) return;
+  const status=document.getElementById(front?'frontSponsorStatus':'backSponsorStatus');
+  status.textContent='Caricamento…';
+
+  try{
+    const tex=await textureFromUploadedFile(file);
+    if(front){
+      frontSponsorTexture?.dispose?.();
+      frontSponsorTexture=tex;
+    }else{
+      backSponsorTexture?.dispose?.();
+      backSponsorTexture=tex;
+    }
+    rebuildSponsors();
+    status.textContent='✓ '+file.name;
+  }catch(err){
+    console.error(err);
+    status.textContent='Errore: '+err.message;
+  }
+}
+
 
 function makeTextTexture(text,font,color,width=1024,height=256,fontPx=150){
   const c=document.createElement('canvas');
@@ -655,9 +763,86 @@ function createBackTextDecal(texture, y, width, height, name){
   return decal;
 }
 
+function makeTextPlane(text,font,color,width,height,fontPx,name){
+  if(!realKit || !text) return null;
+
+  const c=document.createElement('canvas');
+  c.width=1024;
+  c.height=256;
+  const ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle=color;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+
+  let px=fontPx;
+  ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
+  while(ctx.measureText(text).width>c.width*.88 && px>40){
+    px-=5;
+    ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
+  }
+  ctx.fillText(text,c.width/2,c.height/2);
+
+  const tex=new THREE.CanvasTexture(c);
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.needsUpdate=true;
+
+  const geo=new THREE.PlaneGeometry(width,height);
+  const mat=new THREE.MeshBasicMaterial({
+    map:tex,
+    transparent:true,
+    alphaTest:.01,
+    depthTest:true,
+    depthWrite:false,
+    side:THREE.FrontSide,
+    polygonOffset:true,
+    polygonOffsetFactor:-4,
+    polygonOffsetUnits:-4
+  });
+
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.name=name;
+
+  // Retro reale = -Z. Ruotiamo il piano verso chi osserva la schiena.
+  mesh.rotation.y=Math.PI;
+  mesh.renderOrder=85;
+  realKit.add(mesh);
+  return mesh;
+}
+
 function updateBackPrint(){
+  if(backNameMesh){disposeMesh3D(backNameMesh);backNameMesh=null;}
+  if(backNumberMesh){disposeMesh3D(backNumberMesh);backNumberMesh=null;}
   if(backPrint){disposeDecal(backPrint);backPrint=null;}
-  if(jerseyMesh) applyKitColor(chosenColor);
+  if(!realKit) return;
+
+  const name=(document.getElementById('playerName')?.value||'').trim().toUpperCase();
+  const number=(document.getElementById('playerNumber')?.value||'').trim();
+  const font=document.getElementById('kitFont')?.value||'Anton';
+  const color=document.getElementById('textColor')?.value||'#ffffff';
+
+  // Quasi appoggiati alla superficie posteriore della maglia.
+  const z=-15.52;
+
+  if(name){
+    backNameMesh=makeTextPlane(
+      name,font,color,
+      19.0,4.2,150,
+      'BACK_NAME_3D'
+    );
+    if(backNameMesh) backNameMesh.position.set(0,140.0,z);
+  }
+
+  if(number){
+    backNumberMesh=makeTextPlane(
+      number,font,color,
+      18.0,18.0,205,
+      'BACK_NUMBER_3D'
+    );
+    if(backNumberMesh) backNumberMesh.position.set(0,123.5,z);
+  }
+
+  updateView();
 }
 
 function updateView(){
@@ -672,11 +857,18 @@ function updateView(){
   if(shortsMesh) shortsMesh.visible=showLower;
   if(socksMesh) socksMesh.visible=showLower;
 
+  // La vecchia mesh logo incorporata nel GLB resta nascosta:
+  // usiamo il nuovo piano 3D posizionato correttamente.
   if(nutriaFixedMesh) nutriaFixedMesh.visible=false;
+  if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
+  if(teamChestLogo3D) teamChestLogo3D.visible=showJersey;
+  if(backNameMesh) backNameMesh.visible=showJersey;
+  if(backNumberMesh) backNumberMesh.visible=showJersey;
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
   if(backPrint) backPrint.visible=showJersey;
-  if(frontSponsor) frontSponsor.visible=showJersey; if(backSponsor) backSponsor.visible=showJersey;
+  if(frontSponsorPlane) frontSponsorPlane.visible=showJersey;
+  if(backSponsorPlane) backSponsorPlane.visible=showJersey;
 }
 
 const gltfLoader = new GLTFLoader();
@@ -805,36 +997,21 @@ document.getElementById('kitFont').addEventListener('change',async e=>{
   updateBackPrint();
 });
 
-document.getElementById('logoFile').addEventListener('change',e=>{
-  const f=e.target.files[0];
+document.getElementById('logoFile').addEventListener('change',async e=>{
+  const f=e.target.files?.[0];
   if(!f) return;
-
-  if(!['image/png','image/jpeg','image/webp'].includes(f.type)){
-    alert('Formato non supportato. Carica PNG, JPG o WEBP.');
-    e.target.value='';
-    return;
-  }
-  if(f.size>3*1024*1024){
-    alert('Il file è troppo grande. Dimensione massima: 3 MB.');
-    e.target.value='';
-    return;
-  }
-
-  document.getElementById('fileStatus').textContent='Caricamento stemma…';
-  const url=URL.createObjectURL(f);
-
-  new THREE.TextureLoader().load(url,texture=>{
-    texture.colorSpace=THREE.SRGBColorSpace;
-
-    teamLogoTexture=texture;
+  const st=document.getElementById('fileStatus');
+  st.textContent='Caricamento stemma…';
+  try{
+    const tex=await textureFromUploadedFile(f);
+    teamLogoTexture?.dispose?.();
+    teamLogoTexture=tex;
     rebuildChestDecals();
-    document.getElementById('fileStatus').textContent='✓ Stemma caricato: '+f.name;
-    URL.revokeObjectURL(url);
-  },undefined,err=>{
+    st.textContent='✓ '+f.name;
+  }catch(err){
     console.error(err);
-    document.getElementById('fileStatus').textContent='Errore durante il caricamento dello stemma.';
-    URL.revokeObjectURL(url);
-  });
+    st.textContent='Errore: '+err.message;
+  }
 });
 
 document.getElementById('headerLogo').addEventListener('error',()=>{
@@ -927,6 +1104,10 @@ document.getElementById('teamLogoX')?.addEventListener('input',e=>{teamLogoX=Num
 document.getElementById('teamLogoY')?.addEventListener('input',e=>{teamLogoY=Number(e.target.value);rebuildChestDecals();});
 
 document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],true));document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],false));document.getElementById('frontSponsorSize')?.addEventListener('input',e=>{frontSponsorScale=+e.target.value/100;document.getElementById('frontSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('backSponsorSize')?.addEventListener('input',e=>{backSponsorScale=+e.target.value/100;document.getElementById('backSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('frontSponsorY')?.addEventListener('input',e=>{frontSponsorY=+e.target.value;rebuildSponsors()});document.getElementById('backSponsorY')?.addEventListener('input',e=>{backSponsorY=+e.target.value;rebuildSponsors()});
+
+document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],true));
+document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],false));
+
 function animate(){
   requestAnimationFrame(animate);
   controls.update();
@@ -934,5 +1115,36 @@ function animate(){
 }
 animate();
 </script>
+
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const fs=document.getElementById('frontSponsorStatus');
+  const bs=document.getElementById('backSponsorStatus');
+
+  function addRemove(statusEl,front){
+    if(!statusEl || statusEl.parentElement.querySelector('.remove-sponsor-'+(front?'front':'back'))) return;
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='remove-sponsor-'+(front?'front':'back');
+    b.textContent='Rimuovi sponsor';
+    b.style.marginTop='8px';
+    b.style.width='100%';
+    b.addEventListener('click',()=>{
+      if(front){
+        frontSponsorTexture?.dispose?.(); frontSponsorTexture=null;
+      }else{
+        backSponsorTexture?.dispose?.(); backSponsorTexture=null;
+      }
+      rebuildSponsors();
+      statusEl.textContent=front?'PNG trasparente consigliato.':'Applicato sotto il numero.';
+    });
+    statusEl.parentElement.appendChild(b);
+  }
+
+  addRemove(fs,true);
+  addRemove(bs,false);
+});
+</script>
+
 </body>
 </html>
