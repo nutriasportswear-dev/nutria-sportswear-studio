@@ -574,23 +574,21 @@ function makeAnchoredImagePlane(texture, x, y, z, width, name){
 }
 
 function rebuildChestDecals(){
-  if(nutriaChestLogo){disposeMesh3D(nutriaChestLogo);nutriaChestLogo=null;}
+  if(nutriaChestLogo){
+    // Può essere decal o mesh 3D: gestiamo entrambi i casi.
+    if(nutriaChestLogo.geometry?.type==='DecalGeometry') disposeDecal(nutriaChestLogo);
+    else disposeMesh3D(nutriaChestLogo);
+    nutriaChestLogo=null;
+  }
   if(teamChestLogo3D){disposeMesh3D(teamChestLogo3D);teamChestLogo3D=null;}
 
-  // Il fronte reale del GLB è sul lato +Z.
-  // Petto destro DEL GIOCATORE = sinistra per chi guarda frontalmente = X negativo.
+  // Logo Nutria: decal aderente alla maglia sul petto destro del giocatore.
   if(nutriaLogoTexture){
-    const sc=Math.max(.35,Math.min(3,nutriaLogoScale||1.35));
-    const x=-10.3 + (nutriaLogoX||0)*.075;
-    const y=134.0 + (nutriaLogoY||0)*.055;
-    const z=11.72;
-    const w=6.1*sc;
-    nutriaChestLogo=makeAnchoredImagePlane(
-      nutriaLogoTexture,x,y,z,w,'NUTRIA_LOGO_CHEST_3D'
-    );
+    nutriaChestLogo=createChestDecal(nutriaLogoTexture,'nutria');
+    if(nutriaChestLogo) nutriaChestLogo.name='NUTRIA_LOGO_CHEST_DECAL';
   }
 
-  // Stemmino squadra sul lato cuore opposto.
+  // Stemmino squadra sul lato cuore opposto: teniamo il sistema 3D robusto già funzionante.
   if(teamLogoTexture){
     const sc=Math.max(.35,Math.min(3,teamLogoScale||1));
     const x=10.0 + (teamLogoX||0)*.075;
@@ -811,8 +809,16 @@ function makeTextPlane(text,font,color,width,height,fontPx,name){
 }
 
 function updateBackPrint(){
-  if(backNameMesh){disposeMesh3D(backNameMesh);backNameMesh=null;}
-  if(backNumberMesh){disposeMesh3D(backNumberMesh);backNumberMesh=null;}
+  if(backNameMesh){
+    if(backNameMesh.geometry?.type==='DecalGeometry') disposeDecal(backNameMesh);
+    else disposeMesh3D(backNameMesh);
+    backNameMesh=null;
+  }
+  if(backNumberMesh){
+    if(backNumberMesh.geometry?.type==='DecalGeometry') disposeDecal(backNumberMesh);
+    else disposeMesh3D(backNumberMesh);
+    backNumberMesh=null;
+  }
   if(backPrint){disposeDecal(backPrint);backPrint=null;}
   if(!realKit) return;
 
@@ -821,25 +827,17 @@ function updateBackPrint(){
   const font=document.getElementById('kitFont')?.value||'Anton';
   const color=document.getElementById('textColor')?.value||'#ffffff';
 
-  // Quasi appoggiati alla superficie posteriore della maglia.
-  const z=-15.52;
-
+  // Nome sotto al collo, ben visibile.
   if(name){
-    backNameMesh=makeTextPlane(
-      name,font,color,
-      19.0,4.2,150,
-      'BACK_NAME_3D'
-    );
-    if(backNameMesh) backNameMesh.position.set(0,140.0,z);
+    const nameTex=makeTextTexture(name,font,color,1600,340,210);
+    // Più grande e più leggibile sotto al collo.
+    backNameMesh=createBackTextDecal(nameTex,142.0,30.0,7.2,'BACK_NAME_DECAL');
   }
 
+  // Numero molto più grande, centrale sulla schiena.
   if(number){
-    backNumberMesh=makeTextPlane(
-      number,font,color,
-      18.0,18.0,205,
-      'BACK_NUMBER_3D'
-    );
-    if(backNumberMesh) backNumberMesh.position.set(0,123.5,z);
+    const numTex=makeTextTexture(number,font,color,1400,1400,760);
+    backNumberMesh=createBackTextDecal(numTex,123.5,34.0,34.0,'BACK_NUMBER_DECAL');
   }
 
   updateView();
