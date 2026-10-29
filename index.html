@@ -323,68 +323,25 @@ function drawImageContained(ctx,img,cx,cy,maxW,maxH){
   ctx.drawImage(img,cx-w/2,cy-h/2,w,h);
 }
 
-
-function getVisibleImageBounds(img){
-  try{
-    const c=document.createElement('canvas');
-    c.width=img.naturalWidth||img.width;
-    c.height=img.naturalHeight||img.height;
-    const x=c.getContext('2d',{willReadFrequently:true});
-    x.drawImage(img,0,0);
-    const data=x.getImageData(0,0,c.width,c.height).data;
-    let minX=c.width,minY=c.height,maxX=-1,maxY=-1;
-    for(let yy=0;yy<c.height;yy++){
-      for(let xx=0;xx<c.width;xx++){
-        const a=data[(yy*c.width+xx)*4+3];
-        if(a>12){
-          if(xx<minX)minX=xx;
-          if(xx>maxX)maxX=xx;
-          if(yy<minY)minY=yy;
-          if(yy>maxY)maxY=yy;
-        }
-      }
-    }
-    if(maxX<minX||maxY<minY) return {sx:0,sy:0,sw:c.width,sh:c.height};
-    return {sx:minX,sy:minY,sw:maxX-minX+1,sh:maxY-minY+1};
-  }catch(e){
-    return {sx:0,sy:0,sw:img.naturalWidth||img.width,sh:img.naturalHeight||img.height};
-  }
-}
-
-function drawImageContainedCropped(ctx,img,cx,cy,maxW,maxH){
-  if(!img || !(img.naturalWidth||img.width) || !(img.naturalHeight||img.height)) return;
-  const b=getVisibleImageBounds(img);
-  const ratio=b.sw/b.sh;
-  let w=maxW,h=w/ratio;
-  if(h>maxH){h=maxH;w=h*ratio;}
-  ctx.drawImage(img,b.sx,b.sy,b.sw,b.sh,cx-w/2,cy-h/2,w,h);
-}
-
 function drawJerseyPrints(ctx){
   // FRONT — petto destro del giocatore = sinistra per chi guarda.
+  // Manteniamo il sistema della V6.16, dove il logo risultava visibile.
   if(nutriaLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,nutriaLogoScale||1.35));
 
-    // Coordinate calibrate sul torso reale.
-    // Il PNG viene ritagliato automaticamente dal bordo trasparente.
-    const x=185 + (nutriaLogoX||0)*1.25;
-    const y=535 - (nutriaLogoY||0)*1.00;
+    // Spostato leggermente più verso il lato corretto e più in basso.
+    const x=145 + (nutriaLogoX||0)*1.35;
+    const y=625 - (nutriaLogoY||0)*1.05;
 
-    drawImageContainedCropped(
-      ctx,
-      nutriaLogoTexture.image,
-      x,y,
-      108*sc,
-      58*sc
-    );
+    drawImageContained(ctx,nutriaLogoTexture.image,x,y,125*sc,76*sc);
   }
 
   // STEMMA SQUADRA — lato cuore opposto.
   if(teamLogoTexture?.image){
     const sc=Math.max(.4,Math.min(3,teamLogoScale||1));
-    const x=320 + (teamLogoX||0)*1.25;
-    const y=535 - (teamLogoY||0)*1.00;
-    drawImageContainedCropped(ctx,teamLogoTexture.image,x,y,82*sc,82*sc);
+    const x=350 + (teamLogoX||0)*1.35;
+    const y=625 - (teamLogoY||0)*1.05;
+    drawImageContained(ctx,teamLogoTexture.image,x,y,92*sc,92*sc);
   }
 
   const name=(document.getElementById('playerName')?.value||'').trim().toUpperCase();
@@ -397,25 +354,29 @@ function drawJerseyPrints(ctx){
   ctx.textAlign='center';
   ctx.textBaseline='middle';
 
-  // RETRO — nessuna rotazione e nessuna specchiatura:
-  // il verso della UV e quello della vista posteriore si compensano.
-  const backCenterX=763;
+  // RETRO: correggiamo il blocco con una rotazione di 180°,
+  // senza specchiatura separata.
+  const cx=763;
+  const cy=575;
 
-  // NOME appena sotto il colletto.
+  ctx.translate(cx,cy);
+  ctx.rotate(Math.PI);
+
+  // Nome sotto il colletto
   if(name){
-    let px=54;
+    let px=56;
     ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
-    while(ctx.measureText(name).width>245 && px>24){
+    while(ctx.measureText(name).width>250 && px>24){
       px-=2;
       ctx.font=`900 ${px}px "${font}", "Arial Black", sans-serif`;
     }
-    ctx.fillText(name,backCenterX,430);
+    ctx.fillText(name,0,115);
   }
 
-  // NUMERO grande al centro della schiena.
+  // Numero al centro schiena
   if(number){
-    ctx.font=`900 170px "${font}", "Arial Black", sans-serif`;
-    ctx.fillText(number,backCenterX,565);
+    ctx.font=`900 175px "${font}", "Arial Black", sans-serif`;
+    ctx.fillText(number,0,-15);
   }
 
   ctx.restore();
