@@ -199,6 +199,12 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
       </select>
      <input id="textColor" type="color" value="#ffffff" style="width:100%;height:42px">
     </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+     <div><small>DIMENSIONE NOME <span id="backNameSizeValue">125%</span></small><input id="backNameSize" type="range" min="70" max="180" value="125" step="5" style="width:100%"></div>
+     <div><small>ALTEZZA NOME</small><input id="backNameY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+     <div><small>DIMENSIONE NUMERO <span id="backNumberSizeValue">140%</span></small><input id="backNumberSize" type="range" min="70" max="190" value="140" step="5" style="width:100%"></div>
+     <div><small>ALTEZZA NUMERO</small><input id="backNumberY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+    </div>
    </div>
 
    <div class="field">
@@ -219,6 +225,13 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
       <div><small>DIMENSIONE <span id="nutriaLogoSizeValue">135%</span></small><input id="nutriaLogoSize" type="range" min="40" max="300" value="135" step="5" style="width:100%"></div>
       <div><small>ORIZZONTALE</small><input id="nutriaLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
       <div><small>VERTICALE</small><input id="nutriaLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+    </div>
+
+    <label style="margin-top:10px">LOGO NUTRIA · PANTALONCINO</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><small>DIMENSIONE <span id="nutriaShortsSizeValue">100%</span></small><input id="nutriaShortsSize" type="range" min="50" max="200" value="100" step="5" style="width:100%"></div>
+      <div><small>ORIZZONTALE</small><input id="nutriaShortsX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+      <div><small>VERTICALE</small><input id="nutriaShortsY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
     </div>
 
     <label style="margin-top:10px">STEMMA SQUADRA</label>
@@ -288,6 +301,8 @@ let teamCrest = null;
 let nutriaLogoScale = 1.35;
 let teamLogoScale = 1;
 let nutriaLogoX = 0, nutriaLogoY = 0;
+let nutriaShortsScale = 1, nutriaShortsX = 0, nutriaShortsY = 0;
+let backNameScale = 1.25, backNumberScale = 1.40, backNameY = 0, backNumberY = 0;
 let teamLogoX = 0, teamLogoY = 0;
 let nutriaLogoTexture = null;
 let teamLogoTexture = null;
@@ -557,7 +572,7 @@ function makeSurfaceAnchoredPlaneOnMesh(targetMesh, texture, side, x, y, width, 
     alphaTest:.01,
     depthTest:true,
     depthWrite:false,
-    side:THREE.FrontSide,
+    side:THREE.DoubleSide,
     polygonOffset:true,
     polygonOffsetFactor:-6,
     polygonOffsetUnits:-6
@@ -572,7 +587,6 @@ function makeSurfaceAnchoredPlaneOnMesh(targetMesh, texture, side, x, y, width, 
   helper.lookAt(mesh.position.clone().add(normal));
   mesh.quaternion.copy(helper.quaternion);
 
-  if(side==='back') mesh.rotateY(Math.PI);
 
   mesh.renderOrder=renderOrder;
   scene.add(mesh);
@@ -739,13 +753,14 @@ function rebuildShortsBranding(){
   const aspect=iw/ih;
 
   // Gamba destra del giocatore = sinistra frontalmente.
-  const px=center.x - size.x*.18;
-  const py=center.y - size.y*.08;
-  const w=size.x*.30;
-  const h=Math.min(w/Math.max(aspect,.2), size.y*.24);
+  // Posizione base più bassa e regolabile direttamente dal configuratore.
+  const px=center.x - size.x*.18 + (nutriaShortsX/100)*size.x*.18;
+  const py=center.y - size.y*.06 + (nutriaShortsY/100)*size.y*.18;
+  const w=size.x*.30*nutriaShortsScale;
+  const h=Math.min(w/Math.max(aspect,.2), size.y*.28*nutriaShortsScale);
 
   nutriaShortsLogo=makeSurfaceAnchoredPlaneOnMesh(
-    shortsMesh,nutriaLogoTexture,'front',px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.012
+    shortsMesh,nutriaLogoTexture,'front',px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.006
   );
   updateView();
 }
@@ -823,7 +838,7 @@ function makeAnchoredSponsorPlane(texture,front){
     alphaTest:.01,
     depthTest:true,
     depthWrite:false,
-    side:THREE.FrontSide,
+    side:THREE.DoubleSide,
     polygonOffset:true,
     polygonOffsetFactor:-6,
     polygonOffsetUnits:-6
@@ -973,18 +988,20 @@ function updateBackPrint(){
   const center=box.getCenter(new THREE.Vector3());
 
   if(name){
-    const tex=makeTextTexture(name,font,color,1600,320,230);
+    const tex=makeTextTexture(name,font,color,1800,360,260);
+    const nameY=center.y+size.y*.27+(backNameY/100)*size.y*.12;
     backNameMesh=makeSurfaceAnchoredPlane(
-      tex,'back',center.x,center.y+size.y*.27,
-      size.x*.58,size.y*.095,'BACK_NAME_SURFACE',110
+      tex,'back',center.x,nameY,
+      size.x*.58*backNameScale,size.y*.095*backNameScale,'BACK_NAME_SURFACE',110
     );
   }
 
   if(number){
-    const tex=makeTextTexture(number,font,color,1200,1200,820);
+    const tex=makeTextTexture(number,font,color,1400,1400,900);
+    const numberY=center.y+size.y*.04+(backNumberY/100)*size.y*.18;
     backNumberMesh=makeSurfaceAnchoredPlane(
-      tex,'back',center.x,center.y+size.y*.04,
-      size.x*.55,size.y*.36,'BACK_NUMBER_SURFACE',111
+      tex,'back',center.x,numberY,
+      size.x*.55*backNumberScale,size.y*.36*backNumberScale,'BACK_NUMBER_SURFACE',111
     );
   }
 
@@ -1256,6 +1273,29 @@ document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSp
 
 document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],true));
 document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],false));
+
+
+// Controlli diretti per evitare ulteriori modifiche al file.
+document.getElementById('nutriaShortsSize')?.addEventListener('input',e=>{
+  nutriaShortsScale=Number(e.target.value)/100;
+  document.getElementById('nutriaShortsSizeValue').textContent=e.target.value+'%';
+  rebuildShortsBranding();
+});
+document.getElementById('nutriaShortsX')?.addEventListener('input',e=>{nutriaShortsX=Number(e.target.value);rebuildShortsBranding();});
+document.getElementById('nutriaShortsY')?.addEventListener('input',e=>{nutriaShortsY=Number(e.target.value);rebuildShortsBranding();});
+
+document.getElementById('backNameSize')?.addEventListener('input',e=>{
+  backNameScale=Number(e.target.value)/100;
+  document.getElementById('backNameSizeValue').textContent=e.target.value+'%';
+  updateBackPrint();
+});
+document.getElementById('backNameY')?.addEventListener('input',e=>{backNameY=Number(e.target.value);updateBackPrint();});
+document.getElementById('backNumberSize')?.addEventListener('input',e=>{
+  backNumberScale=Number(e.target.value)/100;
+  document.getElementById('backNumberSizeValue').textContent=e.target.value+'%';
+  updateBackPrint();
+});
+document.getElementById('backNumberY')?.addEventListener('input',e=>{backNumberY=Number(e.target.value);updateBackPrint();});
 
 function animate(){
   requestAnimationFrame(animate);
