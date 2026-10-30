@@ -136,6 +136,18 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 <button data-pattern="centerStripe">Banda centrale</button>
 <button data-pattern="hoops">Fasce larghe</button>
 <button data-pattern="quarters">Quarti</button>
+<button data-pattern="splitDiagonal">Taglio diagonale</button>
+<button data-pattern="vchest">V sul petto</button>
+<button data-pattern="chestBand">Banda petto</button>
+<button data-pattern="leftPanel">Pannello laterale</button>
+<button data-pattern="checkers">Scacchi</button>
+<button data-pattern="gradientVertical">Sfumato verticale</button>
+<button data-pattern="gradientDiagonal">Sfumato diagonale</button>
+<button data-pattern="topFade">Fade spalle</button>
+<button data-pattern="doubleSash">Doppia fascia</button>
+<button data-pattern="tripleStripe">Tripla banda</button>
+<button data-pattern="dots">Pois sportivi</button>
+<button data-pattern="herringbone">Spina di pesce</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
      <div><label>COLORE TRAMA</label><input id="patternColor" type="color" value="#d7a928" style="width:100%;height:42px"></div>
@@ -282,6 +294,7 @@ let teamLogoTexture = null;
 let frontSponsorTexture=null,backSponsorTexture=null,frontSponsor=null,backSponsor=null,frontSponsorScale=1,backSponsorScale=1,frontSponsorY=0,backSponsorY=0;
 
 let nutriaChestLogo = null;
+let nutriaShortsLogo = null;
 let teamChestLogo3D = null;
 let backNameMesh = null;
 let backNumberMesh = null;
@@ -375,6 +388,57 @@ function makePatternTexture(){
     const hh=Math.max(45,s*2);for(let y=0;y<1024;y+=hh*2)x.fillRect(0,y,1024,hh);
   }else if(currentPattern==='quarters'){
     x.fillRect(512,0,512,512);x.fillRect(0,512,512,512);
+  }else if(currentPattern==='splitDiagonal'){
+    x.beginPath(); x.moveTo(0,0); x.lineTo(1024,0); x.lineTo(0,1024); x.closePath(); x.fill();
+  }else if(currentPattern==='vchest'){
+    x.strokeStyle=patternColor; x.lineWidth=Math.max(18,s*.95); x.lineCap='square';
+    x.beginPath(); x.moveTo(250,170); x.lineTo(512,430); x.lineTo(774,170); x.stroke();
+  }else if(currentPattern==='chestBand'){
+    const bandH=Math.max(110,s*3.2); x.fillRect(0,180,1024,bandH);
+  }else if(currentPattern==='leftPanel'){
+    const panelW=Math.max(170,s*4.2); x.fillRect(0,0,panelW,1024);
+  }else if(currentPattern==='checkers'){
+    const cell=Math.max(60,s*1.8);
+    for(let yy=0;yy<1024;yy+=cell){
+      for(let xx=0;xx<1024;xx+=cell){
+        if(((xx+yy)/cell)%2===0) x.fillRect(xx,yy,cell,cell);
+      }
+    }
+  }else if(currentPattern==='gradientVertical'){
+    const g=x.createLinearGradient(0,0,0,1024);
+    g.addColorStop(0,patternColor); g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g; x.fillRect(0,0,1024,1024); x.fillStyle=patternColor;
+  }else if(currentPattern==='gradientDiagonal'){
+    const g=x.createLinearGradient(0,0,1024,1024);
+    g.addColorStop(0,patternColor); g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g; x.fillRect(0,0,1024,1024); x.fillStyle=patternColor;
+  }else if(currentPattern==='topFade'){
+    const g=x.createLinearGradient(0,0,0,420);
+    g.addColorStop(0,patternColor); g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g; x.fillRect(0,0,1024,460); x.fillStyle=patternColor;
+  }else if(currentPattern==='doubleSash'){
+    x.save(); x.translate(512,512); x.rotate(-Math.PI/4);
+    const band=Math.max(60,s*2.4), gap=Math.max(36,s*1.4);
+    x.fillRect(-band-gap,-900,band,1800); x.fillRect(gap,-900,band,1800);
+    x.restore();
+  }else if(currentPattern==='tripleStripe'){
+    const w=Math.max(45,s*1.5), gap=Math.max(18,s*.65), total=w*3+gap*2, start=(1024-total)/2;
+    x.fillRect(start,0,w,1024); x.fillRect(start+w+gap,0,w,1024); x.fillRect(start+(w+gap)*2,0,w,1024);
+  }else if(currentPattern==='dots'){
+    const r=Math.max(10,s*.35), gap=Math.max(36,s*1.2);
+    for(let yy=0;yy<1100;yy+=gap){
+      for(let xx=0;xx<1100;xx+=gap){
+        x.beginPath(); x.arc(xx+((yy/gap)%2?gap*.5:0),yy,r,0,Math.PI*2); x.fill();
+      }
+    }
+  }else if(currentPattern==='herringbone'){
+    x.strokeStyle=patternColor; x.lineWidth=Math.max(8,s*.28);
+    const gap=Math.max(40,s*1.3), arm=Math.max(20,s*.7);
+    for(let yy=-50;yy<1100;yy+=gap){
+      for(let xx=-50;xx<1100;xx+=gap){
+        x.beginPath(); x.moveTo(xx,yy); x.lineTo(xx+arm,yy+arm); x.lineTo(xx,yy+arm*2); x.stroke();
+      }
+    }
   }else if(currentPattern==='halves'){
     x.fillRect(512,0,512,1024);
   }
@@ -417,7 +481,9 @@ function applyKitColor(hex=chosenColor){
   if(shortsMesh){ shortsMesh.material=solidMaterial(shortsColor); shortsMesh.material.needsUpdate=true; }
   if(socksMesh){ socksMesh.material=solidMaterial(socksColor); socksMesh.material.needsUpdate=true; }
 
+  if(nutriaLogoTexture) rebuildShortsBranding();
 }
+
 
 function jerseyBounds(){
   if(!jerseyMesh) return null;
@@ -439,10 +505,16 @@ function disposeDecal(obj){
 }
 
 
-function findJerseySurface(side, x, y){
-  if(!jerseyMesh) return null;
-  jerseyMesh.updateMatrixWorld(true);
-  const box=jerseyBounds();
+function meshBounds(targetMesh){
+  if(!targetMesh) return null;
+  targetMesh.updateMatrixWorld(true);
+  return new THREE.Box3().setFromObject(targetMesh);
+}
+
+function findSurfaceOnMesh(targetMesh, side, x, y){
+  if(!targetMesh) return null;
+  targetMesh.updateMatrixWorld(true);
+  const box=meshBounds(targetMesh);
   const size=box.getSize(new THREE.Vector3());
   const front=side==='front';
 
@@ -458,23 +530,26 @@ function findJerseySurface(side, x, y){
       );
       const dir=new THREE.Vector3(0,0,front?-1:1);
       const ray=new THREE.Raycaster(origin,dir,0,Math.max(size.z*8,20));
-      const hits=ray.intersectObject(jerseyMesh,true);
+      const hits=ray.intersectObject(targetMesh,true);
       if(hits.length) return hits[0];
     }
   }
   return null;
 }
 
+function findJerseySurface(side, x, y){
+  return findSurfaceOnMesh(jerseyMesh,side,x,y);
+}
 
-function makeSurfaceAnchoredPlane(texture, side, x, y, width, height, name, renderOrder=90){
-  if(!jerseyMesh || !texture) return null;
-  const hit=findJerseySurface(side,x,y);
+function makeSurfaceAnchoredPlaneOnMesh(targetMesh, texture, side, x, y, width, height, name, renderOrder=90, offset=.015){
+  if(!targetMesh || !texture) return null;
+  const hit=findSurfaceOnMesh(targetMesh,side,x,y);
   if(!hit){
     console.warn('Superficie non trovata per',name,side,x,y);
     return null;
   }
 
-  const normal=hit.face.normal.clone().transformDirection(jerseyMesh.matrixWorld).normalize();
+  const normal=hit.face.normal.clone().transformDirection(targetMesh.matrixWorld).normalize();
   const geo=new THREE.PlaneGeometry(width,height);
   const mat=new THREE.MeshBasicMaterial({
     map:texture,
@@ -490,20 +565,22 @@ function makeSurfaceAnchoredPlane(texture, side, x, y, width, height, name, rend
 
   const mesh=new THREE.Mesh(geo,mat);
   mesh.name=name;
-  mesh.position.copy(hit.point).add(normal.clone().multiplyScalar(.015));
+  mesh.position.copy(hit.point).add(normal.clone().multiplyScalar(offset));
 
-  // Allinea il piano alla superficie reale della maglia.
   const helper=new THREE.Object3D();
   helper.position.copy(mesh.position);
   helper.lookAt(mesh.position.clone().add(normal));
   mesh.quaternion.copy(helper.quaternion);
 
-  // Se siamo sul retro, ruotiamo di 180° attorno a Y locale per mantenere il testo leggibile.
   if(side==='back') mesh.rotateY(Math.PI);
 
   mesh.renderOrder=renderOrder;
   scene.add(mesh);
   return mesh;
+}
+
+function makeSurfaceAnchoredPlane(texture, side, x, y, width, height, name, renderOrder=90){
+  return makeSurfaceAnchoredPlaneOnMesh(jerseyMesh,texture,side,x,y,width,height,name,renderOrder,.015);
 }
 
 function decalOrientationFromHit(hit){
@@ -650,8 +727,32 @@ function rebuildChestDecals(){
   updateView();
 }
 
+function rebuildShortsBranding(){
+  if(nutriaShortsLogo){disposeMesh3D(nutriaShortsLogo);nutriaShortsLogo=null;}
+  if(!shortsMesh || !nutriaLogoTexture) return;
+
+  const box=meshBounds(shortsMesh);
+  const size=box.getSize(new THREE.Vector3());
+  const center=box.getCenter(new THREE.Vector3());
+  const iw=nutriaLogoTexture.image?.naturalWidth||nutriaLogoTexture.image?.width||1;
+  const ih=nutriaLogoTexture.image?.naturalHeight||nutriaLogoTexture.image?.height||1;
+  const aspect=iw/ih;
+
+  // Gamba destra del giocatore = sinistra frontalmente.
+  const px=center.x - size.x*.18;
+  const py=center.y + size.y*.06;
+  const w=size.x*.30;
+  const h=Math.min(w/Math.max(aspect,.2), size.y*.24);
+
+  nutriaShortsLogo=makeSurfaceAnchoredPlaneOnMesh(
+    shortsMesh,nutriaLogoTexture,'front',px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.012
+  );
+  updateView();
+}
+
 function placeChestBranding(){
   rebuildChestDecals();
+  rebuildShortsBranding();
 }
 
 function loadNutriaChestLogo(){
@@ -663,6 +764,7 @@ function loadNutriaChestLogo(){
       tex.needsUpdate=true;
       nutriaLogoTexture=tex;
       rebuildChestDecals();
+      rebuildShortsBranding();
     },
     undefined,
     err=>console.error('Impossibile caricare ./assets/nutria-logo.png',err)
@@ -908,6 +1010,7 @@ function updateView(){
   if(teamChestLogo3D) teamChestLogo3D.visible=showJersey;
   if(backNameMesh) backNameMesh.visible=showJersey;
   if(backNumberMesh) backNumberMesh.visible=showJersey;
+  if(nutriaShortsLogo) nutriaShortsLogo.visible=showLower;
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
   if(backPrint) backPrint.visible=showJersey;
@@ -963,6 +1066,7 @@ gltfLoader.load(
     try{
       loadNutriaChestLogo();
       if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals();
+      if(nutriaLogoTexture) rebuildShortsBranding();
     }catch(err){ console.warn('Logo petto:',err); }
 
     try{ updateBackPrint(); }catch(err){ console.warn('Nome/numero:',err); }
@@ -975,6 +1079,7 @@ gltfLoader.load(
 
     setTimeout(()=>{
       try{ if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals(); }catch(err){ console.warn(err); }
+      try{ if(nutriaLogoTexture) rebuildShortsBranding(); }catch(err){ console.warn(err); }
       try{ updateBackPrint(); }catch(err){ console.warn(err); }
     },150);
     console.log('✓ NUTRIA KIT 3D CARICATO');
