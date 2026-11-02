@@ -481,6 +481,17 @@ function makeShortsPatternTexture(){
   chosenColor=shortsColor;
   const texture=makePatternTexture();
   chosenColor=previousChosenColor;
+
+  // Le UV reali di SHORTS_EDITABLE non occupano tutta la texture 0..1.
+  // Rimappiamo SOLO la texture dei pantaloncini affinché lo stesso pattern
+  // della maglia copra l'intera superficie, dall'elastico al fondo gamba.
+  const uMin=0.004252, uMax=0.807465;
+  const vMin=0.151767, vMax=0.945635;
+  texture.matrixAutoUpdate=false;
+  texture.matrix.identity();
+  texture.matrix.translate(-uMin,-vMin);
+  texture.matrix.scale(1/(uMax-uMin),1/(vMax-vMin));
+  texture.needsUpdate=true;
   return texture;
 }
 
@@ -798,7 +809,7 @@ function rebuildShortsBranding(){
   // Qui la lasciamo volutamente PIÙ BASSA e con fallback visibile,
   // senza toccare il resto del configuratore.
   const px=center.x - size.x*.14 + (nutriaShortsX/100)*size.x*.14;
-  const py=center.y - size.y*.36 + (nutriaShortsY/100)*size.y*.14;
+  const py=box.min.y + size.y*.075 + (nutriaShortsY/100)*size.y*.10;
   const w=size.x*.24*nutriaShortsScale;
   const h=Math.min(w/Math.max(aspect,.2), size.y*.20*nutriaShortsScale);
 
@@ -836,9 +847,9 @@ function rebuildShortsNumber(){
   // Numero sulla gamba opposta al logo Nutria.
   // Nutria: sinistra per chi guarda; numero: destra per chi guarda.
   const px=center.x + size.x*.15;
-  const py=center.y - size.y*.17;
+  const py=box.min.y + size.y*.10;
   const w=size.x*.15;
-  const h=size.y*.27;
+  const h=size.y*.25;
 
   shortsNumberMesh=makeSurfaceAnchoredPlaneOnMesh(
     shortsMesh,tex,'front',px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.006
