@@ -310,6 +310,7 @@ let frontSponsorTexture=null,backSponsorTexture=null,frontSponsor=null,backSpons
 
 let nutriaChestLogo = null;
 let nutriaShortsLogo = null;
+let shortsNumberMesh = null;
 let teamChestLogo3D = null;
 let backNameMesh = null;
 let backNumberMesh = null;
@@ -473,6 +474,16 @@ function solidMaterial(color){
   });
 }
 
+// PANTALONCINI: usa ESATTAMENTE lo stesso pattern scelto per la maglia.
+// Se il colore pantaloncino non è stato personalizzato, segue anche il colore principale.
+function makeShortsPatternTexture(){
+  const previousChosenColor=chosenColor;
+  chosenColor=shortsColor;
+  const texture=makePatternTexture();
+  chosenColor=previousChosenColor;
+  return texture;
+}
+
 function applyKitColor(hex=chosenColor){
   chosenColor=hex;
 
@@ -493,10 +504,18 @@ function applyKitColor(hex=chosenColor){
 
   if(collarMesh){ collarMesh.material=solidMaterial(collarColor); collarMesh.material.needsUpdate=true; }
   if(sleevesMesh){ sleevesMesh.material=solidMaterial(sleeveColor); sleevesMesh.material.needsUpdate=true; }
-  if(shortsMesh){ shortsMesh.material=solidMaterial(shortsColor); shortsMesh.material.needsUpdate=true; }
+  if(shortsMesh){
+    shortsMesh.material=new THREE.MeshBasicMaterial({
+      color:0xffffff,
+      map:makeShortsPatternTexture(),
+      side:THREE.DoubleSide
+    });
+    shortsMesh.material.needsUpdate=true;
+  }
   if(socksMesh){ socksMesh.material=solidMaterial(socksColor); socksMesh.material.needsUpdate=true; }
 
   if(nutriaLogoTexture) rebuildShortsBranding();
+  rebuildShortsNumber();
 }
 
 
@@ -595,6 +614,29 @@ function makeSurfaceAnchoredPlaneOnMesh(targetMesh, texture, side, x, y, width, 
 
 function makeSurfaceAnchoredPlane(texture, side, x, y, width, height, name, renderOrder=90){
   return makeSurfaceAnchoredPlaneOnMesh(jerseyMesh,texture,side,x,y,width,height,name,renderOrder,.015);
+}
+
+function makeFrontBBoxPlaneOnMesh(targetMesh, texture, x, y, width, height, name, renderOrder=90, offset=.012){
+  if(!targetMesh || !texture) return null;
+  const box=meshBounds(targetMesh);
+  const geo=new THREE.PlaneGeometry(width,height);
+  const mat=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    alphaTest:.01,
+    depthTest:true,
+    depthWrite:false,
+    side:THREE.DoubleSide,
+    polygonOffset:true,
+    polygonOffsetFactor:-6,
+    polygonOffsetUnits:-6
+  });
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.name=name;
+  mesh.position.set(x,y,box.max.z+offset);
+  mesh.renderOrder=renderOrder;
+  scene.add(mesh);
+  return mesh;
 }
 
 function decalOrientationFromHit(hit){
@@ -753,21 +795,69 @@ function rebuildShortsBranding(){
   const aspect=iw/ih;
 
   // Gamba destra del giocatore = sinistra frontalmente.
-  // Posizione base più bassa e regolabile direttamente dal configuratore.
-  const px=center.x - size.x*.18 + (nutriaShortsX/100)*size.x*.18;
-  const py=center.y - size.y*.06 + (nutriaShortsY/100)*size.y*.18;
-  const w=size.x*.30*nutriaShortsScale;
-  const h=Math.min(w/Math.max(aspect,.2), size.y*.28*nutriaShortsScale);
+  // Qui la lasciamo volutamente PIÙ BASSA e con fallback visibile,
+  // senza toccare il resto del configuratore.
+  const px=center.x - size.x*.14 + (nutriaShortsX/100)*size.x*.14;
+  const py=center.y - size.y*.36 + (nutriaShortsY/100)*size.y*.14;
+  const w=size.x*.24*nutriaShortsScale;
+  const h=Math.min(w/Math.max(aspect,.2), size.y*.20*nutriaShortsScale);
 
+  // 1) Prova aderente alla superficie del pantaloncino.
   nutriaShortsLogo=makeSurfaceAnchoredPlaneOnMesh(
     shortsMesh,nutriaLogoTexture,'front',px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.006
   );
+
+  // 2) Se la superficie non viene trovata o il piano sparisce,
+  //    usa un fallback stabile leggermente davanti al pantaloncino.
+  if(!nutriaShortsLogo){
+    nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
+      shortsMesh,nutriaLogoTexture,px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.01
+    );
+  }
+
+  updateView();
+}
+
+function rebuildShortsNumber(){
+  if(shortsNumberMesh){disposeMesh3D(shortsNumberMesh);shortsNumberMesh=null;}
+  if(!shortsMesh) return;
+
+  const number=(document.getElementById('playerNumber')?.value||'').trim();
+  if(!number) return;
+
+  const font=document.getElementById('kitFont')?.value||'Anton';
+  const color=document.getElementById('textColor')?.value||'#ffffff';
+  const tex=makeTextTexture(number,font,color,1024,1024,760);
+
+  const box=meshBounds(shortsMesh);
+  const size=box.getSize(new THREE.Vector3());
+  const center=box.getCenter(new THREE.Vector3());
+
+  // Numero sulla gamba opposta al logo Nutria.
+  // Nutria: sinistra per chi guarda; numero: destra per chi guarda.
+  const px=center.x + size.x*.15;
+  const py=center.y - size.y*.17;
+  const w=size.x*.15;
+  const h=size.y*.27;
+
+  shortsNumberMesh=makeSurfaceAnchoredPlaneOnMesh(
+    shortsMesh,tex,'front',px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.006
+  );
+
+  // Fallback stabile se il raycast non trova la superficie.
+  if(!shortsNumberMesh){
+    shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
+      shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.01
+    );
+  }
+
   updateView();
 }
 
 function placeChestBranding(){
   rebuildChestDecals();
   rebuildShortsBranding();
+  rebuildShortsNumber();
 }
 
 function loadNutriaChestLogo(){
@@ -1028,6 +1118,7 @@ function updateView(){
   if(backNameMesh) backNameMesh.visible=showJersey;
   if(backNumberMesh) backNumberMesh.visible=showJersey;
   if(nutriaShortsLogo) nutriaShortsLogo.visible=showLower;
+  if(shortsNumberMesh) shortsNumberMesh.visible=showLower;
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
   if(backPrint) backPrint.visible=showJersey;
@@ -1084,6 +1175,7 @@ gltfLoader.load(
       loadNutriaChestLogo();
       if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals();
       if(nutriaLogoTexture) rebuildShortsBranding();
+      rebuildShortsNumber();
     }catch(err){ console.warn('Logo petto:',err); }
 
     try{ updateBackPrint(); }catch(err){ console.warn('Nome/numero:',err); }
@@ -1162,6 +1254,13 @@ document.getElementById('kitFont').addEventListener('change',async e=>{
   try{ await document.fonts.load(`900 120px "${selected}"`); }catch(err){ console.warn(err); }
   updateBackPrint();
 });
+
+// Solo pantaloncini: il numero segue automaticamente quello della maglia.
+document.getElementById('playerNumber')?.addEventListener('input',rebuildShortsNumber);
+document.getElementById('playerNumber')?.addEventListener('change',rebuildShortsNumber);
+document.getElementById('textColor')?.addEventListener('input',rebuildShortsNumber);
+document.getElementById('textColor')?.addEventListener('change',rebuildShortsNumber);
+document.getElementById('kitFont')?.addEventListener('change',rebuildShortsNumber);
 
 document.getElementById('logoFile').addEventListener('change',async e=>{
   const f=e.target.files?.[0];
