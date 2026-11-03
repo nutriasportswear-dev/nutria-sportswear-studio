@@ -307,6 +307,7 @@ let teamLogoX = 0, teamLogoY = 0;
 let nutriaLogoTexture = null;
 let teamLogoTexture = null;
 let frontSponsorTexture=null,backSponsorTexture=null,frontSponsor=null,backSponsor=null,frontSponsorScale=1,backSponsorScale=1,frontSponsorY=0,backSponsorY=0;
+let frontSponsorPlane=null, backSponsorPlane=null;
 
 let nutriaChestLogo = null;
 let nutriaShortsLogo = null;
@@ -918,7 +919,7 @@ function rebuildShortsBranding(){
 
   // CENTRO fissato vicino all'orlo: non dipende più dall'altezza del logo.
   // Il cursore verticale continua a funzionare, ma la base è molto più bassa.
-  const py=box.min.y + size.y*.105 + (nutriaShortsY/100)*size.y*.035;
+  const py=box.min.y + h*.5 + size.y*.015 + (nutriaShortsY/100)*size.y*.025;
 
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
     shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
@@ -947,7 +948,7 @@ function rebuildShortsNumber(){
   const h=size.y*.16;
 
   // CENTRO vicino all'orlo, alla stessa quota del logo.
-  const py=box.min.y + size.y*.105;
+  const py=box.min.y + h*.5 + size.y*.015;
 
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
     shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',121,.004
@@ -1473,9 +1474,6 @@ document.getElementById('teamLogoX')?.addEventListener('input',e=>{teamLogoX=Num
 document.getElementById('teamLogoY')?.addEventListener('input',e=>{teamLogoY=Number(e.target.value);rebuildChestDecals();});
 
 document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],true));document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files[0],false));document.getElementById('frontSponsorSize')?.addEventListener('input',e=>{frontSponsorScale=+e.target.value/100;document.getElementById('frontSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('backSponsorSize')?.addEventListener('input',e=>{backSponsorScale=+e.target.value/100;document.getElementById('backSponsorSizeValue').textContent=e.target.value+'%';rebuildSponsors()});document.getElementById('frontSponsorY')?.addEventListener('input',e=>{frontSponsorY=+e.target.value;rebuildSponsors()});document.getElementById('backSponsorY')?.addEventListener('input',e=>{backSponsorY=+e.target.value;rebuildSponsors()});
-
-document.getElementById('frontSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],true));
-document.getElementById('backSponsorFile')?.addEventListener('change',e=>loadSponsor(e.target.files?.[0],false));
 
 
 // Controlli diretti per evitare ulteriori modifiche al file.
