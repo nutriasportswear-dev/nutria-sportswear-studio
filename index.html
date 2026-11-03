@@ -112,6 +112,32 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 .sponsor-card{border-left:2px solid #6e5a13!important}.pattern-grid{max-height:330px;overflow:auto;padding-right:4px}.pattern-grid::-webkit-scrollbar{width:5px}.pattern-grid::-webkit-scrollbar-thumb{background:#4e5557;border-radius:20px}
 @media(max-width:600px){.two-col,.slider-grid,.name-number-row{grid-template-columns:1fr}.control-section>summary{padding:12px}.pattern-grid{max-height:260px}}
 
+
+
+/* ===== V6.40 UI SUPER PULITA - SOLO INTERFACCIA ===== */
+.controls{position:relative}
+.controls-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.controls-head-copy{min-width:0}
+.controls-head .sub{margin:4px 0 0}
+.quick-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0 14px;padding:8px;background:#090b0c;border:1px solid #2b3032;border-radius:13px;position:sticky;top:8px;z-index:20;backdrop-filter:blur(10px)}
+.quick-nav button{padding:9px 6px;min-height:50px;background:#131718;border-color:#303638;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.quick-nav button strong{font-size:11px;color:#fff}.quick-nav button span{font-size:9px;color:#8f989b}.quick-nav button:hover,.quick-nav button.active{border-color:var(--gold);background:#2b240e}.quick-nav button.active strong{color:#f1cd4a}
+.control-section{scroll-margin-top:82px}
+.control-section>summary{min-height:62px}
+.control-section>summary span:nth-child(2){min-width:0}
+.section-kicker{display:flex;align-items:center;gap:7px;margin:14px 2px 8px;color:#e7c653;font-size:10px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.section-kicker::after{content:'';height:1px;flex:1;background:#303638}
+.help-box{display:flex;gap:9px;align-items:flex-start;padding:10px 11px;margin:8px 0 10px;border:1px solid #2c3335;border-radius:10px;background:#0c0f10;color:#aeb5b6;font-size:10px;line-height:1.45}
+.help-box b{color:#f0cc47;white-space:nowrap}
+.field.compact-field{position:relative}
+.field-badge{position:absolute;right:10px;top:10px;border:1px solid #4d4a32;background:#1d1a0c;color:#e5c149;padding:4px 7px;border-radius:999px;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.controls input[type=range]{height:20px}
+.controls select{width:100%;background:#090b0c;border:1px solid #42484a;color:#fff;padding:11px;border-radius:9px}
+.upload-label{display:flex!important;align-items:center;justify-content:center;min-height:44px}
+.sponsor-card .small,.compact-field .small{min-height:16px}
+.section-body>.field:first-child{margin-top:10px!important}
+@media(max-width:600px){.quick-nav{grid-template-columns:repeat(2,1fr);position:static}.quick-nav button{min-height:44px}.field-badge{position:static;display:inline-block;margin-bottom:8px}}
+
 </style>
 </head>
 <body>
@@ -148,18 +174,20 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
   </section>
 
   <section class="controls">
-   <div class="controls-head">
-    <div>
-     <div class="eyebrow">NUTRIA KIT STUDIO</div>
-     <h2>Configura il tuo kit</h2>
-     <p class="sub">Apri una sezione alla volta. Ogni modifica appare subito sul modello 3D.</p>
-    </div>
-   </div>
+   <div class="controls-head"><div class="controls-head-copy"><div class="eyebrow">NUTRIA KIT STUDIO</div><h2>Personalizza il kit</h2><p class="sub">Apri solo la sezione che ti serve. Le modifiche vengono mostrate subito sul modello 3D.</p></div></div>
 
-   <details class="control-section" open>
+   <nav class="quick-nav" aria-label="Navigazione configuratore">
+    <button type="button" data-jump="designSection" class="active"><strong>1 · Design</strong><span>Colori e pattern</span></button>
+    <button type="button" data-jump="identitySection"><strong>2 · Nome / N°</strong><span>Retro maglia</span></button>
+    <button type="button" data-jump="logosSection"><strong>3 · Loghi</strong><span>Stemma e sponsor</span></button>
+    <button type="button" data-jump="quoteSection"><strong>4 · Preventivo</strong><span>Invia progetto</span></button>
+   </nav>
+
+   <details class="control-section" id="designSection" open>
     <summary><span class="step-dot">1</span><span><b>Design del kit</b><small>Vista, colori, template e dettagli</small></span></summary>
     <div class="section-body">
      <div class="field compact-field">
+      <span class="field-badge">Vista 3D</span>
       <label>VISUALIZZA</label>
       <div class="products">
        <button class="active" data-view="Kit">Kit completo</button>
@@ -168,7 +196,10 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
       </div>
      </div>
 
+     <div class="section-kicker">Maglia</div>
+     <div class="help-box"><b>MAGLIA</b><span>Scegli colore, pattern e dettagli della maglia. Questi comandi non spostano loghi, nome o numero.</span></div>
      <div class="field compact-field">
+      <span class="field-badge">Maglia</span>
       <label>COLORE PRINCIPALE</label>
       <div class="colors">
        <button class="swatch active" data-color="#202323" style="background:#202323" aria-label="Nero"></button>
@@ -212,7 +243,10 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
       </div>
      </div>
 
+     <div class="section-kicker">Dettagli kit</div>
+     <div class="help-box"><b>PANTALONCINI</b><span>Il pantaloncino usa una grafica dedicata da shorts: bande laterali, orli e inserti. Non copia il pattern completo della maglia.</span></div>
      <div class="field compact-field">
+      <span class="field-badge">Kit</span>
       <label>COLORI DETTAGLI</label>
       <div class="two-col color-controls">
        <div><small>COLLETTO</small><input id="collarColor" type="color" value="#202323"></div>
@@ -224,10 +258,12 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </details>
 
-   <details class="control-section">
+   <details class="control-section" id="identitySection">
     <summary><span class="step-dot">2</span><span><b>Nome e numero</b><small>Testo, font e regolazioni retro maglia</small></span></summary>
     <div class="section-body">
+     <div class="help-box"><b>RETRO</b><span>Nome e numero modificano il retro della maglia. Il numero viene riutilizzato automaticamente anche sul pantaloncino.</span></div>
      <div class="field compact-field">
+      <span class="field-badge">Retro maglia</span>
       <div class="name-number-row"><input id="playerName" type="text" maxlength="18" value="ROSSI" placeholder="NOME"><input id="playerNumber" type="text" maxlength="2" value="10" placeholder="10"></div>
       <div class="two-col control-row">
        <select id="kitFont">
@@ -250,9 +286,10 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </details>
 
-   <details class="control-section">
+   <details class="control-section" id="logosSection">
     <summary><span class="step-dot">3</span><span><b>Loghi e sponsor</b><small>Stemma squadra e sponsor personalizzati</small></span></summary>
     <div class="section-body">
+     <div class="help-box"><b>LOGHI</b><span>Nutria resta fisso. Qui puoi caricare solo stemma squadra e sponsor personalizzati.</span></div>
      <div class="fixed-brand-note"><b>Nutria Sportswear</b><span>Logo tecnico fisso su maglia e pantaloncino. Posizione e dimensione non modificabili.</span></div>
 
      <div class="field compact-field">
@@ -281,9 +318,10 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </details>
 
-   <details class="control-section">
+   <details class="control-section" id="quoteSection">
     <summary><span class="step-dot">4</span><span><b>Richiedi un preventivo</b><small>Invia il progetto a Nutria Sportswear</small></span></summary>
     <div class="section-body">
+     <div class="help-box"><b>ULTIMO PASSO</b><span>Inserisci i tuoi contatti e le note. Il configuratore non modifica più il kit in questa sezione.</span></div>
      <form id="quoteForm">
       <div class="two-col"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
       <div class="two-col"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
@@ -517,22 +555,203 @@ function solidMaterial(color){
   });
 }
 
-// PANTALONCINI: usa ESATTAMENTE lo stesso pattern scelto per la maglia.
-// Se il colore pantaloncino non è stato personalizzato, segue anche il colore principale.
+// PANTALONCINI: pattern INDIPENDENTE rispetto alla maglia.
+// Usa un linguaggio più tipico da pantaloncino (righe laterali, orli, inserti),
+// senza replicare il pattern completo della maglia su tutta la superficie.
 function makeShortsPatternTexture(){
-  const previousChosenColor=chosenColor;
-  chosenColor=shortsColor;
-  const texture=makePatternTexture();
-  chosenColor=previousChosenColor;
-  texture.wrapS=THREE.ClampToEdgeWrapping;
-  texture.wrapT=THREE.ClampToEdgeWrapping;
-  texture.needsUpdate=true;
-  return texture;
+  const c=document.createElement('canvas');
+  c.width=1024; c.height=1024;
+  const x=c.getContext('2d');
+
+  const base=shortsColor;
+  const accent=patternColor;
+  const s=Math.max(8,Number(patternSize)||32);
+
+  x.clearRect(0,0,1024,1024);
+  x.fillStyle=base;
+  x.fillRect(0,0,1024,1024);
+
+  const sideW=Math.max(26,Math.round(s*.50));
+  const sideGap=Math.max(8,Math.round(s*.16));
+  const hemH=Math.max(18,Math.round(s*.32));
+  const hemGap=Math.max(6,Math.round(s*.12));
+  const panelW=Math.max(82,Math.round(s*1.35));
+  const slashW=Math.max(24,Math.round(s*.48));
+
+  const leftEdge=84;
+  const rightEdge=1024-84;
+  const bottomY=1024-hemH-26;
+
+  function sideStripes(count=1){
+    x.fillStyle=accent;
+    for(let i=0;i<count;i++){
+      const dx=i*(sideW+sideGap);
+      x.fillRect(leftEdge+dx,0,sideW,1024);
+      x.fillRect(rightEdge-sideW-dx,0,sideW,1024);
+    }
+  }
+
+  function hemStripes(count=1){
+    x.fillStyle=accent;
+    for(let i=0;i<count;i++){
+      const y=bottomY-i*(hemH+hemGap);
+      x.fillRect(0,y,440,hemH);
+      x.fillRect(584,y,440,hemH);
+    }
+  }
+
+  function sidePanels(){
+    x.fillStyle=accent;
+    x.fillRect(0,0,panelW,1024);
+    x.fillRect(1024-panelW,0,panelW,1024);
+  }
+
+  function diagonalSlashes(){
+    x.save();
+    x.fillStyle=accent;
+    x.translate(190,620);
+    x.rotate(-0.48);
+    x.fillRect(-30,-210,slashW,420);
+    x.restore();
+
+    x.save();
+    x.fillStyle=accent;
+    x.translate(834,620);
+    x.rotate(0.48);
+    x.fillRect(-30,-210,slashW,420);
+    x.restore();
+  }
+
+  function chevrons(){
+    x.strokeStyle=accent;
+    x.lineWidth=Math.max(10,s*.22);
+    x.lineJoin='round';
+    const draw=(cx)=>{
+      x.beginPath();
+      x.moveTo(cx-76,230);
+      x.lineTo(cx,292);
+      x.lineTo(cx+76,230);
+      x.stroke();
+      x.beginPath();
+      x.moveTo(cx-60,322);
+      x.lineTo(cx,372);
+      x.lineTo(cx+60,322);
+      x.stroke();
+    };
+    draw(150);
+    draw(874);
+  }
+
+  function checkPanels(){
+    const cell=Math.max(24,Math.round(s*.48));
+    for(let side of [0,1024-panelW]){
+      for(let yy=0;yy<1024;yy+=cell){
+        for(let xx=0;xx<panelW;xx+=cell){
+          if(((xx/cell)+(yy/cell))%2===0){
+            x.fillStyle=accent;
+            x.fillRect(side+xx,yy,cell,cell);
+          }
+        }
+      }
+    }
+  }
+
+  function dottedTape(){
+    sidePanels();
+    x.fillStyle=base;
+    const r=Math.max(5,Math.round(s*.10));
+    for(let side of [panelW/2,1024-panelW/2]){
+      for(let yy=38;yy<1024;yy+=r*4){
+        x.beginPath(); x.arc(side,yy,r,0,Math.PI*2); x.fill();
+      }
+    }
+  }
+
+  switch(currentPattern){
+    case 'solid':
+      sideStripes(1); hemStripes(1);
+      break;
+    case 'vertical':
+    case 'thinVertical':
+      sideStripes(2);
+      break;
+    case 'wideVertical':
+    case 'leftPanel':
+      sidePanels();
+      break;
+    case 'horizontal':
+    case 'hoops':
+      hemStripes(2);
+      break;
+    case 'diagonal':
+    case 'sash':
+    case 'splitDiagonal':
+    case 'doubleSash':
+      diagonalSlashes();
+      break;
+    case 'chevron':
+    case 'vchest':
+    case 'tripleStripe':
+      chevrons(); hemStripes(1);
+      break;
+    case 'halves':
+    case 'quarters':
+    case 'bicolor':
+      sidePanels(); hemStripes(1);
+      break;
+    case 'cross':
+    case 'diamonds':
+    case 'checkers':
+      checkPanels();
+      break;
+    case 'waves':
+    case 'zigzag':
+    case 'herringbone':
+      x.strokeStyle=accent;
+      x.lineWidth=Math.max(8,s*.18);
+      for(let yy=100;yy<1024;yy+=Math.max(70,s*1.4)){
+        x.beginPath();
+        x.moveTo(40,yy);
+        for(let xx=40;xx<=panelW;xx+=40){ x.lineTo(xx,yy+((xx/40)%2===0?-18:18)); }
+        x.stroke();
+        x.beginPath();
+        x.moveTo(1024-panelW,yy);
+        for(let xx=1024-panelW;xx<=984;xx+=40){ x.lineTo(xx,yy+(((xx-(1024-panelW))/40)%2===0?-18:18)); }
+        x.stroke();
+      }
+      break;
+    case 'dots':
+      dottedTape();
+      break;
+    case 'gradientVertical':
+    case 'gradientDiagonal':
+    case 'topFade':
+      {
+        const g=x.createLinearGradient(0,0,0,1024);
+        g.addColorStop(0,accent);
+        g.addColorStop(.55,'rgba(0,0,0,0)');
+        x.fillStyle=g;
+        x.fillRect(0,0,panelW,1024);
+        x.fillRect(1024-panelW,0,panelW,1024);
+        hemStripes(1);
+      }
+      break;
+    default:
+      sideStripes(1); hemStripes(1);
+      break;
+  }
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.wrapS=THREE.ClampToEdgeWrapping;
+  t.wrapT=THREE.ClampToEdgeWrapping;
+  t.needsUpdate=true;
+  return t;
 }
 
 // SOLO PANTALONCINI: normalizza le UV di SHORTS_EDITABLE nell'intervallo 0..1.
-// In questo modo il pattern selezionato per la maglia viene distribuito su
-// TUTTA l'altezza e la larghezza dei pantaloncini, non solo su metà mesh.
+// In questo modo il pattern indipendente dei pantaloncini viene distribuito su
+// TUTTA l'altezza e la larghezza della mesh, non solo su metà superficie.
 function normalizeShortsUV(){
   if(!shortsMesh?.geometry?.attributes?.uv) return;
 
@@ -954,13 +1173,13 @@ function rebuildShortsBranding(){
   const ih=logoTex.image?.naturalHeight||logoTex.image?.height||1;
   const aspect=iw/ih;
 
-  // Unica colonna sulla gamba sinistra per chi guarda.
-  const px=center.x-size.x*.20;
-  const w=size.x*.16;
-  const h=Math.min(w/Math.max(aspect,.2),size.y*.13);
+  // Colonna unica sulla gamba sinistra per chi guarda.
+  const px=center.x-size.x*.22;
+  const w=size.x*.17;
+  const h=Math.min(w/Math.max(aspect,.2),size.y*.12);
 
-  // Appena sopra l'orlo reale: margine 2.5% dell'altezza del pantaloncino.
-  const py=box.min.y + h*.5 + size.y*.025;
+  // Molto più in basso: praticamente appoggiato all'orlo, con un margine minimo.
+  const py=box.min.y + h*.5 + size.y*.004;
 
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
     shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
@@ -983,9 +1202,9 @@ function rebuildShortsNumber(){
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // Stessa colonna del logo Nutria.
-  const px=center.x-size.x*.20;
-  const logoW=size.x*.16;
+  // Stessa colonna del logo Nutria, appena sopra.
+  const px=center.x-size.x*.22;
+  const logoW=size.x*.17;
   const logoAspect=(()=>{
     const img=nutriaLogoTexture?.image;
     if(!img) return 2.3;
@@ -993,14 +1212,14 @@ function rebuildShortsNumber(){
     const ih=img.naturalHeight||img.height||1;
     return iw/ih;
   })();
-  const logoH=Math.min(logoW/Math.max(logoAspect,.2),size.y*.13);
-  const logoY=box.min.y + logoH*.5 + size.y*.025;
+  const logoH=Math.min(logoW/Math.max(logoAspect,.2),size.y*.12);
+  const logoY=box.min.y + logoH*.5 + size.y*.004;
 
-  const w=size.x*.12;
-  const h=size.y*.14;
-  const gap=size.y*.018;
+  const w=size.x*.13;
+  const h=size.y*.135;
+  const gap=size.y*.006;
 
-  // Numero direttamente sopra il logo, stessa gamba.
+  // Numero direttamente sopra il logo, tutto il blocco vicino all'orlo.
   const py=logoY + logoH*.5 + gap + h*.5;
 
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
@@ -1587,6 +1806,30 @@ window.addEventListener('DOMContentLoaded',()=>{
   addRemove(fs,true);
   addRemove(bs,false);
 });
+
+
+// V6.40 - navigazione rapida UI (solo presentazione)
+document.querySelectorAll('.quick-nav [data-jump]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const id=btn.dataset.jump;
+    const section=document.getElementById(id);
+    if(!section) return;
+    document.querySelectorAll('.control-section').forEach(s=>s.open=(s===section));
+    document.querySelectorAll('.quick-nav button').forEach(b=>b.classList.toggle('active',b===btn));
+    section.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+document.querySelectorAll('.control-section').forEach(section=>{
+  section.addEventListener('toggle',()=>{
+    if(!section.open) return;
+    const btn=document.querySelector(`.quick-nav [data-jump="${section.id}"]`);
+    if(btn){
+      document.querySelectorAll('.quick-nav button').forEach(b=>b.classList.toggle('active',b===btn));
+    }
+  });
+});
+
 </script>
 
 </body>
