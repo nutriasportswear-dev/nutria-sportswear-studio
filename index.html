@@ -1159,30 +1159,63 @@ function makeShortsLogoTextureCropped(sourceTexture){
   }
 }
 
+
+function makeLocalShortsPlane(texture,xFrac,yFrac,widthFrac,heightFrac,name,renderOrder=120){
+  if(!shortsMesh || !texture) return null;
+  const geoSrc=shortsMesh.geometry;
+  if(!geoSrc.boundingBox) geoSrc.computeBoundingBox();
+  const b=geoSrc.boundingBox;
+  const size=new THREE.Vector3();
+  b.getSize(size);
+  const center=new THREE.Vector3();
+  b.getCenter(center);
+
+  const geo=new THREE.PlaneGeometry(size.x*widthFrac,size.y*heightFrac);
+  const mat=new THREE.MeshBasicMaterial({
+    map:texture,
+    transparent:true,
+    alphaTest:.01,
+    depthTest:true,
+    depthWrite:false,
+    side:THREE.DoubleSide,
+    polygonOffset:true,
+    polygonOffsetFactor:-8,
+    polygonOffsetUnits:-8
+  });
+
+  const mesh=new THREE.Mesh(geo,mat);
+  mesh.name=name;
+  mesh.position.set(
+    center.x + size.x*xFrac,
+    b.min.y + size.y*yFrac,
+    b.max.z + Math.max(size.z*.012,.002)
+  );
+  mesh.renderOrder=renderOrder;
+  shortsMesh.add(mesh);
+  return mesh;
+}
+
 function rebuildShortsBranding(){
   if(nutriaShortsLogo){disposeMesh3D(nutriaShortsLogo);nutriaShortsLogo=null;}
   if(!shortsMesh || !nutriaLogoTexture) return;
 
-  const box=meshBounds(shortsMesh);
-  const size=box.getSize(new THREE.Vector3());
-  const center=box.getCenter(new THREE.Vector3());
-
-  // Logo Nutria fisso sul pantaloncino: nessun controllo utente.
   const logoTex=makeShortsLogoTextureCropped(nutriaLogoTexture);
   const iw=logoTex.image?.naturalWidth||logoTex.image?.width||1;
   const ih=logoTex.image?.naturalHeight||logoTex.image?.height||1;
   const aspect=iw/ih;
 
-  // Colonna unica sulla gamba sinistra per chi guarda.
-  const px=center.x-size.x*.22;
-  const w=size.x*.17;
-  const h=Math.min(w/Math.max(aspect,.2),size.y*.12);
-
-  // Molto più in basso: praticamente appoggiato all'orlo, con un margine minimo.
-  const py=box.min.y + h*.5 + size.y*.004;
-
-  nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
-    shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
+  // LINEA INFERIORE indicata dall'utente: quasi all'orlo.
+  // Coordinate LOCALI del pantaloncino, così non cambiano con fit/scala del modello.
+  const widthFrac=.17;
+  const heightFrac=Math.min(widthFrac/Math.max(aspect,.2)*1.9,.10);
+  nutriaShortsLogo=makeLocalShortsPlane(
+    logoTex,
+    -.22,   // stessa gamba sinistra per chi guarda
+    .115,   // linea inferiore: appena sopra l'orlo
+    widthFrac,
+    heightFrac,
+    'NUTRIA_SHORTS_SURFACE',
+    120
   );
   updateView();
 }
@@ -1198,32 +1231,15 @@ function rebuildShortsNumber(){
   const color=document.getElementById('textColor')?.value||'#ffffff';
   const tex=makeTextTexture(number,font,color,1024,1024,820);
 
-  const box=meshBounds(shortsMesh);
-  const size=box.getSize(new THREE.Vector3());
-  const center=box.getCenter(new THREE.Vector3());
-
-  // Stessa colonna del logo Nutria, appena sopra.
-  const px=center.x-size.x*.22;
-  const logoW=size.x*.17;
-  const logoAspect=(()=>{
-    const img=nutriaLogoTexture?.image;
-    if(!img) return 2.3;
-    const iw=img.naturalWidth||img.width||1;
-    const ih=img.naturalHeight||img.height||1;
-    return iw/ih;
-  })();
-  const logoH=Math.min(logoW/Math.max(logoAspect,.2),size.y*.12);
-  const logoY=box.min.y + logoH*.5 + size.y*.004;
-
-  const w=size.x*.13;
-  const h=size.y*.135;
-  const gap=size.y*.006;
-
-  // Numero direttamente sopra il logo, tutto il blocco vicino all'orlo.
-  const py=logoY + logoH*.5 + gap + h*.5;
-
-  shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
-    shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',121,.004
+  // LINEA SUPERIORE indicata dall'utente: subito sopra al logo.
+  shortsNumberMesh=makeLocalShortsPlane(
+    tex,
+    -.22,   // stessa colonna del logo
+    .205,   // linea superiore
+    .13,
+    .13,
+    'SHORTS_NUMBER_SURFACE',
+    121
   );
   updateView();
 }
