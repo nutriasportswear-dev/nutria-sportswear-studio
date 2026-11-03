@@ -97,6 +97,21 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
   .field{padding:13px!important}
 }
 
+
+.controls-head{margin-bottom:14px}.eyebrow{font-size:10px;font-weight:900;letter-spacing:.16em;color:var(--gold);margin-bottom:5px}
+.control-section{border:1px solid #303638;border-radius:14px;background:#101314;margin:10px 0;overflow:hidden}
+.control-section>summary{list-style:none;display:flex;align-items:center;gap:11px;padding:14px 15px;cursor:pointer;background:#171b1c;user-select:none}
+.control-section>summary::-webkit-details-marker{display:none}.control-section>summary::after{content:'+';margin-left:auto;color:var(--gold);font-size:20px;font-weight:400}.control-section[open]>summary::after{content:'−'}
+.control-section>summary b{display:block;font-size:13px;color:#fff}.control-section>summary small{display:block;margin-top:2px;color:#8f989b;font-size:10px;font-weight:500;letter-spacing:0}
+.step-dot{width:25px;height:25px;flex:0 0 25px;border-radius:50%;display:grid;place-items:center;background:#332b0b;border:1px solid #826a12;color:#f0c339;font-weight:900;font-size:11px}
+.section-body{padding:4px 12px 13px}.compact-field{padding:11px!important;margin:9px 0!important;background:#15191a!important}.compact-field>label:first-child{color:#fff!important;font-weight:900!important;letter-spacing:.04em!important}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.control-row{margin-top:10px}.control-row input[type=color],.color-controls input[type=color],#textColor{width:100%;height:40px}
+.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:10px}.slider-grid input[type=range]{width:100%}.name-number-row{display:grid;grid-template-columns:1.4fr .6fr;gap:8px;margin-bottom:8px}
+.advanced-controls{margin-top:10px;border-top:1px solid #2d3234;padding-top:8px}.advanced-controls>summary{cursor:pointer;color:#d7a928;font-size:11px;font-weight:900;list-style:none}.advanced-controls>summary::before{content:'⚙ ';font-size:10px}.advanced-controls>summary::-webkit-details-marker{display:none}
+.fixed-brand-note{display:grid;gap:3px;padding:12px 13px;margin:10px 0;border:1px solid #6f5a10;border-radius:11px;background:#1e1a0b}.fixed-brand-note b{color:#f1cb45;font-size:12px}.fixed-brand-note span{color:#b7b9b4;font-size:10px;line-height:1.4}
+.sponsor-card{border-left:2px solid #6e5a13!important}.pattern-grid{max-height:330px;overflow:auto;padding-right:4px}.pattern-grid::-webkit-scrollbar{width:5px}.pattern-grid::-webkit-scrollbar-thumb{background:#4e5557;border-radius:20px}
+@media(max-width:600px){.two-col,.slider-grid,.name-number-row{grid-template-columns:1fr}.control-section>summary{padding:12px}.pattern-grid{max-height:260px}}
+
 </style>
 </head>
 <body>
@@ -133,180 +148,152 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
   </section>
 
   <section class="controls">
-   <h2>Configura il tuo kit</h2>
-   <p class="sub">Configura ogni parte del kit e visualizza le modifiche in tempo reale.</p>
-   <div class="control-guide">
-    <span><b>1</b>Design</span><span><b>2</b>Dettagli</span><span><b>3</b>Loghi</span>
-   </div>
-   <div class="control-group-title">Vista e design</div>
-
-   <div class="field">
-    <label>1. VISUALIZZA</label>
-    <div class="products">
-     <button class="active" data-view="Kit">Kit completo</button>
-     <button data-view="Maglia">Maglia</button>
-     <button data-view="Pantaloncini">Pantaloncini</button>
+   <div class="controls-head">
+    <div>
+     <div class="eyebrow">NUTRIA KIT STUDIO</div>
+     <h2>Configura il tuo kit</h2>
+     <p class="sub">Apri una sezione alla volta. Ogni modifica appare subito sul modello 3D.</p>
     </div>
    </div>
 
-   <div class="field">
-    <label>2. COLORE PRINCIPALE</label>
-    <div class="colors">
-     <button class="swatch active" data-color="#202323" style="background:#202323" aria-label="Nero"></button>
-     <button class="swatch" data-color="#f0eee8" style="background:#f0eee8" aria-label="Bianco"></button>
-     <button class="swatch" data-color="#176c45" style="background:#176c45" aria-label="Verde"></button>
-     <button class="swatch" data-color="#e87522" style="background:#e87522" aria-label="Arancione"></button>
-     <button class="swatch" data-color="#8c76ad" style="background:#8c76ad" aria-label="Lilla"></button>
-     <button class="swatch" data-color="#c92032" style="background:#c92032" aria-label="Rosso"></button>
-<button class="swatch" data-color="#174ea6" style="background:#174ea6" aria-label="Blu"></button>
-<button class="swatch" data-color="#63b6e5" style="background:#63b6e5" aria-label="Azzurro"></button>
-<button class="swatch" data-color="#f2d126" style="background:#f2d126" aria-label="Giallo"></button>
-<button class="swatch" data-color="#7b1f2d" style="background:#7b1f2d" aria-label="Bordeaux"></button>
-<button class="swatch" data-color="#73777b" style="background:#73777b" aria-label="Grigio"></button>
-<button class="swatch" data-color="#f3a7c4" style="background:#f3a7c4" aria-label="Rosa"></button>
-<button class="swatch" data-color="#00a9a5" style="background:#00a9a5" aria-label="Turchese"></button>
-<button class="swatch" data-color="#d7a928" style="background:#d7a928" aria-label="Oro"></button>
-    </div>
-   </div>
+   <details class="control-section" open>
+    <summary><span class="step-dot">1</span><span><b>Design del kit</b><small>Vista, colori, template e dettagli</small></span></summary>
+    <div class="section-body">
+     <div class="field compact-field">
+      <label>VISUALIZZA</label>
+      <div class="products">
+       <button class="active" data-view="Kit">Kit completo</button>
+       <button data-view="Maglia">Maglia</button>
+       <button data-view="Pantaloncini">Pantaloncini</button>
+      </div>
+     </div>
 
-   <div class="field">
-    <label>3. TEMPLATE MAGLIA</label>
-    <div class="products" style="grid-template-columns:repeat(2,1fr)">
-     <button class="active" data-pattern="solid">Tinta unita</button>
-     <button data-pattern="vertical">Righe verticali</button>
-     <button data-pattern="horizontal">Righe orizzontali</button>
-     <button data-pattern="diagonal">Righe diagonali</button>
-     <button data-pattern="chevron">Chevron</button>
-     <button data-pattern="halves">Bicolore</button>
-<button data-pattern="thinVertical">Gessato</button>
-<button data-pattern="wideVertical">Bande verticali</button>
-<button data-pattern="cross">Griglia</button>
-<button data-pattern="diamonds">Rombi</button>
-<button data-pattern="waves">Onde</button>
-<button data-pattern="zigzag">Zig Zag</button>
-<button data-pattern="sash">Fascia diagonale</button>
-<button data-pattern="centerStripe">Banda centrale</button>
-<button data-pattern="hoops">Fasce larghe</button>
-<button data-pattern="quarters">Quarti</button>
-<button data-pattern="splitDiagonal">Taglio diagonale</button>
-<button data-pattern="vchest">V sul petto</button>
-<button data-pattern="chestBand">Banda petto</button>
-<button data-pattern="leftPanel">Pannello laterale</button>
-<button data-pattern="checkers">Scacchi</button>
-<button data-pattern="gradientVertical">Sfumato verticale</button>
-<button data-pattern="gradientDiagonal">Sfumato diagonale</button>
-<button data-pattern="topFade">Fade spalle</button>
-<button data-pattern="doubleSash">Doppia fascia</button>
-<button data-pattern="tripleStripe">Tripla banda</button>
-<button data-pattern="dots">Pois sportivi</button>
-<button data-pattern="herringbone">Spina di pesce</button>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-     <div><label>COLORE TRAMA</label><input id="patternColor" type="color" value="#d7a928" style="width:100%;height:42px"></div>
-     <div><label>SPESSORE</label><input id="patternSize" type="range" min="8" max="80" value="32" style="width:100%"></div>
-    </div>
-   </div>
+     <div class="field compact-field">
+      <label>COLORE PRINCIPALE</label>
+      <div class="colors">
+       <button class="swatch active" data-color="#202323" style="background:#202323" aria-label="Nero"></button>
+       <button class="swatch" data-color="#f0eee8" style="background:#f0eee8" aria-label="Bianco"></button>
+       <button class="swatch" data-color="#176c45" style="background:#176c45" aria-label="Verde"></button>
+       <button class="swatch" data-color="#e87522" style="background:#e87522" aria-label="Arancione"></button>
+       <button class="swatch" data-color="#8c76ad" style="background:#8c76ad" aria-label="Lilla"></button>
+       <button class="swatch" data-color="#c92032" style="background:#c92032" aria-label="Rosso"></button>
+       <button class="swatch" data-color="#174ea6" style="background:#174ea6" aria-label="Blu"></button>
+       <button class="swatch" data-color="#63b6e5" style="background:#63b6e5" aria-label="Azzurro"></button>
+       <button class="swatch" data-color="#f2d126" style="background:#f2d126" aria-label="Giallo"></button>
+       <button class="swatch" data-color="#7b1f2d" style="background:#7b1f2d" aria-label="Bordeaux"></button>
+       <button class="swatch" data-color="#73777b" style="background:#73777b" aria-label="Grigio"></button>
+       <button class="swatch" data-color="#f3a7c4" style="background:#f3a7c4" aria-label="Rosa"></button>
+       <button class="swatch" data-color="#00a9a5" style="background:#00a9a5" aria-label="Turchese"></button>
+       <button class="swatch" data-color="#d7a928" style="background:#d7a928" aria-label="Oro"></button>
+      </div>
+     </div>
 
-   <div class="control-group-title">Colori e dettagli del kit</div>
-   <div class="field">
-    <label>4. DETTAGLI MAGLIA</label>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-     <div><label>COLLETTO</label><input id="collarColor" type="color" value="#202323" style="width:100%;height:42px"></div>
-     <div><label>MANICHE</label><input id="sleeveColor" type="color" value="#202323" style="width:100%;height:42px"></div>
-     <div><label>PANTALONCINI</label><input id="shortsColor" type="color" value="#202323" style="width:100%;height:42px"></div>
-     <div><label>CALZETTONI</label><input id="socksColor" type="color" value="#202323" style="width:100%;height:42px"></div>
+     <div class="field compact-field">
+      <label>TEMPLATE MAGLIA + PANTALONCINO</label>
+      <div class="products pattern-grid" style="grid-template-columns:repeat(2,1fr)">
+       <button class="active" data-pattern="solid">Tinta unita</button><button data-pattern="vertical">Righe verticali</button>
+       <button data-pattern="horizontal">Righe orizzontali</button><button data-pattern="diagonal">Righe diagonali</button>
+       <button data-pattern="chevron">Chevron</button><button data-pattern="halves">Bicolore</button>
+       <button data-pattern="thinVertical">Gessato</button><button data-pattern="wideVertical">Bande verticali</button>
+       <button data-pattern="cross">Griglia</button><button data-pattern="diamonds">Rombi</button>
+       <button data-pattern="waves">Onde</button><button data-pattern="zigzag">Zig Zag</button>
+       <button data-pattern="sash">Fascia diagonale</button><button data-pattern="centerStripe">Banda centrale</button>
+       <button data-pattern="hoops">Fasce larghe</button><button data-pattern="quarters">Quarti</button>
+       <button data-pattern="splitDiagonal">Taglio diagonale</button><button data-pattern="vchest">V sul petto</button>
+       <button data-pattern="chestBand">Banda petto</button><button data-pattern="leftPanel">Pannello laterale</button>
+       <button data-pattern="checkers">Scacchi</button><button data-pattern="gradientVertical">Sfumato verticale</button>
+       <button data-pattern="gradientDiagonal">Sfumato diagonale</button><button data-pattern="topFade">Fade spalle</button>
+       <button data-pattern="doubleSash">Doppia fascia</button><button data-pattern="tripleStripe">Tripla banda</button>
+       <button data-pattern="dots">Pois sportivi</button><button data-pattern="herringbone">Spina di pesce</button>
+      </div>
+      <div class="two-col control-row">
+       <div><label>COLORE TRAMA</label><input id="patternColor" type="color" value="#d7a928"></div>
+       <div><label>SPESSORE</label><input id="patternSize" type="range" min="8" max="80" value="32"></div>
+      </div>
+     </div>
+
+     <div class="field compact-field">
+      <label>COLORI DETTAGLI</label>
+      <div class="two-col color-controls">
+       <div><small>COLLETTO</small><input id="collarColor" type="color" value="#202323"></div>
+       <div><small>MANICHE</small><input id="sleeveColor" type="color" value="#202323"></div>
+       <div><small>PANTALONCINI</small><input id="shortsColor" type="color" value="#202323"></div>
+       <div><small>CALZETTONI</small><input id="socksColor" type="color" value="#202323"></div>
+      </div>
+     </div>
     </div>
-   </div>
+   </details>
 
-   <div class="control-group-title">Nome, numero e identità</div>
-   <div class="field">
-    <label>5. NOME E NUMERO · RETRO</label>
-    <div style="display:grid;grid-template-columns:1.4fr .6fr;gap:8px">
-     <input id="playerName" type="text" maxlength="18" value="ROSSI" placeholder="NOME">
-     <input id="playerNumber" type="text" maxlength="2" value="10" placeholder="10">
+   <details class="control-section">
+    <summary><span class="step-dot">2</span><span><b>Nome e numero</b><small>Testo, font e regolazioni retro maglia</small></span></summary>
+    <div class="section-body">
+     <div class="field compact-field">
+      <div class="name-number-row"><input id="playerName" type="text" maxlength="18" value="ROSSI" placeholder="NOME"><input id="playerNumber" type="text" maxlength="2" value="10" placeholder="10"></div>
+      <div class="two-col control-row">
+       <select id="kitFont">
+        <optgroup label="SPORT / MODERNI"><option value="Anton" selected>Anton</option><option value="Bebas Neue">Bebas Neue</option><option value="Oswald">Oswald</option><option value="Barlow Condensed">Barlow Condensed</option><option value="Teko">Teko</option><option value="Russo One">Russo One</option><option value="Archivo Black">Archivo Black</option><option value="Roboto Condensed">Roboto Condensed</option></optgroup>
+        <optgroup label="DISPLAY / SPECIALI"><option value="Black Ops One">Black Ops One</option><option value="Graduate">Graduate</option><option value="Audiowide">Audiowide</option><option value="Permanent Marker">Permanent Marker</option></optgroup>
+        <optgroup label="CLASSICI"><option value="Arial Black">Arial Black</option><option value="Impact">Impact</option><option value="Trebuchet MS">Trebuchet</option><option value="Georgia">Georgia</option><option value="Courier New">Courier New</option></optgroup>
+       </select>
+       <input id="textColor" type="color" value="#ffffff">
+      </div>
+      <details class="advanced-controls">
+       <summary>Regolazioni avanzate retro</summary>
+       <div class="two-col slider-grid">
+        <div><small>DIMENSIONE NOME <span id="backNameSizeValue">125%</span></small><input id="backNameSize" type="range" min="70" max="180" value="125" step="5"></div>
+        <div><small>ALTEZZA NOME</small><input id="backNameY" type="range" min="-100" max="100" value="0" step="2"></div>
+        <div><small>DIMENSIONE NUMERO <span id="backNumberSizeValue">140%</span></small><input id="backNumberSize" type="range" min="70" max="190" value="140" step="5"></div>
+        <div><small>ALTEZZA NUMERO</small><input id="backNumberY" type="range" min="-100" max="100" value="0" step="2"></div>
+       </div>
+      </details>
+     </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
-     <select id="kitFont">
-       <optgroup label="SPORT / MODERNI">
-        <option value="Anton" selected>Anton</option>
-        <option value="Bebas Neue">Bebas Neue</option>
-        <option value="Oswald">Oswald</option>
-        <option value="Barlow Condensed">Barlow Condensed</option>
-        <option value="Teko">Teko</option>
-        <option value="Russo One">Russo One</option>
-        <option value="Archivo Black">Archivo Black</option>
-        <option value="Roboto Condensed">Roboto Condensed</option>
-       </optgroup>
-       <optgroup label="DISPLAY / SPECIALI">
-        <option value="Black Ops One">Black Ops One</option>
-        <option value="Graduate">Graduate</option>
-        <option value="Audiowide">Audiowide</option>
-        <option value="Permanent Marker">Permanent Marker</option>
-       </optgroup>
-       <optgroup label="CLASSICI">
-        <option value="Arial Black">Arial Black</option>
-        <option value="Impact">Impact</option>
-        <option value="Trebuchet MS">Trebuchet</option>
-        <option value="Georgia">Georgia</option>
-        <option value="Courier New">Courier New</option>
-       </optgroup>
-      </select>
-     <input id="textColor" type="color" value="#ffffff" style="width:100%;height:42px">
+   </details>
+
+   <details class="control-section">
+    <summary><span class="step-dot">3</span><span><b>Loghi e sponsor</b><small>Stemma squadra e sponsor personalizzati</small></span></summary>
+    <div class="section-body">
+     <div class="fixed-brand-note"><b>Nutria Sportswear</b><span>Logo tecnico fisso su maglia e pantaloncino. Posizione e dimensione non modificabili.</span></div>
+
+     <div class="field compact-field">
+      <label>STEMMA SQUADRA · LATO CUORE</label>
+      <label class="upload-label" for="logoFile">＋ Carica stemma squadra</label>
+      <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">
+      <div class="small" id="fileStatus">PNG trasparente consigliato.</div>
+      <details class="advanced-controls"><summary>Regola stemma squadra</summary><div class="two-col slider-grid">
+       <div><small>DIMENSIONE <span id="teamLogoSizeValue">100%</span></small><input id="teamLogoSize" type="range" min="40" max="300" value="100" step="5"></div>
+       <div><small>ORIZZONTALE</small><input id="teamLogoX" type="range" min="-100" max="100" value="0" step="2"></div>
+       <div><small>VERTICALE</small><input id="teamLogoY" type="range" min="-100" max="100" value="0" step="2"></div>
+      </div></details>
+     </div>
+
+     <div class="field compact-field sponsor-card">
+      <label>SPONSOR FRONTE · PANCIA</label>
+      <label class="upload-label" for="frontSponsorFile">＋ Carica sponsor fronte</label><input id="frontSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="frontSponsorStatus">PNG trasparente consigliato.</div>
+      <div class="two-col slider-grid"><div><small>DIMENSIONE <span id="frontSponsorSizeValue">100%</span></small><input id="frontSponsorSize" type="range" min="40" max="220" value="100"></div><div><small>ALTEZZA</small><input id="frontSponsorY" type="range" min="-100" max="100" value="0"></div></div>
+     </div>
+
+     <div class="field compact-field sponsor-card">
+      <label>SPONSOR RETRO · SOTTO IL NUMERO</label>
+      <label class="upload-label" for="backSponsorFile">＋ Carica sponsor retro</label><input id="backSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="backSponsorStatus">PNG trasparente consigliato.</div>
+      <div class="two-col slider-grid"><div><small>DIMENSIONE <span id="backSponsorSizeValue">100%</span></small><input id="backSponsorSize" type="range" min="40" max="220" value="100"></div><div><small>ALTEZZA</small><input id="backSponsorY" type="range" min="-100" max="100" value="0"></div></div>
+     </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-     <div><small>DIMENSIONE NOME <span id="backNameSizeValue">125%</span></small><input id="backNameSize" type="range" min="70" max="180" value="125" step="5" style="width:100%"></div>
-     <div><small>ALTEZZA NOME</small><input id="backNameY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-     <div><small>DIMENSIONE NUMERO <span id="backNumberSizeValue">140%</span></small><input id="backNumberSize" type="range" min="70" max="190" value="140" step="5" style="width:100%"></div>
-     <div><small>ALTEZZA NUMERO</small><input id="backNumberY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
+   </details>
+
+   <details class="control-section">
+    <summary><span class="step-dot">4</span><span><b>Richiedi un preventivo</b><small>Invia il progetto a Nutria Sportswear</small></span></summary>
+    <div class="section-body">
+     <form id="quoteForm">
+      <div class="two-col"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
+      <div class="two-col"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
+      <textarea id="notes" placeholder="Taglie, colori, scadenza, note..."></textarea>
+      <button class="primary" type="submit">INVIA RICHIESTA</button>
+     </form>
     </div>
-   </div>
+   </details>
 
-   <div class="control-group-title">Loghi e sponsor</div>
-   <div class="field">
-    <label>6. STEMMA SQUADRA · LATO CUORE</label>
-    <label class="upload-label" for="logoFile">＋ Scegli PNG, JPG o WEBP</label>
-    <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">
-    <div class="small" id="fileStatus">Lo stemma verrà posizionato sul lato cuore. Il logo Nutria resta sul lato opposto.</div>
-   </div>
-
-   <div class="field">
-    <label>7. SPONSOR PERSONALIZZATI</label><label>SPONSOR FRONTE · PANCIA</label><label class="upload-label" for="frontSponsorFile">＋ Carica sponsor</label><input id="frontSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="frontSponsorStatus">PNG trasparente consigliato.</div><div><small>DIMENSIONE <span id="frontSponsorSizeValue">100%</span></small><input id="frontSponsorSize" type="range" min="40" max="220" value="100" style="width:100%"><small> POSIZIONE VERTICALE</small><input id="frontSponsorY" type="range" min="-100" max="100" value="0" style="width:100%"></div><br><label>SPONSOR RETRO · SOTTO IL NUMERO</label><label class="upload-label" for="backSponsorFile">＋ Carica sponsor</label><input id="backSponsorFile" type="file" accept="image/png,image/jpeg,image/webp"><div class="small" id="backSponsorStatus">Applicato sotto il numero.</div><div><small>DIMENSIONE <span id="backSponsorSizeValue">100%</span></small><input id="backSponsorSize" type="range" min="40" max="220" value="100" style="width:100%"><small> POSIZIONE VERTICALE</small><input id="backSponsorY" type="range" min="-100" max="100" value="0" style="width:100%"></div><hr style="border:0;border-top:1px solid #2b3032;margin:18px 0"><label>8. RICHIEDI UN PREVENTIVO</label>
-    
-   <div style="margin-top:14px">
-    <div class="section-title">POSIZIONE E DIMENSIONE LOGHI</div>
-
-    <label style="margin-top:10px">LOGO NUTRIA</label>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div><small>DIMENSIONE <span id="nutriaLogoSizeValue">135%</span></small><input id="nutriaLogoSize" type="range" min="40" max="300" value="135" step="5" style="width:100%"></div>
-      <div><small>ORIZZONTALE</small><input id="nutriaLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-      <div><small>VERTICALE</small><input id="nutriaLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-    </div>
-
-    <label style="margin-top:10px">LOGO NUTRIA · PANTALONCINO</label>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div><small>DIMENSIONE <span id="nutriaShortsSizeValue">100%</span></small><input id="nutriaShortsSize" type="range" min="50" max="200" value="100" step="5" style="width:100%"></div>
-      <div><small>ORIZZONTALE</small><input id="nutriaShortsX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-      <div><small>VERTICALE</small><input id="nutriaShortsY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-    </div>
-
-    <label style="margin-top:10px">STEMMA SQUADRA</label>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      <div><small>DIMENSIONE <span id="teamLogoSizeValue">100%</span></small><input id="teamLogoSize" type="range" min="40" max="300" value="100" step="5" style="width:100%"></div>
-      <div><small>ORIZZONTALE</small><input id="teamLogoX" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-      <div><small>VERTICALE</small><input id="teamLogoY" type="range" min="-100" max="100" value="0" step="2" style="width:100%"></div>
-    </div>
-    <div class="small">I loghi vengono proiettati direttamente sulla superficie della maglia e ne seguono la curvatura.</div>
-   </div>
-
-<form id="quoteForm">
-     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
-     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
-     <textarea id="notes" placeholder="Taglie, colori, scadenza, note..."></textarea>
-     <button class="primary" type="submit">INVIA RICHIESTA</button>
-    </form>
-   </div>
-
-   <div class="notice">Il logo tecnico Nutria è una parte fissa del modello 3D e non viene modificato dai colori del kit.</div>
+   <div class="notice">Il logo tecnico Nutria è fisso e non viene modificato dai colori del kit.</div>
   </section>
  </div>
 </main>
@@ -961,22 +948,19 @@ function rebuildShortsBranding(){
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // SOLO PANTALONCINO: usiamo una copia del logo ritagliata dai bordi trasparenti.
+  // Logo Nutria fisso sul pantaloncino: nessun controllo utente.
   const logoTex=makeShortsLogoTextureCropped(nutriaLogoTexture);
   const iw=logoTex.image?.naturalWidth||logoTex.image?.width||1;
   const ih=logoTex.image?.naturalHeight||logoTex.image?.height||1;
   const aspect=iw/ih;
 
-  // Gamba sinistra per chi guarda. Posizione X invariata rispetto alla zona desiderata.
-  const px=center.x-size.x*.20+(nutriaShortsX/100)*size.x*.08;
-  const w=size.x*.16*nutriaShortsScale;
-  const h=Math.min(w/Math.max(aspect,.2),size.y*.13*nutriaShortsScale);
+  // Unica colonna sulla gamba sinistra per chi guarda.
+  const px=center.x-size.x*.20;
+  const w=size.x*.16;
+  const h=Math.min(w/Math.max(aspect,.2),size.y*.13);
 
-  // CENTRO fissato vicino all'orlo: non dipende più dall'altezza del logo.
-  // Il cursore verticale continua a funzionare, ma la base è molto più bassa.
-  // Più basso: centro calcolato appena sopra l'orlo visivo del pantaloncino.
-  // Offset negativo volutamente marcato per compensare il pivot/mesh reale del GLB.
-  const py=box.min.y + h*.5 - size.y*.16 + (nutriaShortsY/100)*size.y*.06;
+  // Appena sopra l'orlo reale: margine 2.5% dell'altezza del pantaloncino.
+  const py=box.min.y + h*.5 + size.y*.025;
 
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
     shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
@@ -999,14 +983,25 @@ function rebuildShortsNumber(){
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // Gamba destra per chi guarda.
-  const px=center.x+size.x*.20;
-  const w=size.x*.13;
-  const h=size.y*.16;
+  // Stessa colonna del logo Nutria.
+  const px=center.x-size.x*.20;
+  const logoW=size.x*.16;
+  const logoAspect=(()=>{
+    const img=nutriaLogoTexture?.image;
+    if(!img) return 2.3;
+    const iw=img.naturalWidth||img.width||1;
+    const ih=img.naturalHeight||img.height||1;
+    return iw/ih;
+  })();
+  const logoH=Math.min(logoW/Math.max(logoAspect,.2),size.y*.13);
+  const logoY=box.min.y + logoH*.5 + size.y*.025;
 
-  // CENTRO vicino all'orlo, alla stessa quota del logo.
-  // Stessa quota bassa del logo: appena sopra l'orlo visivo.
-  const py=box.min.y + h*.5 - size.y*.16;
+  const w=size.x*.12;
+  const h=size.y*.14;
+  const gap=size.y*.018;
+
+  // Numero direttamente sopra il logo, stessa gamba.
+  const py=logoY + logoH*.5 + gap + h*.5;
 
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
     shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',121,.004
