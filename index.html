@@ -49,6 +49,54 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 .top-nav a.active{background:#2b2307;color:#f2c329;border-color:#d7a928}
 @media(max-width:700px){.top-nav{gap:5px}.top-nav a{padding:7px 9px;font-size:9px}}
 
+
+
+/* ===== UI CONTROLLI V6.37: solo presentazione, nessun ID/logica modificati ===== */
+.controls{
+  background:linear-gradient(180deg,#151819 0%,#0e1011 100%);
+  border-color:#34393b;
+}
+.controls h2{font-size:22px;letter-spacing:-.02em}
+.controls .sub{margin-bottom:14px}
+.control-guide{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+  margin:0 0 16px;padding:8px;background:#0a0c0d;border:1px solid #2c3133;border-radius:12px;
+}
+.control-guide span{
+  text-align:center;padding:7px 5px;border-radius:8px;background:#171b1c;
+  color:#bfc4c5;font-size:10px;font-weight:800;letter-spacing:.04em;
+}
+.control-guide span b{color:var(--gold);display:block;font-size:11px;margin-bottom:2px}
+.control-group-title{
+  margin:22px 0 8px;padding:0 2px 8px;border-bottom:1px solid #34393b;
+  color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+}
+.field{
+  margin:10px 0 14px!important;padding:15px!important;
+  background:#121516;border:1px solid #2d3234;border-radius:13px;
+  box-shadow:0 8px 22px rgba(0,0,0,.12);
+}
+.field>label:first-child{
+  color:#fff;font-size:12px;font-weight:900;letter-spacing:.04em;margin-bottom:12px;
+}
+.field>label:first-child::first-letter{color:var(--gold)}
+.field label{line-height:1.25}
+.field small{color:#adb4b6;font-size:10px;font-weight:800;letter-spacing:.02em}
+.field input[type="range"]{margin-top:6px;accent-color:#d7a928}
+.field input[type="color"]{border-radius:9px;overflow:hidden;border:1px solid #4a5052;background:#0c0e0f}
+.field input[type="text"],.field input[type="email"],.field input[type="number"],.field select,.field textarea{
+  border-color:#42484a;background:#090b0c;
+}
+.field .products button{min-height:39px}
+.upload-label{border-style:dashed!important;background:#0d1011!important;font-weight:800!important}
+.small{margin-top:7px;line-height:1.4}
+.section-title{color:var(--gold)!important;font-weight:900!important;letter-spacing:.08em}
+.controls hr{border-color:#34393b!important}
+@media(max-width:800px){
+  .control-guide{grid-template-columns:1fr 1fr 1fr}
+  .field{padding:13px!important}
+}
+
 </style>
 </head>
 <body>
@@ -87,6 +135,10 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
   <section class="controls">
    <h2>Configura il tuo kit</h2>
    <p class="sub">Configura ogni parte del kit e visualizza le modifiche in tempo reale.</p>
+   <div class="control-guide">
+    <span><b>1</b>Design</span><span><b>2</b>Dettagli</span><span><b>3</b>Loghi</span>
+   </div>
+   <div class="control-group-title">Vista e design</div>
 
    <div class="field">
     <label>1. VISUALIZZA</label>
@@ -155,6 +207,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </div>
 
+   <div class="control-group-title">Colori e dettagli del kit</div>
    <div class="field">
     <label>4. DETTAGLI MAGLIA</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -165,6 +218,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </div>
 
+   <div class="control-group-title">Nome, numero e identità</div>
    <div class="field">
     <label>5. NOME E NUMERO · RETRO</label>
     <div style="display:grid;grid-template-columns:1.4fr .6fr;gap:8px">
@@ -207,6 +261,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     </div>
    </div>
 
+   <div class="control-group-title">Loghi e sponsor</div>
    <div class="field">
     <label>6. STEMMA SQUADRA · LATO CUORE</label>
     <label class="upload-label" for="logoFile">＋ Scegli PNG, JPG o WEBP</label>
@@ -919,7 +974,9 @@ function rebuildShortsBranding(){
 
   // CENTRO fissato vicino all'orlo: non dipende più dall'altezza del logo.
   // Il cursore verticale continua a funzionare, ma la base è molto più bassa.
-  const py=box.min.y + h*.5 + size.y*.015 + (nutriaShortsY/100)*size.y*.025;
+  // Più basso: centro calcolato appena sopra l'orlo visivo del pantaloncino.
+  // Offset negativo volutamente marcato per compensare il pivot/mesh reale del GLB.
+  const py=box.min.y + h*.5 - size.y*.16 + (nutriaShortsY/100)*size.y*.06;
 
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
     shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
@@ -948,7 +1005,8 @@ function rebuildShortsNumber(){
   const h=size.y*.16;
 
   // CENTRO vicino all'orlo, alla stessa quota del logo.
-  const py=box.min.y + h*.5 + size.y*.015;
+  // Stessa quota bassa del logo: appena sopra l'orlo visivo.
+  const py=box.min.y + h*.5 - size.y*.16;
 
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
     shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',121,.004
