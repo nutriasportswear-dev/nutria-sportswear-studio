@@ -859,6 +859,44 @@ function rebuildChestDecals(){
   updateView();
 }
 
+function makeShortsLogoTextureCropped(sourceTexture){
+  const img=sourceTexture?.image;
+  if(!img) return sourceTexture;
+  try{
+    const sw=img.naturalWidth||img.width;
+    const sh=img.naturalHeight||img.height;
+    const scan=document.createElement('canvas');
+    scan.width=sw; scan.height=sh;
+    const sctx=scan.getContext('2d',{willReadFrequently:true});
+    sctx.drawImage(img,0,0,sw,sh);
+    const data=sctx.getImageData(0,0,sw,sh).data;
+    let minX=sw,minY=sh,maxX=-1,maxY=-1;
+    for(let y=0;y<sh;y++){
+      for(let x=0;x<sw;x++){
+        if(data[(y*sw+x)*4+3]>12){
+          if(x<minX)minX=x; if(x>maxX)maxX=x;
+          if(y<minY)minY=y; if(y>maxY)maxY=y;
+        }
+      }
+    }
+    if(maxX<minX || maxY<minY) return sourceTexture;
+    const pad=Math.max(2,Math.round(Math.max(sw,sh)*.01));
+    minX=Math.max(0,minX-pad); minY=Math.max(0,minY-pad);
+    maxX=Math.min(sw-1,maxX+pad); maxY=Math.min(sh-1,maxY+pad);
+    const cw=maxX-minX+1, ch=maxY-minY+1;
+    const c=document.createElement('canvas');
+    c.width=cw; c.height=ch;
+    c.getContext('2d').drawImage(img,minX,minY,cw,ch,0,0,cw,ch);
+    const tex=new THREE.CanvasTexture(c);
+    tex.colorSpace=THREE.SRGBColorSpace;
+    tex.needsUpdate=true;
+    return tex;
+  }catch(err){
+    console.warn('Crop logo shorts non disponibile:',err);
+    return sourceTexture;
+  }
+}
+
 function rebuildShortsBranding(){
   if(nutriaShortsLogo){disposeMesh3D(nutriaShortsLogo);nutriaShortsLogo=null;}
   if(!shortsMesh || !nutriaLogoTexture) return;
@@ -866,21 +904,24 @@ function rebuildShortsBranding(){
   const box=meshBounds(shortsMesh);
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
-  const iw=nutriaLogoTexture.image?.naturalWidth||nutriaLogoTexture.image?.width||1;
-  const ih=nutriaLogoTexture.image?.naturalHeight||nutriaLogoTexture.image?.height||1;
+
+  // SOLO PANTALONCINO: usiamo una copia del logo ritagliata dai bordi trasparenti.
+  const logoTex=makeShortsLogoTextureCropped(nutriaLogoTexture);
+  const iw=logoTex.image?.naturalWidth||logoTex.image?.width||1;
+  const ih=logoTex.image?.naturalHeight||logoTex.image?.height||1;
   const aspect=iw/ih;
 
-  // SOLO PANTALONCINO: logo sulla gamba sinistra per chi guarda,
-  // posizionato molto vicino all'orlo (altezza segno rosso).
+  // Gamba sinistra per chi guarda. Posizione X invariata rispetto alla zona desiderata.
   const px=center.x-size.x*.20+(nutriaShortsX/100)*size.x*.08;
-  const w=size.x*.18*nutriaShortsScale;
-  const h=Math.min(w/Math.max(aspect,.2),size.y*.14*nutriaShortsScale);
-  // Centro calcolato sull'orlo reale: il bordo inferiore del logo resta appena sopra il fondo pantaloncino.
-  const py=box.min.y + h*.52 + size.y*.015 + (nutriaShortsY/100)*size.y*.04;
+  const w=size.x*.16*nutriaShortsScale;
+  const h=Math.min(w/Math.max(aspect,.2),size.y*.13*nutriaShortsScale);
 
-  // Ancoraggio frontale stabile: evita che il logo sparisca o risalga.
+  // CENTRO fissato vicino all'orlo: non dipende più dall'altezza del logo.
+  // Il cursore verticale continua a funzionare, ma la base è molto più bassa.
+  const py=box.min.y + size.y*.105 + (nutriaShortsY/100)*size.y*.035;
+
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
-    shortsMesh,nutriaLogoTexture,px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.008
+    shortsMesh,logoTex,px,py,w,h,'NUTRIA_SHORTS_SURFACE',120,.004
   );
   updateView();
 }
@@ -900,17 +941,16 @@ function rebuildShortsNumber(){
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // SOLO PANTALONCINO: numero sulla gamba destra per chi guarda,
-  // alla stessa altezza bassa del segno verde.
+  // Gamba destra per chi guarda.
   const px=center.x+size.x*.20;
   const w=size.x*.13;
-  const h=size.y*.18;
-  // Anche il numero viene allineato all'orlo reale, sulla gamba opposta.
-  const py=box.min.y + h*.52 + size.y*.015;
+  const h=size.y*.16;
 
-  // Ancoraggio frontale stabile: posizione precisa e sempre visibile.
+  // CENTRO vicino all'orlo, alla stessa quota del logo.
+  const py=box.min.y + size.y*.105;
+
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
-    shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.009
+    shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',121,.004
   );
   updateView();
 }
