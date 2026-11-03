@@ -870,24 +870,17 @@ function rebuildShortsBranding(){
   const ih=nutriaLogoTexture.image?.naturalHeight||nutriaLogoTexture.image?.height||1;
   const aspect=iw/ih;
 
-  // Gamba destra del giocatore = sinistra per chi guarda.
-  const px=center.x-size.x*.17+(nutriaShortsX/100)*size.x*.10;
-  const w=size.x*.20*nutriaShortsScale;
-  const h=Math.min(w/Math.max(aspect,.2),size.y*.16*nutriaShortsScale);
+  // SOLO PANTALONCINO: logo sulla gamba sinistra per chi guarda,
+  // posizionato molto vicino all'orlo (altezza segno rosso).
+  const px=center.x-size.x*.20+(nutriaShortsX/100)*size.x*.08;
+  const w=size.x*.18*nutriaShortsScale;
+  const h=Math.min(w/Math.max(aspect,.2),size.y*.14*nutriaShortsScale);
+  const py=box.min.y + size.y*.14 + (nutriaShortsY/100)*size.y*.06;
 
-  // Centro del logo appena sopra l'orlo: il margine considera l'altezza del logo.
-  const py=box.min.y + h*.55 + size.y*.012 + (nutriaShortsY/100)*size.y*.08;
-
-  nutriaShortsLogo=makeLowerShortsPlane(
-    nutriaLogoTexture,px,py,w,h,'NUTRIA_SHORTS_SURFACE',98
+  // Ancoraggio frontale stabile: evita che il logo sparisca o risalga.
+  nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
+    shortsMesh,nutriaLogoTexture,px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.008
   );
-
-  // Fallback: stessa posizione bassa, senza risalire.
-  if(!nutriaShortsLogo){
-    nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
-      shortsMesh,nutriaLogoTexture,px,py,w,h,'NUTRIA_SHORTS_SURFACE',98,.008
-    );
-  }
   updateView();
 }
 
@@ -906,21 +899,17 @@ function rebuildShortsNumber(){
   const size=box.getSize(new THREE.Vector3());
   const center=box.getCenter(new THREE.Vector3());
 
-  // Numero sulla gamba opposta al logo Nutria.
-  const px=center.x+size.x*.17;
+  // SOLO PANTALONCINO: numero sulla gamba destra per chi guarda,
+  // alla stessa altezza bassa del segno verde.
+  const px=center.x+size.x*.20;
   const w=size.x*.13;
-  const h=size.y*.20;
-  const py=box.min.y + h*.52 + size.y*.012;
+  const h=size.y*.18;
+  const py=box.min.y + size.y*.14;
 
-  shortsNumberMesh=makeLowerShortsPlane(
-    tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',99
+  // Ancoraggio frontale stabile: posizione precisa e sempre visibile.
+  shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
+    shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.009
   );
-
-  if(!shortsNumberMesh){
-    shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
-      shortsMesh,tex,px,py,w,h,'SHORTS_NUMBER_SURFACE',99,.008
-    );
-  }
   updateView();
 }
 
