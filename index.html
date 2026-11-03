@@ -161,9 +161,9 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 
 <main>
  <section class="intro">
-  <div class="eyebrow">Personalizza la tua divisa</div>
-  <h1>CREA IL TUO KIT.<br><span style="color:var(--gold)">PARTI DALLA TUA IDEA.</span></h1>
-  <p>Configura una prima bozza del tuo kit e inviaci la tua idea. Nutria Sportswear svilupperà con te il progetto definitivo prima della produzione.</p>
+  <div class="eyebrow">CREA LA TUA BOZZA</div>
+  <h1>DAI FORMA AL TUO KIT.<br><span style="color:var(--gold)">NOI LO RENDIAMO REALE.</span></h1>
+  <p>Personalizza colori, stile, loghi e sponsor e crea una prima bozza del tuo kit. Dopo l’invio, Nutria Sportswear rifinirà il concept e ti sottoporrà il progetto grafico definitivo prima della produzione.</p>
  </section>
 
  <div class="layout">
@@ -174,18 +174,18 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     <div class="hint">Trascina per ruotare · rotella per zoom</div>
    </div>
    <div style="padding:14px 18px;border-top:1px solid var(--line)">
-    <button id="downloadPreview" style="width:100%">↓ SCARICA BOZZA PNG</button>
+    <button id="downloadPreview" style="width:100%">↓ SCARICA LA TUA BOZZA PNG</button>
    </div>
   </section>
 
   <section class="controls">
-   <div class="controls-head"><div class="controls-head-copy"><div class="eyebrow">CONFIGURA LA TUA BOZZA</div><h2>Personalizza il kit</h2><p class="sub">Scegli stile, colori, nome, numero, stemma e sponsor.</p></div></div>
+   <div class="controls-head"><div class="controls-head-copy"><div class="eyebrow">PERSONALIZZA IL KIT</div><h2>Costruisci la tua idea</h2><p class="sub">Scegli colori, dettagli, nome, numero, stemma e sponsor.</p></div></div>
 
    <nav class="quick-nav" aria-label="Navigazione configuratore">
     <button type="button" data-jump="designSection" class="active"><strong>1 · Design</strong><span>Colori e stile</span></button>
     <button type="button" data-jump="identitySection"><strong>2 · Nome / N°</strong><span>Personalizzazione</span></button>
     <button type="button" data-jump="logosSection"><strong>3 · Loghi</strong><span>Stemma e sponsor</span></button>
-    <button type="button" data-jump="quoteSection"><strong>4 · Invia</strong><span>Invia la bozza</span></button>
+    <button type="button" data-jump="quoteSection"><strong>4 · Invia</strong><span>Condividi la bozza</span></button>
    </nav>
 
    <details class="control-section" id="designSection" open>
@@ -293,7 +293,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     <div class="section-body">
 
      <div class="field compact-field">
-      <label>STEMMA SQUADRA · LATO CUORE</label>
+      <label>STEMMA SQUADRA · MAGLIA + PANTALONCINI</label>
       <label class="upload-label" for="logoFile">＋ Carica stemma squadra</label>
       <input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp">
       <div class="small" id="fileStatus">PNG trasparente consigliato.</div>
@@ -319,14 +319,32 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
    </details>
 
    <details class="control-section" id="quoteSection">
-    <summary><span class="step-dot">4</span><span><b>Invia la tua bozza</b><small>Riceveremo anteprima e dati del progetto</small></span></summary>
+    <summary><span class="step-dot">4</span><span><b>Invia la tua bozza</b><small>La useremo come base per il progetto definitivo</small></span></summary>
     <div class="section-body">
-     <div class="draft-note"><b>BOZZA NON DEFINITIVA</b><span>L’anteprima serve per comunicarci la tua idea. Dopo l’invio, Nutria Sportswear svilupperà e condividerà con te il progetto grafico definitivo prima della produzione.</span></div>
+     <div class="draft-note"><b>ANTEPRIMA PRELIMINARE</b><span>Questa configurazione rappresenta una bozza iniziale e non il file grafico definitivo. Una volta ricevuta, Nutria Sportswear rifinirà il design e ti invierà la proposta finale da approvare prima della produzione.</span></div>
      <form id="quoteForm" enctype="multipart/form-data">
       <div class="two-col"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
       <div class="two-col"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
       <textarea id="notes" placeholder="Note, esigenze, quantità, scadenze..."></textarea>
-      <button class="primary" type="submit">INVIA BOZZA A NUTRIA</button>
+      <button class="primary" type="submit">INVIA LA BOZZA A NUTRIA</button>
+     </form>
+     <iframe id="quoteSubmitFrame" name="quoteSubmitFrame" style="display:none"></iframe>
+     <form id="quoteMailForm" action="https://formsubmit.co/nutriasportswear@gmail.com" method="POST" enctype="multipart/form-data" target="quoteSubmitFrame" style="display:none">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_subject" id="mail_subject">
+      <input type="hidden" name="_replyto" id="mail_replyto">
+      <input type="hidden" name="stato_progetto" value="BOZZA NON DEFINITIVA">
+      <input type="hidden" name="nome" id="mail_nome">
+      <input type="hidden" name="squadra" id="mail_squadra">
+      <input type="hidden" name="email" id="mail_email">
+      <input type="hidden" name="quantita" id="mail_quantita">
+      <input type="hidden" name="nome_maglia" id="mail_nome_maglia">
+      <input type="hidden" name="numero_maglia" id="mail_numero_maglia">
+      <input type="hidden" name="colore_principale" id="mail_colore_principale">
+      <input type="hidden" name="stile_maglia" id="mail_stile_maglia">
+      <input type="hidden" name="note" id="mail_note">
+      <input type="file" id="mail_attachment" name="attachment" accept="image/png">
      </form>
     </div>
    </details>
@@ -334,7 +352,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
  </div>
 </main>
 
-<footer>© Nutria Sportswear · La configurazione creata online è una bozza indicativa e non costituisce il progetto grafico definitivo.</footer>
+<footer>© Nutria Sportswear · L’anteprima generata dal configuratore è una bozza preliminare e non costituisce approvazione grafica né ordine di produzione.</footer>
 
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"}}
@@ -376,6 +394,7 @@ let collarColor='#202323', sleeveColor='#202323', shortsColor='#202323', socksCo
 let collarCustom=false, sleeveCustom=false, shortsCustom=false, socksCustom=false;
 let backPrint=null;
 let teamCrest = null;
+let teamShortsCrest = null;
 let nutriaLogoScale = 1.35;
 let teamLogoScale = 1;
 let nutriaLogoX = 0, nutriaLogoY = 0;
@@ -1242,10 +1261,36 @@ function rebuildShortsNumber(){
   updateView();
 }
 
+function rebuildShortsCrest(){
+  if(teamShortsCrest){disposeMesh3D(teamShortsCrest);teamShortsCrest=null;}
+  if(!shortsMesh || !teamLogoTexture) return;
+
+  const crestTex=makeShortsLogoTextureCropped(teamLogoTexture);
+  const img=crestTex.image;
+  const aspect=(img?.naturalWidth||img?.width||1)/(img?.naturalHeight||img?.height||1);
+
+  // Stemma squadra sulla gamba opposta a numero + Nutria.
+  // Posizione bassa, vicino all'orlo, con proporzioni mantenute.
+  const widthFrac=.13;
+  const heightFrac=Math.min(widthFrac/Math.max(aspect,.35)*1.9,.12);
+
+  teamShortsCrest=makeLocalShortsPlane(
+    crestTex,
+    .22,
+    -.255,
+    widthFrac,
+    heightFrac,
+    'TEAM_SHORTS_CREST_SURFACE',
+    120
+  );
+  updateView();
+}
+
 function placeChestBranding(){
   rebuildChestDecals();
   rebuildShortsBranding();
   rebuildShortsNumber();
+  rebuildShortsCrest();
 }
 
 function loadNutriaChestLogo(){
@@ -1509,6 +1554,7 @@ function updateView(){
   if(shortsNumberMesh) shortsNumberMesh.visible=showLower;
   if(nutriaChestLogo) nutriaChestLogo.visible=showJersey;
   if(teamCrest) teamCrest.visible=showJersey;
+  if(teamShortsCrest) teamShortsCrest.visible=showLower;
   if(backPrint) backPrint.visible=showJersey;
   if(frontSponsorPlane) frontSponsorPlane.visible=showJersey;
   if(backSponsorPlane) backSponsorPlane.visible=showJersey;
@@ -1566,6 +1612,7 @@ gltfLoader.load(
       loadNutriaChestLogo();
       if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals();
       if(nutriaLogoTexture) rebuildShortsBranding();
+      if(teamLogoTexture) rebuildShortsCrest();
       rebuildShortsNumber();
     }catch(err){ console.warn('Logo petto:',err); }
 
@@ -1580,6 +1627,7 @@ gltfLoader.load(
     setTimeout(()=>{
       try{ if(nutriaLogoTexture || teamLogoTexture) rebuildChestDecals(); }catch(err){ console.warn(err); }
       try{ if(nutriaLogoTexture) rebuildShortsBranding(); }catch(err){ console.warn(err); }
+      try{ if(teamLogoTexture) rebuildShortsCrest(); }catch(err){ console.warn(err); }
       try{ updateBackPrint(); }catch(err){ console.warn(err); }
     },150);
     console.log('✓ NUTRIA KIT 3D CARICATO · V6.33 SHORTS HEM ALIGN');
@@ -1663,6 +1711,7 @@ document.getElementById('logoFile').addEventListener('change',async e=>{
     teamLogoTexture?.dispose?.();
     teamLogoTexture=tex;
     rebuildChestDecals();
+    rebuildShortsCrest();
     st.textContent='✓ '+f.name;
   }catch(err){
     console.error(err);
@@ -1686,7 +1735,6 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
   }
 
   try{
-    // Render della vista 3D attuale e conversione in PNG.
     controls.update();
     renderer.render(scene,camera);
 
@@ -1706,38 +1754,49 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
       {type:'image/png'}
     );
 
-    const formData=new FormData();
-    formData.append('_subject','Nuova bozza kit Nutria - '+team);
-    formData.append('_replyto',document.getElementById('email').value);
-    formData.append('_template','table');
-    formData.append('stato_progetto','BOZZA NON DEFINITIVA');
-    formData.append('nome',document.getElementById('name').value);
-    formData.append('squadra',team);
-    formData.append('email',document.getElementById('email').value);
-    formData.append('quantita',document.getElementById('qty').value);
-    formData.append('nome_maglia',document.getElementById('playerName')?.value||'');
-    formData.append('numero_maglia',document.getElementById('playerNumber')?.value||'');
-    formData.append('colore_principale',chosenColor);
-    formData.append('stile_maglia',currentPattern);
-    formData.append('note',document.getElementById('notes').value);
-    formData.append('attachment',previewFile,previewFile.name);
+    // Compilazione form nascosto verso endpoint standard FormSubmit: è il flusso
+    // più stabile per l'invio con allegato PNG.
+    document.getElementById('mail_subject').value='Nuova bozza kit Nutria - '+team;
+    document.getElementById('mail_replyto').value=document.getElementById('email').value;
+    document.getElementById('mail_nome').value=document.getElementById('name').value;
+    document.getElementById('mail_squadra').value=team;
+    document.getElementById('mail_email').value=document.getElementById('email').value;
+    document.getElementById('mail_quantita').value=document.getElementById('qty').value;
+    document.getElementById('mail_nome_maglia').value=document.getElementById('playerName')?.value||'';
+    document.getElementById('mail_numero_maglia').value=document.getElementById('playerNumber')?.value||'';
+    document.getElementById('mail_colore_principale').value=chosenColor;
+    document.getElementById('mail_stile_maglia').value=currentPattern;
+    document.getElementById('mail_note').value=document.getElementById('notes').value;
+
+    const attachmentInput=document.getElementById('mail_attachment');
+    const dt=new DataTransfer();
+    dt.items.add(previewFile);
+    attachmentInput.files=dt.files;
 
     if(submitButton) submitButton.textContent='INVIO BOZZA…';
 
-    const response=await fetch('https://formsubmit.co/ajax/nutriasportswear@gmail.com',{
-      method:'POST',
-      headers:{'Accept':'application/json'},
-      body:formData
+    const hiddenForm=document.getElementById('quoteMailForm');
+    const iframe=document.getElementById('quoteSubmitFrame');
+
+    await new Promise((resolve,reject)=>{
+      let settled=false;
+      const timer=setTimeout(()=>{
+        if(settled) return;
+        settled=true;
+        reject(new Error('Timeout invio bozza'));
+      },15000);
+
+      iframe.onload=()=>{
+        if(settled) return;
+        settled=true;
+        clearTimeout(timer);
+        resolve();
+      };
+
+      hiddenForm.submit();
     });
 
-    let data={};
-    try{ data=await response.json(); }catch(_){}
-
-    if(!response.ok || data.success===false || data.success==='false'){
-      throw new Error(data.message||'Invio non riuscito');
-    }
-
-    alert('Bozza inviata! Nutria Sportswear ha ricevuto l’anteprima PNG e i dati del progetto. Ti contatteremo per sviluppare la versione definitiva.');
+    alert('Bozza inviata! Abbiamo ricevuto l’anteprima PNG e i dati del progetto. Ti contatteremo per sviluppare e confermare la versione grafica definitiva.');
     e.target.reset();
   }catch(error){
     console.error(error);
@@ -1745,7 +1804,7 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
   }finally{
     if(submitButton){
       submitButton.disabled=false;
-      submitButton.textContent=oldLabel||'INVIA BOZZA A NUTRIA';
+      submitButton.textContent=oldLabel||'INVIA LA BOZZA A NUTRIA';
     }
   }
 });
