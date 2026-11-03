@@ -322,29 +322,17 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     <summary><span class="step-dot">4</span><span><b>Invia la tua bozza</b><small>La useremo come base per il progetto definitivo</small></span></summary>
     <div class="section-body">
      <div class="draft-note"><b>ANTEPRIMA PRELIMINARE</b><span>Questa configurazione rappresenta una bozza iniziale e non il file grafico definitivo. Una volta ricevuta, Nutria Sportswear rifinirà il design e ti invierà la proposta finale da approvare prima della produzione.</span></div>
-     <form id="quoteForm" enctype="multipart/form-data">
+     <form id="quoteForm" action="https://formsubmit.io/f/e2277192-01ac-4a19-bb66-770b5a075b74" method="POST" enctype="multipart/form-data">
       <div class="two-col"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
       <div class="two-col"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
       <textarea id="notes" placeholder="Note, esigenze, quantità, scadenze..."></textarea>
+      <!-- Campi collegati al form Live del pannello FormSubmit.io -->
+      <input type="hidden" id="fsName" name="Short text">
+      <input type="hidden" id="fsEmail" name="Email">
+      <textarea id="fsMessage" name="Long text" hidden></textarea>
+      <input type="file" id="fsAttachment" name="attachment" accept="image/png" style="display:none">
+      <input type="text" name="_formsubmit_id" tabindex="-1" autocomplete="off" style="display:none" aria-hidden="true">
       <button class="primary" type="submit">INVIA LA BOZZA A NUTRIA</button>
-     </form>
-     <iframe id="quoteSubmitFrame" name="quoteSubmitFrame" style="display:none"></iframe>
-     <form id="quoteMailForm" action="https://formsubmit.co/nutriasportswear@gmail.com" method="POST" enctype="multipart/form-data" target="quoteSubmitFrame" style="display:none">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_subject" id="mail_subject">
-      <input type="hidden" name="_replyto" id="mail_replyto">
-      <input type="hidden" name="stato_progetto" value="BOZZA NON DEFINITIVA">
-      <input type="hidden" name="nome" id="mail_nome">
-      <input type="hidden" name="squadra" id="mail_squadra">
-      <input type="hidden" name="email" id="mail_email">
-      <input type="hidden" name="quantita" id="mail_quantita">
-      <input type="hidden" name="nome_maglia" id="mail_nome_maglia">
-      <input type="hidden" name="numero_maglia" id="mail_numero_maglia">
-      <input type="hidden" name="colore_principale" id="mail_colore_principale">
-      <input type="hidden" name="stile_maglia" id="mail_stile_maglia">
-      <input type="hidden" name="note" id="mail_note">
-      <input type="file" id="mail_attachment" name="attachment" accept="image/png">
      </form>
     </div>
    </details>
@@ -1726,86 +1714,60 @@ document.getElementById('headerLogo').addEventListener('error',()=>{
 
 document.getElementById('quoteForm').addEventListener('submit',async e=>{
   e.preventDefault();
-
-  const submitButton=e.target.querySelector('[type="submit"]');
-  const oldLabel=submitButton?.textContent;
-  if(submitButton){
-    submitButton.disabled=true;
-    submitButton.textContent='PREPARAZIONE BOZZA PNG…';
-  }
+  const form=e.currentTarget;
+  const button=form.querySelector('[type="submit"]');
+  const previous=button.textContent;
+  button.disabled=true;
+  button.textContent='PREPARAZIONE BOZZA…';
 
   try{
+    if(!realKit){ throw new Error('Kit 3D non ancora caricato.'); }
     controls.update();
     renderer.render(scene,camera);
 
-    const previewBlob=await new Promise((resolve,reject)=>{
-      renderer.domElement.toBlob(
-        blob=>blob ? resolve(blob) : reject(new Error('Impossibile creare il PNG')),
-        'image/png',
-        1
-      );
+    const png=await new Promise((resolve,reject)=>{
+      renderer.domElement.toBlob(blob=>{
+        if(blob) resolve(blob);
+        else reject(new Error('Il PNG non è stato generato.'));
+      },'image/png');
     });
-
     const team=(document.getElementById('team').value||'kit').trim();
-    const safeTeam=team.replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'') || 'kit';
-    const previewFile=new File(
-      [previewBlob],
-      `bozza-nutria-${safeTeam}.png`,
-      {type:'image/png'}
-    );
+    const safeTeam=team.replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'')||'kit';
+    const pngFile=new File([png],`bozza-nutria-${safeTeam}.png`,{type:'image/png'});
 
-    // Compilazione form nascosto verso endpoint standard FormSubmit: è il flusso
-    // più stabile per l'invio con allegato PNG.
-    document.getElementById('mail_subject').value='Nuova bozza kit Nutria - '+team;
-    document.getElementById('mail_replyto').value=document.getElementById('email').value;
-    document.getElementById('mail_nome').value=document.getElementById('name').value;
-    document.getElementById('mail_squadra').value=team;
-    document.getElementById('mail_email').value=document.getElementById('email').value;
-    document.getElementById('mail_quantita').value=document.getElementById('qty').value;
-    document.getElementById('mail_nome_maglia').value=document.getElementById('playerName')?.value||'';
-    document.getElementById('mail_numero_maglia').value=document.getElementById('playerNumber')?.value||'';
-    document.getElementById('mail_colore_principale').value=chosenColor;
-    document.getElementById('mail_stile_maglia').value=currentPattern;
-    document.getElementById('mail_note').value=document.getElementById('notes').value;
+    // Nome, Email e Long text sono i tre campi del form pubblicato nel pannello.
+    document.getElementById('fsName').value=document.getElementById('name').value.trim();
+    document.getElementById('fsEmail').value=document.getElementById('email').value.trim();
+    document.getElementById('fsMessage').value=[
+      'BOZZA PRELIMINARE · NUTRIA SPORTSWEAR',
+      'Referente: '+document.getElementById('name').value.trim(),
+      'Squadra: '+team,
+      'Email: '+document.getElementById('email').value.trim(),
+      'Quantità: '+document.getElementById('qty').value,
+      'Nome maglia: '+(document.getElementById('playerName')?.value||''),
+      'Numero maglia: '+(document.getElementById('playerNumber')?.value||''),
+      'Colore principale: '+chosenColor,
+      'Pattern maglia: '+currentPattern,
+      'Colore pantaloncini: '+shortsColor,
+      'Note: '+document.getElementById('notes').value,
+      'PNG generato: '+pngFile.name
+    ].join('\n');
 
-    const attachmentInput=document.getElementById('mail_attachment');
-    const dt=new DataTransfer();
-    dt.items.add(previewFile);
-    attachmentInput.files=dt.files;
+    // Prova di upload nativo. La presenza effettiva dell'allegato va
+    // verificata nella submission: FormSubmit.io non documenta qui l'inoltro PNG via mail.
+    const transfer=new DataTransfer();
+    transfer.items.add(pngFile);
+    document.getElementById('fsAttachment').files=transfer.files;
 
-    if(submitButton) submitButton.textContent='INVIO BOZZA…';
-
-    const hiddenForm=document.getElementById('quoteMailForm');
-    const iframe=document.getElementById('quoteSubmitFrame');
-
-    await new Promise((resolve,reject)=>{
-      let settled=false;
-      const timer=setTimeout(()=>{
-        if(settled) return;
-        settled=true;
-        reject(new Error('Timeout invio bozza'));
-      },15000);
-
-      iframe.onload=()=>{
-        if(settled) return;
-        settled=true;
-        clearTimeout(timer);
-        resolve();
-      };
-
-      hiddenForm.submit();
-    });
-
-    alert('Bozza inviata! Abbiamo ricevuto l’anteprima PNG e i dati del progetto. Ti contatteremo per sviluppare e confermare la versione grafica definitiva.');
-    e.target.reset();
+    button.textContent='INVIO AL MODULO…';
+    // Il browser apre la risposta di FormSubmit.io: non dichiariamo
+    // che la mail sia arrivata senza conferma del server.
+    form.submit();
   }catch(error){
-    console.error(error);
-    alert('Non è stato possibile inviare la bozza. Riprova tra poco.');
-  }finally{
-    if(submitButton){
-      submitButton.disabled=false;
-      submitButton.textContent=oldLabel||'INVIA LA BOZZA A NUTRIA';
-    }
+    console.error('Invio bozza:',error);
+    alert('Non riesco a preparare il PNG della bozza: '+error.message);
+    button.disabled=false;
+    button.textContent=previous;
   }
 });
 
