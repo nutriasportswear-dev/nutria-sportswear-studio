@@ -875,7 +875,8 @@ function rebuildShortsBranding(){
   const px=center.x-size.x*.20+(nutriaShortsX/100)*size.x*.08;
   const w=size.x*.18*nutriaShortsScale;
   const h=Math.min(w/Math.max(aspect,.2),size.y*.14*nutriaShortsScale);
-  const py=box.min.y + size.y*.14 + (nutriaShortsY/100)*size.y*.06;
+  // Centro calcolato sull'orlo reale: il bordo inferiore del logo resta appena sopra il fondo pantaloncino.
+  const py=box.min.y + h*.52 + size.y*.015 + (nutriaShortsY/100)*size.y*.04;
 
   // Ancoraggio frontale stabile: evita che il logo sparisca o risalga.
   nutriaShortsLogo=makeFrontBBoxPlaneOnMesh(
@@ -904,7 +905,8 @@ function rebuildShortsNumber(){
   const px=center.x+size.x*.20;
   const w=size.x*.13;
   const h=size.y*.18;
-  const py=box.min.y + size.y*.14;
+  // Anche il numero viene allineato all'orlo reale, sulla gamba opposta.
+  const py=box.min.y + h*.52 + size.y*.015;
 
   // Ancoraggio frontale stabile: posizione precisa e sempre visibile.
   shortsNumberMesh=makeFrontBBoxPlaneOnMesh(
@@ -1253,7 +1255,7 @@ gltfLoader.load(
       try{ if(nutriaLogoTexture) rebuildShortsBranding(); }catch(err){ console.warn(err); }
       try{ updateBackPrint(); }catch(err){ console.warn(err); }
     },150);
-    console.log('✓ NUTRIA KIT 3D CARICATO');
+    console.log('✓ NUTRIA KIT 3D CARICATO · V6.33 SHORTS HEM ALIGN');
   },
   xhr=>{
     if(xhr.lengthComputable && xhr.total>0){
