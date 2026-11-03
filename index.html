@@ -138,6 +138,11 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 .section-body>.field:first-child{margin-top:10px!important}
 @media(max-width:600px){.quick-nav{grid-template-columns:repeat(2,1fr);position:static}.quick-nav button{min-height:44px}.field-badge{position:static;display:inline-block;margin-bottom:8px}}
 
+
+.draft-note{display:grid;gap:5px;padding:12px 13px;margin:0 0 14px;border:1px solid #5f4b12;border-radius:11px;background:#19160a}
+.draft-note b{color:#f0c945;font-size:11px;letter-spacing:.08em}
+.draft-note span{color:#c8cbc6;font-size:11px;line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -157,34 +162,34 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
 <main>
  <section class="intro">
   <div class="eyebrow">Personalizza la tua divisa</div>
-  <h1>IL TUO KIT.<br><span style="color:var(--gold)">LE TUE REGOLE.</span></h1>
-  <p>Personalizza il tuo kit: scegli colori e template della maglia, modifica colletto, maniche, pantaloncini e calzettoni, aggiungi stemma, nome e numero.</p>
+  <h1>CREA IL TUO KIT.<br><span style="color:var(--gold)">PARTI DALLA TUA IDEA.</span></h1>
+  <p>Configura una prima bozza del tuo kit e inviaci la tua idea. Nutria Sportswear svilupperà con te il progetto definitivo prima della produzione.</p>
  </section>
 
  <div class="layout">
   <section class="viewer">
-   <div class="viewer-top"><span id="productTitle">KIT COMPLETO · ANTEPRIMA 3D</span><span>DRAG / RUOTA</span></div>
+   <div class="viewer-top"><span id="productTitle">ANTEPRIMA KIT 3D</span><span>DRAG / RUOTA</span></div>
    <div id="stage">
     <div id="loading" class="loading">CARICAMENTO KIT 3D…</div>
     <div class="hint">Trascina per ruotare · rotella per zoom</div>
    </div>
    <div style="padding:14px 18px;border-top:1px solid var(--line)">
-    <button id="downloadPreview" style="width:100%">↓ GENERA ANTEPRIMA KIT</button>
+    <button id="downloadPreview" style="width:100%">↓ SCARICA BOZZA PNG</button>
    </div>
   </section>
 
   <section class="controls">
-   <div class="controls-head"><div class="controls-head-copy"><div class="eyebrow">NUTRIA KIT STUDIO</div><h2>Personalizza il kit</h2><p class="sub">Apri solo la sezione che ti serve. Le modifiche vengono mostrate subito sul modello 3D.</p></div></div>
+   <div class="controls-head"><div class="controls-head-copy"><div class="eyebrow">CONFIGURA LA TUA BOZZA</div><h2>Personalizza il kit</h2><p class="sub">Scegli stile, colori, nome, numero, stemma e sponsor.</p></div></div>
 
    <nav class="quick-nav" aria-label="Navigazione configuratore">
-    <button type="button" data-jump="designSection" class="active"><strong>1 · Design</strong><span>Colori e pattern</span></button>
-    <button type="button" data-jump="identitySection"><strong>2 · Nome / N°</strong><span>Retro maglia</span></button>
+    <button type="button" data-jump="designSection" class="active"><strong>1 · Design</strong><span>Colori e stile</span></button>
+    <button type="button" data-jump="identitySection"><strong>2 · Nome / N°</strong><span>Personalizzazione</span></button>
     <button type="button" data-jump="logosSection"><strong>3 · Loghi</strong><span>Stemma e sponsor</span></button>
-    <button type="button" data-jump="quoteSection"><strong>4 · Preventivo</strong><span>Invia progetto</span></button>
+    <button type="button" data-jump="quoteSection"><strong>4 · Invia</strong><span>Invia la bozza</span></button>
    </nav>
 
    <details class="control-section" id="designSection" open>
-    <summary><span class="step-dot">1</span><span><b>Design del kit</b><small>Vista, colori, template e dettagli</small></span></summary>
+    <summary><span class="step-dot">1</span><span><b>Design del kit</b><small>Vista, colori e stile</small></span></summary>
     <div class="section-body">
      <div class="field compact-field">
       <span class="field-badge">Vista 3D</span>
@@ -197,7 +202,6 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
      </div>
 
      <div class="section-kicker">Maglia</div>
-     <div class="help-box"><b>MAGLIA</b><span>Scegli colore, pattern e dettagli della maglia. Questi comandi non spostano loghi, nome o numero.</span></div>
      <div class="field compact-field">
       <span class="field-badge">Maglia</span>
       <label>COLORE PRINCIPALE</label>
@@ -220,7 +224,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
      </div>
 
      <div class="field compact-field">
-      <label>TEMPLATE MAGLIA + PANTALONCINO</label>
+      <label>STILE MAGLIA</label>
       <div class="products pattern-grid" style="grid-template-columns:repeat(2,1fr)">
        <button class="active" data-pattern="solid">Tinta unita</button><button data-pattern="vertical">Righe verticali</button>
        <button data-pattern="horizontal">Righe orizzontali</button><button data-pattern="diagonal">Righe diagonali</button>
@@ -243,8 +247,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
       </div>
      </div>
 
-     <div class="section-kicker">Dettagli kit</div>
-     <div class="help-box"><b>PANTALONCINI</b><span>Il pantaloncino usa una grafica dedicata da shorts: bande laterali, orli e inserti. Non copia il pattern completo della maglia.</span></div>
+     <div class="section-kicker">Colori del kit</div>
      <div class="field compact-field">
       <span class="field-badge">Kit</span>
       <label>COLORI DETTAGLI</label>
@@ -259,9 +262,8 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
    </details>
 
    <details class="control-section" id="identitySection">
-    <summary><span class="step-dot">2</span><span><b>Nome e numero</b><small>Testo, font e regolazioni retro maglia</small></span></summary>
+    <summary><span class="step-dot">2</span><span><b>Nome e numero</b><small>Personalizza il retro</small></span></summary>
     <div class="section-body">
-     <div class="help-box"><b>RETRO</b><span>Nome e numero modificano il retro della maglia. Il numero viene riutilizzato automaticamente anche sul pantaloncino.</span></div>
      <div class="field compact-field">
       <span class="field-badge">Retro maglia</span>
       <div class="name-number-row"><input id="playerName" type="text" maxlength="18" value="ROSSI" placeholder="NOME"><input id="playerNumber" type="text" maxlength="2" value="10" placeholder="10"></div>
@@ -287,10 +289,8 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
    </details>
 
    <details class="control-section" id="logosSection">
-    <summary><span class="step-dot">3</span><span><b>Loghi e sponsor</b><small>Stemma squadra e sponsor personalizzati</small></span></summary>
+    <summary><span class="step-dot">3</span><span><b>Loghi e sponsor</b><small>Carica i tuoi file</small></span></summary>
     <div class="section-body">
-     <div class="help-box"><b>LOGHI</b><span>Nutria resta fisso. Qui puoi caricare solo stemma squadra e sponsor personalizzati.</span></div>
-     <div class="fixed-brand-note"><b>Nutria Sportswear</b><span>Logo tecnico fisso su maglia e pantaloncino. Posizione e dimensione non modificabili.</span></div>
 
      <div class="field compact-field">
       <label>STEMMA SQUADRA · LATO CUORE</label>
@@ -319,24 +319,22 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
    </details>
 
    <details class="control-section" id="quoteSection">
-    <summary><span class="step-dot">4</span><span><b>Richiedi un preventivo</b><small>Invia il progetto a Nutria Sportswear</small></span></summary>
+    <summary><span class="step-dot">4</span><span><b>Invia la tua bozza</b><small>Riceveremo anteprima e dati del progetto</small></span></summary>
     <div class="section-body">
-     <div class="help-box"><b>ULTIMO PASSO</b><span>Inserisci i tuoi contatti e le note. Il configuratore non modifica più il kit in questa sezione.</span></div>
-     <form id="quoteForm">
+     <div class="draft-note"><b>BOZZA NON DEFINITIVA</b><span>L’anteprima serve per comunicarci la tua idea. Dopo l’invio, Nutria Sportswear svilupperà e condividerà con te il progetto grafico definitivo prima della produzione.</span></div>
+     <form id="quoteForm" enctype="multipart/form-data">
       <div class="two-col"><input required id="name" type="text" placeholder="Nome referente"><input required id="team" type="text" placeholder="Squadra / società"></div>
       <div class="two-col"><input required id="email" type="email" placeholder="Email"><input id="qty" type="number" min="1" value="10" placeholder="Quantità"></div>
-      <textarea id="notes" placeholder="Taglie, colori, scadenza, note..."></textarea>
-      <button class="primary" type="submit">INVIA RICHIESTA</button>
+      <textarea id="notes" placeholder="Note, esigenze, quantità, scadenze..."></textarea>
+      <button class="primary" type="submit">INVIA BOZZA A NUTRIA</button>
      </form>
     </div>
    </details>
-
-   <div class="notice">Il logo tecnico Nutria è fisso e non viene modificato dai colori del kit.</div>
   </section>
  </div>
 </main>
 
-<footer>© Nutria Sportswear · Configuratore 3D. Le immagini caricate restano nel browser durante la sessione.</footer>
+<footer>© Nutria Sportswear · La configurazione creata online è una bozza indicativa e non costituisce il progetto grafico definitivo.</footer>
 
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js"}}
@@ -1681,35 +1679,74 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
   e.preventDefault();
 
   const submitButton=e.target.querySelector('[type="submit"]');
-  if(submitButton) submitButton.disabled=true;
+  const oldLabel=submitButton?.textContent;
+  if(submitButton){
+    submitButton.disabled=true;
+    submitButton.textContent='PREPARAZIONE BOZZA PNG…';
+  }
 
   try{
-    const response=await fetch('https://formsubmit.co/ajax/nutriasportswear@gmail.com',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({
-        _subject:'Richiesta preventivo Nutria Sportswear - '+document.getElementById('team').value,
-        _replyto:document.getElementById('email').value,
-        nome:document.getElementById('name').value,
-        squadra:document.getElementById('team').value,
-        email:document.getElementById('email').value,
-        prodotto:currentView,
-        colore:chosenColor,
-        quantita:document.getElementById('qty').value,
-        note:document.getElementById('notes').value
-      })
+    // Render della vista 3D attuale e conversione in PNG.
+    controls.update();
+    renderer.render(scene,camera);
+
+    const previewBlob=await new Promise((resolve,reject)=>{
+      renderer.domElement.toBlob(
+        blob=>blob ? resolve(blob) : reject(new Error('Impossibile creare il PNG')),
+        'image/png',
+        1
+      );
     });
 
-    const data=await response.json();
-    if(!response.ok || data.success===false || data.success==='false') throw new Error(data.message||'Invio non riuscito');
+    const team=(document.getElementById('team').value||'kit').trim();
+    const safeTeam=team.replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'') || 'kit';
+    const previewFile=new File(
+      [previewBlob],
+      `bozza-nutria-${safeTeam}.png`,
+      {type:'image/png'}
+    );
 
-    alert('Richiesta inviata! Grazie per aver scelto Nutria Sportswear.');
+    const formData=new FormData();
+    formData.append('_subject','Nuova bozza kit Nutria - '+team);
+    formData.append('_replyto',document.getElementById('email').value);
+    formData.append('_template','table');
+    formData.append('stato_progetto','BOZZA NON DEFINITIVA');
+    formData.append('nome',document.getElementById('name').value);
+    formData.append('squadra',team);
+    formData.append('email',document.getElementById('email').value);
+    formData.append('quantita',document.getElementById('qty').value);
+    formData.append('nome_maglia',document.getElementById('playerName')?.value||'');
+    formData.append('numero_maglia',document.getElementById('playerNumber')?.value||'');
+    formData.append('colore_principale',chosenColor);
+    formData.append('stile_maglia',currentPattern);
+    formData.append('note',document.getElementById('notes').value);
+    formData.append('attachment',previewFile,previewFile.name);
+
+    if(submitButton) submitButton.textContent='INVIO BOZZA…';
+
+    const response=await fetch('https://formsubmit.co/ajax/nutriasportswear@gmail.com',{
+      method:'POST',
+      headers:{'Accept':'application/json'},
+      body:formData
+    });
+
+    let data={};
+    try{ data=await response.json(); }catch(_){}
+
+    if(!response.ok || data.success===false || data.success==='false'){
+      throw new Error(data.message||'Invio non riuscito');
+    }
+
+    alert('Bozza inviata! Nutria Sportswear ha ricevuto l’anteprima PNG e i dati del progetto. Ti contatteremo per sviluppare la versione definitiva.');
     e.target.reset();
   }catch(error){
     console.error(error);
-    alert('Non è stato possibile inviare la richiesta. Riprova tra poco.');
+    alert('Non è stato possibile inviare la bozza. Riprova tra poco.');
   }finally{
-    if(submitButton) submitButton.disabled=false;
+    if(submitButton){
+      submitButton.disabled=false;
+      submitButton.textContent=oldLabel||'INVIA BOZZA A NUTRIA';
+    }
   }
 });
 
@@ -1719,7 +1756,7 @@ document.getElementById('downloadPreview').addEventListener('click',()=>{
   try{
     const image=renderer.domElement.toDataURL('image/png');
     const link=document.createElement('a');
-    link.download='nutria-kit-anteprima.png';
+    link.download='bozza-nutria-kit.png';
     link.href=image;
     document.body.appendChild(link);
     link.click();
