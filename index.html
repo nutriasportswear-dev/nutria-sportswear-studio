@@ -174,7 +174,7 @@ font-size:11px;font-weight:700;letter-spacing:.7px;white-space:nowrap}
     <div class="hint">Trascina per ruotare · rotella per zoom</div>
    </div>
    <div style="padding:14px 18px;border-top:1px solid var(--line)">
-    <button id="downloadPreview" style="width:100%">↓ SCARICA LA TUA BOZZA PNG</button>
+    <button id="downloadPreview" style="width:100%">↓ SCARICA BOZZA PNG · 4 VISTE</button>
    </div>
   </section>
 
@@ -1712,6 +1712,131 @@ document.getElementById('headerLogo').addEventListener('error',()=>{
   document.getElementById('headerFallback').style.display='grid';
 });
 
+// Crea UN PNG con quattro viste fisse del kit (fronte, retro e due lati).
+// Un PNG non è interattivo, ma il cliente e Nutria vedono tutto il giro della divisa.
+// Si usa un render target off-screen: nessun cambiamento alla vista 3D dell'utente.
+function creaBozzaQuattroViste(){
+  if(!realKit) throw new Error('Il modello 3D non è ancora caricato.');
+
+  const W=1340, H=1570;
+  const board=document.createElement('canvas');
+  board.width=W;
+  board.height=H;
+  const ctx=board.getContext('2d');
+  if(!ctx) throw new Error('Impossibile creare il documento PNG.');
+
+  const bg='#0b0d0f', card='#15191b', gold='#d7a928';
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=gold;
+  ctx.fillRect(42,48,7,66);
+  ctx.textAlign='left';
+  ctx.fillStyle='#f8f8f4';
+  ctx.font='bold 37px Arial, sans-serif';
+  ctx.fillText('NUTRIA SPORTSWEAR',72,81);
+  ctx.font='bold 19px Arial, sans-serif';
+  ctx.fillStyle=gold;
+  ctx.fillText('BOZZA DEL KIT  ·  4 VISTE',73,113);
+
+  const team=(document.getElementById('team')?.value||'').trim();
+  if(team){
+    ctx.fillStyle='#c3c9c8';
+    ctx.font='20px Arial, sans-serif';
+    const shortTeam=team.length>38 ? team.slice(0,35)+'…' : team;
+    ctx.textAlign='right';
+    ctx.fillText(shortTeam,W-42,85);
+    ctx.textAlign='left';
+  }
+
+  const panelW=609, panelH=657, x0=42, y0=154, gapX=38, gapY=26;
+  const frameW=564, frameH=570;
+  const orientations=[
+    {label:'FRONTE',      dir:[0,0,1]},
+    {label:'RETRO',       dir:[0,0,-1]},
+    {label:'LATO DESTRO', dir:[-1,0,0]},
+    {label:'LATO SINISTRO',dir:[1,0,0]}
+  ];
+
+  const savedView=currentView;
+  const prevTarget=renderer.getRenderTarget();
+  const renderTarget=new THREE.WebGLRenderTarget(frameW,frameH,{depthBuffer:true,stencilBuffer:false});
+  const buffer=new Uint8Array(frameW*frameH*4);
+  const frame=document.createElement('canvas');
+  frame.width=frameW;
+  frame.height=frameH;
+  const frameCtx=frame.getContext('2d');
+  const cam=new THREE.PerspectiveCamera(35,frameW/frameH,.01,100);
+  // Framing costante: ruota soltanto la camera attorno al kit.
+  const distance=6.8;
+
+  try{
+    // Mostra sempre il kit intero nel PNG, anche se sul sito è selezionata 'Maglia'.
+    currentView='Kit';
+    updateView();
+    realKit.updateMatrixWorld(true);
+
+    orientations.forEach((view,index)=>{
+      const col=index%2, row=Math.floor(index/2);
+      const px=x0+col*(panelW+gapX);
+      const py=y0+row*(panelH+gapY);
+      ctx.fillStyle=card;
+      ctx.fillRect(px,py,panelW,panelH);
+      ctx.strokeStyle='#333c3e';
+      ctx.lineWidth=2;
+      ctx.strokeRect(px+1,py+1,panelW-2,panelH-2);
+      ctx.fillStyle=gold;
+      ctx.font='bold 21px Arial, sans-serif';
+      ctx.fillText(view.label,px+22,py+34);
+      ctx.font='16px Arial, sans-serif';
+      ctx.fillStyle='#aab1b2';
+      ctx.textAlign='right';
+      ctx.fillText((index+1)+'/4',px+panelW-23,py+34);
+      ctx.textAlign='left';
+
+      cam.position.set(
+        view.dir[0]*distance,
+        view.dir[1]*distance,
+        view.dir[2]*distance
+      );
+      cam.lookAt(0,0,0);
+      cam.updateProjectionMatrix();
+      renderer.setRenderTarget(renderTarget);
+      renderer.clear(true,true,true);
+      renderer.render(scene,cam);
+      renderer.readRenderTargetPixels(renderTarget,0,0,frameW,frameH,buffer);
+
+      // I pixel WebGL hanno origine in basso: capovolge le righe per il canvas 2D.
+      const img=frameCtx.createImageData(frameW,frameH);
+      const stride=frameW*4;
+      for(let y=0;y<frameH;y++){
+        img.data.set(buffer.subarray(y*stride,(y+1)*stride),(frameH-1-y)*stride);
+      }
+      frameCtx.putImageData(img,0,0);
+      ctx.drawImage(frame,px+(panelW-frameW)/2,py+56);
+    });
+  }finally{
+    renderer.setRenderTarget(prevTarget);
+    renderTarget.dispose();
+    currentView=savedView;
+    updateView();
+    controls.update();
+    renderer.render(scene,camera);
+  }
+
+  ctx.fillStyle='#d7d9d7';
+  ctx.font='18px Arial, sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('ANTEPRIMA INDICATIVA  ·  IL PROGETTO GRAFICO DEFINITIVO SARÀ CONCORDATO CON NUTRIA SPORTSWEAR',W/2,H-41);
+
+  return board;
+}
+
+function canvasToPngBlob(canvas){
+  return new Promise((resolve,reject)=>{
+    canvas.toBlob(blob=>blob ? resolve(blob) : reject(new Error('Impossibile generare il PNG completo.')),'image/png');
+  });
+}
+
 document.getElementById('quoteForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const form=e.currentTarget;
@@ -1722,18 +1847,11 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
 
   try{
     if(!realKit){ throw new Error('Kit 3D non ancora caricato.'); }
-    controls.update();
-    renderer.render(scene,camera);
-
-    const png=await new Promise((resolve,reject)=>{
-      renderer.domElement.toBlob(blob=>{
-        if(blob) resolve(blob);
-        else reject(new Error('Il PNG non è stato generato.'));
-      },'image/png');
-    });
+    const pngCanvas=creaBozzaQuattroViste();
+    const png=await canvasToPngBlob(pngCanvas);
     const team=(document.getElementById('team').value||'kit').trim();
     const safeTeam=team.replace(/[^a-z0-9_-]+/gi,'-').replace(/^-+|-+$/g,'')||'kit';
-    const pngFile=new File([png],`bozza-nutria-${safeTeam}.png`,{type:'image/png'});
+    const pngFile=new File([png],`bozza-nutria-${safeTeam}-4-viste.png`,{type:'image/png'});
 
     // Nome, Email e Long text sono i tre campi del form pubblicato nel pannello.
     document.getElementById('fsName').value=document.getElementById('name').value.trim();
@@ -1750,7 +1868,7 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
       'Pattern maglia: '+currentPattern,
       'Colore pantaloncini: '+shortsColor,
       'Note: '+document.getElementById('notes').value,
-      'PNG generato: '+pngFile.name
+      'PNG quattro viste (fronte/retro/lati): '+pngFile.name
     ].join('\n');
 
     // Prova di upload nativo. La presenza effettiva dell'allegato va
@@ -1771,20 +1889,21 @@ document.getElementById('quoteForm').addEventListener('submit',async e=>{
   }
 });
 
-document.getElementById('downloadPreview').addEventListener('click',()=>{
-  controls.update();
-  renderer.render(scene,camera);
+document.getElementById('downloadPreview').addEventListener('click',async()=>{
   try{
-    const image=renderer.domElement.toDataURL('image/png');
+    const pngCanvas=creaBozzaQuattroViste();
+    const png=await canvasToPngBlob(pngCanvas);
+    const url=URL.createObjectURL(png);
     const link=document.createElement('a');
-    link.download='bozza-nutria-kit.png';
-    link.href=image;
+    link.download='bozza-nutria-kit-4-viste.png';
+    link.href=url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(error){
     console.error(error);
-    alert('Non è stato possibile generare l’anteprima.');
+    alert('Non è stato possibile generare la bozza a quattro viste.');
   }
 });
 
